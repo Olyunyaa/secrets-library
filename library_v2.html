@@ -935,8 +935,9 @@ body {
       const card = mk('article', 'card');
       card.style.animationDelay = Math.min(i, 20) * 35 + 'ms';
 
-      const displayCat = activeCat && (p.category || []).includes(activeCat) ? activeCat : (p.category || [])[0];
-      const color = displayCat ? (CAT_COLORS[displayCat] || '#2a9d93') : '#2a9d93';
+      const cats = p.category || [];
+      const primaryCat = activeCat && cats.includes(activeCat) ? activeCat : cats[0];
+      const color = primaryCat ? (CAT_COLORS[primaryCat] || '#2a9d93') : '#2a9d93';
       card.style.setProperty('--stripe-color', color);
 
       const thesesHtml = (p.key_theses || [])
@@ -951,7 +952,10 @@ body {
           '<div class="card-title">' + esc(p.generated_title || 'Без заголовка') + '</div>' +
           '<span class="card-date">' + fmtDate(p.date) + '</span>' +
         '</div>' +
-        (displayCat ? '<button class="card-cat-badge" data-cat="' + esc(displayCat) + '">' + esc(displayCat) + '</button> ' : '') +
+        cats.map(function(c) {
+          var catColor = CAT_COLORS[c] || '#2a9d93';
+          return '<button class="card-cat-badge" data-cat="' + esc(c) + '" style="background:' + catColor + '1a;border-color:' + catColor + ';color:' + catColor + '">' + esc(c) + '</button>';
+        }).join(' ') +
         typeBadge +
         '<div class="card-topic">' + esc(p.topic || '') + '</div>' +
         (thesesHtml ? '<div class="card-theses">' + thesesHtml + '</div>' : '') +
@@ -975,11 +979,13 @@ body {
             '</a>'
           : '');
 
-      card.querySelector('.card-cat-badge')?.addEventListener('click', () => {
-        activeCat = displayCat;
-        activeSubCat = null;
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-        render();
+      card.querySelectorAll('.card-cat-badge').forEach(btn => {
+        btn.addEventListener('click', () => {
+          activeCat = btn.dataset.cat;
+          activeSubCat = null;
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+          render();
+        });
       });
 
       frag.appendChild(card);
