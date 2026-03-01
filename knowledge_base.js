@@ -103,7 +103,8 @@ const POSTS_DATA = [
     "views": 212,
     "forwards": 5,
     "category": [
-      "Путь предпринимателя"
+      "Путь предпринимателя",
+      "Внутрянка большого бизнеса"
     ],
     "matched_from_csv": false,
     "generated_title": "Цифры недели по соц сетям",
@@ -541,7 +542,8 @@ const POSTS_DATA = [
     "views": 187,
     "forwards": 1,
     "category": [
-      "Создание продукта"
+      "Создание продукта",
+      "Внутрянка большого бизнеса"
     ],
     "matched_from_csv": false,
     "generated_title": "Секреты Prosto. Новый образовательный продукт Prosto",
@@ -565,7 +567,8 @@ const POSTS_DATA = [
     "views": 193,
     "forwards": 1,
     "category": [
-      "Создание продукта"
+      "Создание продукта",
+      "Внутрянка большого бизнеса"
     ],
     "matched_from_csv": false,
     "generated_title": "Как обещала, отправляю эксклюзив 🔥",
@@ -611,7 +614,8 @@ const POSTS_DATA = [
     "views": 267,
     "forwards": 2,
     "category": [
-      "Соцсети и личный бренд"
+      "Соцсети и личный бренд",
+      "Внутрянка большого бизнеса"
     ],
     "matched_from_csv": false,
     "generated_title": "Введение или что за \"секреты\" мы будем обсуждать?",
@@ -826,7 +830,8 @@ const POSTS_DATA = [
     "views": 199,
     "forwards": 2,
     "category": [
-      "Создание продукта"
+      "Создание продукта",
+      "Маркетинг и продажи"
     ],
     "matched_from_csv": true,
     "match_similarity": 0.83,
@@ -1121,7 +1126,8 @@ const POSTS_DATA = [
     "views": 185,
     "forwards": 1,
     "category": [
-      "Создание продукта"
+      "Создание продукта",
+      "Маркетинг и продажи"
     ],
     "matched_from_csv": false,
     "generated_title": "Запуск третьего сезона клуба: цифры и победы",
@@ -1169,7 +1175,8 @@ const POSTS_DATA = [
     "views": 221,
     "forwards": 2,
     "category": [
-      "Создание продукта"
+      "Создание продукта",
+      "Маркетинг и продажи"
     ],
     "matched_from_csv": false,
     "generated_title": "Физический продукт: за и против",
@@ -1265,7 +1272,8 @@ const POSTS_DATA = [
     "views": 259,
     "forwards": 8,
     "category": [
-      "Маркетинг и продажи"
+      "Маркетинг и продажи",
+      "Внутрянка большого бизнеса"
     ],
     "matched_from_csv": false,
     "generated_title": "Воронка, которая покрыла мою зарплату в Google",
@@ -1455,7 +1463,8 @@ const POSTS_DATA = [
     "views": 191,
     "forwards": 2,
     "category": [
-      "Создание продукта"
+      "Создание продукта",
+      "Маркетинг и продажи"
     ],
     "matched_from_csv": false,
     "generated_title": "Перенос Флагмана",
@@ -1503,7 +1512,8 @@ const POSTS_DATA = [
     "views": 200,
     "forwards": 4,
     "category": [
-      "Маркетинг и продажи"
+      "Маркетинг и продажи",
+      "Соцсети и личный бренд"
     ],
     "matched_from_csv": false,
     "generated_title": "Старт челленджа по упаковке. Задание 1️⃣ Выбор социальной сети",
@@ -1527,7 +1537,8 @@ const POSTS_DATA = [
     "views": 194,
     "forwards": 1,
     "category": [
-      "Путь предпринимателя"
+      "Путь предпринимателя",
+      "Внутрянка большого бизнеса"
     ],
     "matched_from_csv": true,
     "match_similarity": 1,
@@ -1725,7 +1736,8 @@ const POSTS_DATA = [
     "views": 201,
     "forwards": 6,
     "category": [
-      "Создание продукта"
+      "Создание продукта",
+      "Маркетинг и продажи"
     ],
     "matched_from_csv": true,
     "match_similarity": 1,
@@ -1823,7 +1835,8 @@ const POSTS_DATA = [
     "views": 186,
     "forwards": 6,
     "category": [
-      "Создание продукта"
+      "Создание продукта",
+      "Маркетинг и продажи"
     ],
     "matched_from_csv": true,
     "match_similarity": 1,
@@ -2248,7 +2261,8 @@ const POSTS_DATA = [
     "views": 405,
     "forwards": 24,
     "category": [
-      "Создание продукта"
+      "Создание продукта",
+      "Маркетинг и продажи"
     ],
     "matched_from_csv": true,
     "match_similarity": 1,
@@ -2420,7 +2434,9 @@ const POSTS_DATA = [
     "views": 129,
     "forwards": 1,
     "category": [
-      "Создание продукта"
+      "Создание продукта",
+      "Внутрянка большого бизнеса",
+      "Маркетинг и продажи"
     ],
     "matched_from_csv": true,
     "match_similarity": 1,
@@ -2492,7 +2508,9 @@ const POSTS_DATA = [
     "views": 129,
     "forwards": 0,
     "category": [
-      "Создание продукта"
+      "Создание продукта",
+      "Внутрянка большого бизнеса",
+      "Маркетинг и продажи"
     ],
     "matched_from_csv": true,
     "match_similarity": 1,
@@ -2540,7 +2558,8 @@ const POSTS_DATA = [
     "views": 142,
     "forwards": 4,
     "category": [
-      "Создание продукта"
+      "Создание продукта",
+      "Деньги"
     ],
     "matched_from_csv": true,
     "match_similarity": 1,
@@ -2864,7 +2883,8 @@ const POSTS_DATA = [
     "forwards": 4,
     "category": [
       "Создание продукта",
-      "Кейсы"
+      "Кейсы",
+      "Маркетинг и продажи"
     ],
     "matched_from_csv": false,
     "generated_title": "Кейс Ксении: Как создать \"волшебный\" продукт 🧦 и получить огромное удовольствие.",
@@ -2938,7 +2958,8 @@ const POSTS_DATA = [
     "forwards": 2,
     "category": [
       "Деньги",
-      "Путь предпринимателя"
+      "Путь предпринимателя",
+      "Внутрянка большого бизнеса"
     ],
     "matched_from_csv": false,
     "generated_title": "Анализ доходов 2024",
@@ -3251,7 +3272,8 @@ const POSTS_DATA = [
     "views": 196,
     "forwards": 0,
     "category": [
-      "Создание продукта"
+      "Создание продукта",
+      "Маркетинг и продажи"
     ],
     "matched_from_csv": true,
     "match_similarity": 1,
@@ -3697,7 +3719,9 @@ const POSTS_DATA = [
     "views": 216,
     "forwards": 3,
     "category": [
-      "Создание продукта"
+      "Создание продукта",
+      "Внутрянка большого бизнеса",
+      "Маркетинг и продажи"
     ],
     "matched_from_csv": true,
     "match_similarity": 1,
@@ -3747,7 +3771,8 @@ const POSTS_DATA = [
     "views": 230,
     "forwards": 15,
     "category": [
-      "Создание продукта"
+      "Создание продукта",
+      "Маркетинг и продажи"
     ],
     "matched_from_csv": true,
     "match_similarity": 1,
@@ -3823,7 +3848,8 @@ const POSTS_DATA = [
     "views": 224,
     "forwards": 9,
     "category": [
-      "Соцсети и личный бренд"
+      "Соцсети и личный бренд",
+      "Внутрянка большого бизнеса"
     ],
     "matched_from_csv": true,
     "match_similarity": 1,
@@ -3923,7 +3949,8 @@ const POSTS_DATA = [
     "views": 171,
     "forwards": 2,
     "category": [
-      "Создание продукта"
+      "Создание продукта",
+      "Внутрянка большого бизнеса"
     ],
     "matched_from_csv": true,
     "match_similarity": 1,
@@ -3973,7 +4000,8 @@ const POSTS_DATA = [
     "views": 172,
     "forwards": 2,
     "category": [
-      "Создание продукта"
+      "Создание продукта",
+      "Маркетинг и продажи"
     ],
     "matched_from_csv": true,
     "match_similarity": 1,
@@ -4048,7 +4076,8 @@ const POSTS_DATA = [
     "views": 202,
     "forwards": 6,
     "category": [
-      "Создание продукта"
+      "Создание продукта",
+      "Маркетинг и продажи"
     ],
     "matched_from_csv": true,
     "match_similarity": 1,
@@ -4123,7 +4152,8 @@ const POSTS_DATA = [
     "views": 222,
     "forwards": 4,
     "category": [
-      "Соцсети и личный бренд"
+      "Соцсети и личный бренд",
+      "Внутрянка большого бизнеса"
     ],
     "matched_from_csv": true,
     "match_similarity": 1,
@@ -4466,7 +4496,9 @@ const POSTS_DATA = [
     "forwards": 3,
     "category": [
       "Создание продукта",
-      "Деньги"
+      "Деньги",
+      "Внутрянка большого бизнеса",
+      "Маркетинг и продажи"
     ],
     "matched_from_csv": true,
     "match_similarity": 1,
@@ -5023,7 +5055,8 @@ const POSTS_DATA = [
     "views": 138,
     "forwards": 3,
     "category": [
-      "Создание продукта"
+      "Создание продукта",
+      "Маркетинг и продажи"
     ],
     "matched_from_csv": true,
     "match_similarity": 1,
@@ -5048,7 +5081,8 @@ const POSTS_DATA = [
     "views": 119,
     "forwards": 0,
     "category": [
-      "Создание продукта"
+      "Создание продукта",
+      "Маркетинг и продажи"
     ],
     "matched_from_csv": true,
     "match_similarity": 1,
@@ -5244,7 +5278,8 @@ const POSTS_DATA = [
     "views": 81,
     "forwards": 0,
     "category": [
-      "Создание продукта"
+      "Создание продукта",
+      "Маркетинг и продажи"
     ],
     "matched_from_csv": true,
     "match_similarity": 1,
@@ -5344,7 +5379,8 @@ const POSTS_DATA = [
     "views": 111,
     "forwards": 2,
     "category": [
-      "Создание продукта"
+      "Создание продукта",
+      "Маркетинг и продажи"
     ],
     "matched_from_csv": true,
     "match_similarity": 0.88,
@@ -5369,7 +5405,8 @@ const POSTS_DATA = [
     "views": 116,
     "forwards": 1,
     "category": [
-      "Создание продукта"
+      "Создание продукта",
+      "Маркетинг и продажи"
     ],
     "matched_from_csv": true,
     "match_similarity": 1,
@@ -5394,7 +5431,8 @@ const POSTS_DATA = [
     "views": 127,
     "forwards": 2,
     "category": [
-      "Создание продукта"
+      "Создание продукта",
+      "Маркетинг и продажи"
     ],
     "matched_from_csv": true,
     "match_similarity": 1,
@@ -5495,7 +5533,8 @@ const POSTS_DATA = [
     "views": 99,
     "forwards": 0,
     "category": [
-      "Создание продукта"
+      "Создание продукта",
+      "Маркетинг и продажи"
     ],
     "matched_from_csv": true,
     "match_similarity": 1,
@@ -5595,7 +5634,8 @@ const POSTS_DATA = [
     "views": 126,
     "forwards": 0,
     "category": [
-      "Создание продукта"
+      "Создание продукта",
+      "Маркетинг и продажи"
     ],
     "matched_from_csv": true,
     "match_similarity": 1,
@@ -5620,7 +5660,8 @@ const POSTS_DATA = [
     "views": 128,
     "forwards": 0,
     "category": [
-      "Создание продукта"
+      "Создание продукта",
+      "Маркетинг и продажи"
     ],
     "matched_from_csv": true,
     "match_similarity": 1,
@@ -5889,7 +5930,8 @@ const POSTS_DATA = [
     "views": 116,
     "forwards": 1,
     "category": [
-      "Создание продукта"
+      "Создание продукта",
+      "Маркетинг и продажи"
     ],
     "matched_from_csv": true,
     "match_similarity": 1,
@@ -5914,7 +5956,8 @@ const POSTS_DATA = [
     "views": 111,
     "forwards": 1,
     "category": [
-      "Создание продукта"
+      "Создание продукта",
+      "Маркетинг и продажи"
     ],
     "matched_from_csv": true,
     "match_similarity": 1,
@@ -5987,7 +6030,9 @@ const POSTS_DATA = [
     "views": 153,
     "forwards": 9,
     "category": [
-      "Создание продукта"
+      "Создание продукта",
+      "Внутрянка большого бизнеса",
+      "Маркетинг и продажи"
     ],
     "matched_from_csv": true,
     "match_similarity": 1,
@@ -6012,7 +6057,8 @@ const POSTS_DATA = [
     "views": 141,
     "forwards": 7,
     "category": [
-      "Маркетинг и продажи"
+      "Маркетинг и продажи",
+      "Внутрянка большого бизнеса"
     ],
     "matched_from_csv": false,
     "generated_title": "PR. Коллаборации с мероприятиями, брендами, даже с headhunter у нас была, публикации. Померить эффективность тут сложно, и мы не особо пока вкладывались в развитие нашего пиара (и это наш косяк).",
@@ -6258,7 +6304,8 @@ const POSTS_DATA = [
     "views": 113,
     "forwards": 0,
     "category": [
-      "Создание продукта"
+      "Создание продукта",
+      "Внутрянка большого бизнеса"
     ],
     "matched_from_csv": true,
     "match_similarity": 1,
@@ -6283,7 +6330,8 @@ const POSTS_DATA = [
     "views": 133,
     "forwards": 0,
     "category": [
-      "Создание продукта"
+      "Создание продукта",
+      "Маркетинг и продажи"
     ],
     "matched_from_csv": true,
     "match_similarity": 1,
@@ -6427,7 +6475,8 @@ const POSTS_DATA = [
     "views": 111,
     "forwards": 0,
     "category": [
-      "Создание продукта"
+      "Создание продукта",
+      "Маркетинг и продажи"
     ],
     "matched_from_csv": true,
     "match_similarity": 1,
@@ -6525,7 +6574,8 @@ const POSTS_DATA = [
     "views": 104,
     "forwards": 0,
     "category": [
-      "Создание продукта"
+      "Создание продукта",
+      "Маркетинг и продажи"
     ],
     "matched_from_csv": true,
     "match_similarity": 1,
@@ -6550,7 +6600,8 @@ const POSTS_DATA = [
     "views": 110,
     "forwards": 1,
     "category": [
-      "Создание продукта"
+      "Создание продукта",
+      "Внутрянка большого бизнеса"
     ],
     "matched_from_csv": true,
     "match_similarity": 1,
@@ -6725,7 +6776,8 @@ const POSTS_DATA = [
     "views": 114,
     "forwards": 0,
     "category": [
-      "Маркетинг и продажи"
+      "Маркетинг и продажи",
+      "Внутрянка большого бизнеса"
     ],
     "matched_from_csv": true,
     "match_similarity": 1,
@@ -6948,7 +7000,8 @@ const POSTS_DATA = [
     "views": 143,
     "forwards": 3,
     "category": [
-      "Создание продукта"
+      "Создание продукта",
+      "Внутрянка большого бизнеса"
     ],
     "matched_from_csv": true,
     "match_similarity": 0.98,
@@ -7095,7 +7148,8 @@ const POSTS_DATA = [
     "views": 119,
     "forwards": 0,
     "category": [
-      "Маркетинг и продажи"
+      "Маркетинг и продажи",
+      "Внутрянка большого бизнеса"
     ],
     "matched_from_csv": false,
     "generated_title": "Пока эфир про личный бренд конвертируется, мы нашли огонь тему для черной пятницы",
@@ -7215,7 +7269,8 @@ const POSTS_DATA = [
     "views": 147,
     "forwards": 0,
     "category": [
-      "Маркетинг и продажи"
+      "Маркетинг и продажи",
+      "Внутрянка большого бизнеса"
     ],
     "matched_from_csv": true,
     "match_similarity": 1,
@@ -7311,7 +7366,8 @@ const POSTS_DATA = [
     "views": 147,
     "forwards": 1,
     "category": [
-      "Маркетинг и продажи"
+      "Маркетинг и продажи",
+      "Внутрянка большого бизнеса"
     ],
     "matched_from_csv": true,
     "match_similarity": 1,
@@ -7388,7 +7444,8 @@ const POSTS_DATA = [
     "views": 154,
     "forwards": 11,
     "category": [
-      "Маркетинг и продажи"
+      "Маркетинг и продажи",
+      "Внутрянка большого бизнеса"
     ],
     "matched_from_csv": true,
     "match_similarity": 1,
@@ -7721,7 +7778,8 @@ const POSTS_DATA = [
     "views": 147,
     "forwards": 6,
     "category": [
-      "Создание продукта"
+      "Создание продукта",
+      "Внутрянка большого бизнеса"
     ],
     "matched_from_csv": false,
     "generated_title": "Внутреннее исследование Prosto: Что продают другие бренды в качестве мини-продуктов",
@@ -7865,7 +7923,8 @@ const POSTS_DATA = [
     "views": 123,
     "forwards": 0,
     "category": [
-      "Создание продукта"
+      "Создание продукта",
+      "Маркетинг и продажи"
     ],
     "matched_from_csv": false,
     "generated_title": "Запуск продукта через платный веб",
@@ -7914,7 +7973,8 @@ const POSTS_DATA = [
     "views": 123,
     "forwards": 0,
     "category": [
-      "Маркетинг и продажи"
+      "Маркетинг и продажи",
+      "Внутрянка большого бизнеса"
     ],
     "matched_from_csv": false,
     "generated_title": "Average order value",
@@ -8175,7 +8235,8 @@ const POSTS_DATA = [
     "views": 233,
     "forwards": 1,
     "category": [
-      "Путь предпринимателя"
+      "Путь предпринимателя",
+      "Внутрянка большого бизнеса"
     ],
     "matched_from_csv": false,
     "subcategory": "Путь Тани",
@@ -8666,7 +8727,8 @@ const POSTS_DATA = [
     "views": 193,
     "forwards": 0,
     "category": [
-      "Путь предпринимателя"
+      "Путь предпринимателя",
+      "Внутрянка большого бизнеса"
     ],
     "matched_from_csv": false,
     "subcategory": "Путь Тани",
@@ -8975,7 +9037,8 @@ const POSTS_DATA = [
     "views": 220,
     "forwards": 2,
     "category": [
-      "Путь предпринимателя"
+      "Путь предпринимателя",
+      "Внутрянка большого бизнеса"
     ],
     "matched_from_csv": true,
     "match_similarity": 1,
@@ -9029,7 +9092,8 @@ const POSTS_DATA = [
     "views": 180,
     "forwards": 1,
     "category": [
-      "Путь предпринимателя"
+      "Путь предпринимателя",
+      "Внутрянка большого бизнеса"
     ],
     "matched_from_csv": true,
     "match_similarity": 1,
@@ -9217,7 +9281,8 @@ const POSTS_DATA = [
     "views": 151,
     "forwards": 0,
     "category": [
-      "Путь предпринимателя"
+      "Путь предпринимателя",
+      "Внутрянка большого бизнеса"
     ],
     "matched_from_csv": true,
     "match_similarity": 1,
@@ -9271,7 +9336,8 @@ const POSTS_DATA = [
     "views": 134,
     "forwards": 0,
     "category": [
-      "Путь предпринимателя"
+      "Путь предпринимателя",
+      "Внутрянка большого бизнеса"
     ],
     "matched_from_csv": true,
     "match_similarity": 1,
@@ -9325,7 +9391,8 @@ const POSTS_DATA = [
     "views": 130,
     "forwards": 1,
     "category": [
-      "Путь предпринимателя"
+      "Путь предпринимателя",
+      "Внутрянка большого бизнеса"
     ],
     "matched_from_csv": true,
     "match_similarity": 1,
@@ -9433,7 +9500,8 @@ const POSTS_DATA = [
     "views": 127,
     "forwards": 1,
     "category": [
-      "Путь предпринимателя"
+      "Путь предпринимателя",
+      "Внутрянка большого бизнеса"
     ],
     "matched_from_csv": true,
     "match_similarity": 1,
@@ -9564,7 +9632,8 @@ const POSTS_DATA = [
     "views": 159,
     "forwards": 1,
     "category": [
-      "Путь предпринимателя"
+      "Путь предпринимателя",
+      "Внутрянка большого бизнеса"
     ],
     "matched_from_csv": false,
     "subcategory": "Путь Тани",
@@ -9983,7 +10052,8 @@ const POSTS_DATA = [
     "views": 202,
     "forwards": 2,
     "category": [
-      "Путь предпринимателя"
+      "Путь предпринимателя",
+      "Внутрянка большого бизнеса"
     ],
     "matched_from_csv": true,
     "match_similarity": 1,
@@ -10091,7 +10161,8 @@ const POSTS_DATA = [
     "views": 203,
     "forwards": 1,
     "category": [
-      "Путь предпринимателя"
+      "Путь предпринимателя",
+      "Внутрянка большого бизнеса"
     ],
     "matched_from_csv": true,
     "match_similarity": 1,
@@ -10360,7 +10431,8 @@ const POSTS_DATA = [
     "views": 152,
     "forwards": 0,
     "category": [
-      "Путь предпринимателя"
+      "Путь предпринимателя",
+      "Внутрянка большого бизнеса"
     ],
     "matched_from_csv": true,
     "match_similarity": 1,
@@ -10526,7 +10598,6 @@ const POSTS_DATA = [
       "Кейсы"
     ],
     "matched_from_csv": false,
-    "subcategory": "Путь Тани",
     "year": "2025",
     "generated_title": "Кейс Кати: от упаковки до 2000+ евро дополнительного дохода и своей книги",
     "topic": "История трансформации Кати из идеи карьерного проекта в личный бренд с менторством для стартапов, воркшопами и работой над книгой.",
@@ -10576,7 +10647,8 @@ const POSTS_DATA = [
     "views": 121,
     "forwards": 0,
     "category": [
-      "Путь предпринимателя"
+      "Путь предпринимателя",
+      "Внутрянка большого бизнеса"
     ],
     "matched_from_csv": true,
     "match_similarity": 1,
@@ -10657,7 +10729,8 @@ const POSTS_DATA = [
     "views": 78,
     "forwards": 0,
     "category": [
-      "Путь предпринимателя"
+      "Путь предпринимателя",
+      "Внутрянка большого бизнеса"
     ],
     "matched_from_csv": true,
     "match_similarity": 1,
@@ -10684,7 +10757,8 @@ const POSTS_DATA = [
     "views": 91,
     "forwards": 0,
     "category": [
-      "Путь предпринимателя"
+      "Путь предпринимателя",
+      "Внутрянка большого бизнеса"
     ],
     "matched_from_csv": true,
     "match_similarity": 1,
@@ -10715,7 +10789,6 @@ const POSTS_DATA = [
       "Кейсы"
     ],
     "matched_from_csv": false,
-    "subcategory": "Путь Тани",
     "year": "2025",
     "generated_title": "Кейс Юли: от идеи до первого бизнес-контракта.",
     "topic": "История участницы клуба, которая после переезда в США за год выстроила личный бренд в LinkedIn, провела карьерные консультации и заключила первый бизнес-контракт с технической компанией в качестве адвайзера.",
@@ -11039,7 +11112,6 @@ const POSTS_DATA = [
       "Кейсы"
     ],
     "matched_from_csv": false,
-    "subcategory": "Путь Тани",
     "year": "2025",
     "generated_title": "Кейс Нади: от выгорания до +25% к зарплате",
     "topic": "История участницы клуба, которая за год прошла путь от выгорания в найме до запуска собственного менторства по программированию с дополнительным доходом +25% к зарплате за 10 часов в неделю.",
@@ -11542,7 +11614,8 @@ const POSTS_DATA = [
     "views": 138,
     "forwards": 0,
     "category": [
-      "Путь предпринимателя"
+      "Путь предпринимателя",
+      "Внутрянка большого бизнеса"
     ],
     "matched_from_csv": true,
     "match_similarity": 1,
@@ -11569,7 +11642,8 @@ const POSTS_DATA = [
     "views": 141,
     "forwards": 0,
     "category": [
-      "Путь предпринимателя"
+      "Путь предпринимателя",
+      "Внутрянка большого бизнеса"
     ],
     "matched_from_csv": true,
     "match_similarity": 1,
@@ -11646,7 +11720,8 @@ const POSTS_DATA = [
     "views": 124,
     "forwards": 0,
     "category": [
-      "Путь предпринимателя"
+      "Путь предпринимателя",
+      "Внутрянка большого бизнеса"
     ],
     "matched_from_csv": true,
     "match_similarity": 1,
@@ -11978,7 +12053,8 @@ const POSTS_DATA = [
     "views": 126,
     "forwards": 0,
     "category": [
-      "Путь предпринимателя"
+      "Путь предпринимателя",
+      "Внутрянка большого бизнеса"
     ],
     "matched_from_csv": false,
     "subcategory": "Путь Тани",
@@ -12053,7 +12129,8 @@ const POSTS_DATA = [
     "views": 132,
     "forwards": 2,
     "category": [
-      "Путь предпринимателя"
+      "Путь предпринимателя",
+      "Деньги"
     ],
     "matched_from_csv": false,
     "subcategory": "Путь Тани",
@@ -12079,7 +12156,8 @@ const POSTS_DATA = [
     "views": 108,
     "forwards": 0,
     "category": [
-      "Путь предпринимателя"
+      "Путь предпринимателя",
+      "Внутрянка большого бизнеса"
     ],
     "matched_from_csv": false,
     "subcategory": "Путь Тани",
@@ -12104,7 +12182,8 @@ const POSTS_DATA = [
     "views": 112,
     "forwards": 0,
     "category": [
-      "Путь предпринимателя"
+      "Путь предпринимателя",
+      "Внутрянка большого бизнеса"
     ],
     "matched_from_csv": false,
     "subcategory": "Путь Тани",
@@ -12291,7 +12370,8 @@ const POSTS_DATA = [
     "views": 258,
     "forwards": 8,
     "category": [
-      "Кейсы"
+      "Кейсы",
+      "Внутрянка большого бизнеса"
     ],
     "matched_from_csv": false,
     "match_similarity": 0,
