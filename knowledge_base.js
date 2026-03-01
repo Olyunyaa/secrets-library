@@ -103,8 +103,7 @@ const POSTS_DATA = [
     "views": 212,
     "forwards": 5,
     "category": [
-      "Путь предпринимателя",
-      "Внутрянка большого бизнеса"
+      "Путь предпринимателя"
     ],
     "matched_from_csv": false,
     "generated_title": "Цифры недели по соц сетям",
@@ -8235,8 +8234,7 @@ const POSTS_DATA = [
     "views": 233,
     "forwards": 1,
     "category": [
-      "Путь предпринимателя",
-      "Внутрянка большого бизнеса"
+      "Путь предпринимателя"
     ],
     "matched_from_csv": false,
     "subcategory": "Путь Тани",
@@ -8727,8 +8725,7 @@ const POSTS_DATA = [
     "views": 193,
     "forwards": 0,
     "category": [
-      "Путь предпринимателя",
-      "Внутрянка большого бизнеса"
+      "Путь предпринимателя"
     ],
     "matched_from_csv": false,
     "subcategory": "Путь Тани",
@@ -9037,8 +9034,7 @@ const POSTS_DATA = [
     "views": 220,
     "forwards": 2,
     "category": [
-      "Путь предпринимателя",
-      "Внутрянка большого бизнеса"
+      "Путь предпринимателя"
     ],
     "matched_from_csv": true,
     "match_similarity": 1,
@@ -9092,8 +9088,7 @@ const POSTS_DATA = [
     "views": 180,
     "forwards": 1,
     "category": [
-      "Путь предпринимателя",
-      "Внутрянка большого бизнеса"
+      "Путь предпринимателя"
     ],
     "matched_from_csv": true,
     "match_similarity": 1,
@@ -9281,8 +9276,7 @@ const POSTS_DATA = [
     "views": 151,
     "forwards": 0,
     "category": [
-      "Путь предпринимателя",
-      "Внутрянка большого бизнеса"
+      "Путь предпринимателя"
     ],
     "matched_from_csv": true,
     "match_similarity": 1,
@@ -9336,8 +9330,7 @@ const POSTS_DATA = [
     "views": 134,
     "forwards": 0,
     "category": [
-      "Путь предпринимателя",
-      "Внутрянка большого бизнеса"
+      "Путь предпринимателя"
     ],
     "matched_from_csv": true,
     "match_similarity": 1,
@@ -9391,8 +9384,7 @@ const POSTS_DATA = [
     "views": 130,
     "forwards": 1,
     "category": [
-      "Путь предпринимателя",
-      "Внутрянка большого бизнеса"
+      "Путь предпринимателя"
     ],
     "matched_from_csv": true,
     "match_similarity": 1,
@@ -9500,8 +9492,7 @@ const POSTS_DATA = [
     "views": 127,
     "forwards": 1,
     "category": [
-      "Путь предпринимателя",
-      "Внутрянка большого бизнеса"
+      "Путь предпринимателя"
     ],
     "matched_from_csv": true,
     "match_similarity": 1,
@@ -9632,8 +9623,7 @@ const POSTS_DATA = [
     "views": 159,
     "forwards": 1,
     "category": [
-      "Путь предпринимателя",
-      "Внутрянка большого бизнеса"
+      "Путь предпринимателя"
     ],
     "matched_from_csv": false,
     "subcategory": "Путь Тани",
@@ -10052,8 +10042,7 @@ const POSTS_DATA = [
     "views": 202,
     "forwards": 2,
     "category": [
-      "Путь предпринимателя",
-      "Внутрянка большого бизнеса"
+      "Путь предпринимателя"
     ],
     "matched_from_csv": true,
     "match_similarity": 1,
@@ -10161,8 +10150,7 @@ const POSTS_DATA = [
     "views": 203,
     "forwards": 1,
     "category": [
-      "Путь предпринимателя",
-      "Внутрянка большого бизнеса"
+      "Путь предпринимателя"
     ],
     "matched_from_csv": true,
     "match_similarity": 1,
@@ -10431,8 +10419,7 @@ const POSTS_DATA = [
     "views": 152,
     "forwards": 0,
     "category": [
-      "Путь предпринимателя",
-      "Внутрянка большого бизнеса"
+      "Путь предпринимателя"
     ],
     "matched_from_csv": true,
     "match_similarity": 1,
@@ -10647,8 +10634,7 @@ const POSTS_DATA = [
     "views": 121,
     "forwards": 0,
     "category": [
-      "Путь предпринимателя",
-      "Внутрянка большого бизнеса"
+      "Путь предпринимателя"
     ],
     "matched_from_csv": true,
     "match_similarity": 1,
@@ -10729,8 +10715,7 @@ const POSTS_DATA = [
     "views": 78,
     "forwards": 0,
     "category": [
-      "Путь предпринимателя",
-      "Внутрянка большого бизнеса"
+      "Путь предпринимателя"
     ],
     "matched_from_csv": true,
     "match_similarity": 1,
@@ -10757,8 +10742,7 @@ const POSTS_DATA = [
     "views": 91,
     "forwards": 0,
     "category": [
-      "Путь предпринимателя",
-      "Внутрянка большого бизнеса"
+      "Путь предпринимателя"
     ],
     "matched_from_csv": true,
     "match_similarity": 1,
@@ -11614,8 +11598,7 @@ const POSTS_DATA = [
     "views": 138,
     "forwards": 0,
     "category": [
-      "Путь предпринимателя",
-      "Внутрянка большого бизнеса"
+      "Путь предпринимателя"
     ],
     "matched_from_csv": true,
     "match_similarity": 1,
@@ -11642,8 +11625,7 @@ const POSTS_DATA = [
     "views": 141,
     "forwards": 0,
     "category": [
-      "Путь предпринимателя",
-      "Внутрянка большого бизнеса"
+      "Путь предпринимателя"
     ],
     "matched_from_csv": true,
     "match_similarity": 1,
@@ -11720,8 +11702,7 @@ const POSTS_DATA = [
     "views": 124,
     "forwards": 0,
     "category": [
-      "Путь предпринимателя",
-      "Внутрянка большого бизнеса"
+      "Путь предпринимателя"
     ],
     "matched_from_csv": true,
     "match_similarity": 1,
@@ -12053,8 +12034,7 @@ const POSTS_DATA = [
     "views": 126,
     "forwards": 0,
     "category": [
-      "Путь предпринимателя",
-      "Внутрянка большого бизнеса"
+      "Путь предпринимателя"
     ],
     "matched_from_csv": false,
     "subcategory": "Путь Тани",
@@ -12129,8 +12109,7 @@ const POSTS_DATA = [
     "views": 132,
     "forwards": 2,
     "category": [
-      "Путь предпринимателя",
-      "Деньги"
+      "Путь предпринимателя"
     ],
     "matched_from_csv": false,
     "subcategory": "Путь Тани",
@@ -12156,8 +12135,7 @@ const POSTS_DATA = [
     "views": 108,
     "forwards": 0,
     "category": [
-      "Путь предпринимателя",
-      "Внутрянка большого бизнеса"
+      "Путь предпринимателя"
     ],
     "matched_from_csv": false,
     "subcategory": "Путь Тани",
@@ -12182,8 +12160,7 @@ const POSTS_DATA = [
     "views": 112,
     "forwards": 0,
     "category": [
-      "Путь предпринимателя",
-      "Внутрянка большого бизнеса"
+      "Путь предпринимателя"
     ],
     "matched_from_csv": false,
     "subcategory": "Путь Тани",
