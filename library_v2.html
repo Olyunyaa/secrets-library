@@ -469,6 +469,13 @@ body {
   color: var(--white);
   background: var(--stripe-color, var(--teal-400));
   align-self: flex-start;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  transition: filter .2s ease;
+}
+.card-cat-badge:hover {
+  filter: brightness(1.15);
 }
 
 /* ── Type badge ── */
@@ -935,10 +942,6 @@ body {
       const thesesHtml = (p.key_theses || [])
         .map(t => '<div class="thesis">' + esc(t) + '</div>').join('');
 
-      const catBadge = displayCat
-        ? '<span class="card-cat-badge">' + esc(displayCat) + '</span>'
-        : '';
-
       const pType = getPostType(p);
       const typeBadge = '<span class="card-type-badge type-' + pType + '">' +
         (pType === 'stream' ? 'Эфир' : 'Текст') + '</span>';
@@ -948,7 +951,8 @@ body {
           '<div class="card-title">' + esc(p.generated_title || 'Без заголовка') + '</div>' +
           '<span class="card-date">' + fmtDate(p.date) + '</span>' +
         '</div>' +
-        catBadge + ' ' + typeBadge +
+        (displayCat ? '<button class="card-cat-badge" data-cat="' + esc(displayCat) + '">' + esc(displayCat) + '</button> ' : '') +
+        typeBadge +
         '<div class="card-topic">' + esc(p.topic || '') + '</div>' +
         (thesesHtml ? '<div class="card-theses">' + thesesHtml + '</div>' : '') +
         (p.summary ? '<div class="card-summary">' + esc(p.summary) + '</div>' : '') +
@@ -970,6 +974,13 @@ body {
               '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>' +
             '</a>'
           : '');
+
+      card.querySelector('.card-cat-badge')?.addEventListener('click', () => {
+        activeCat = displayCat;
+        activeSubCat = null;
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        render();
+      });
 
       frag.appendChild(card);
     });
