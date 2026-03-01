@@ -1,0 +1,1026 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>СЕКРЕТЫ — Библиотека знаний</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=DM+Sans:ital,wght@0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  /* Dark teal brand */
+  --teal-900: #082f32;
+  --teal-800: #0e3f42;
+  --teal-700: #134e4a;
+  --teal-600: #1a6560;
+  --teal-500: #1f7a73;
+  --teal-400: #2a9d93;
+  --teal-300: #5fbfb7;
+  /* Aqua accents */
+  --aqua-500: #8acdd8;
+  --aqua-400: #9ed8e2;
+  --aqua-300: #a8dde6;
+  --aqua-200: #bbe5ec;
+  --aqua-100: #d4eff4;
+  --aqua-50:  #eaf7fa;
+  --aqua-25:  #f3fbfc;
+  /* Neutrals */
+  --white:    #ffffff;
+  --gray-50:  #fafbfb;
+  --gray-100: #f2f4f5;
+  --gray-200: #e4e7e9;
+  --gray-300: #d0d5d8;
+  --gray-400: #9ca5ab;
+  --gray-500: #6e7a82;
+  --gray-600: #4a5660;
+  --gray-700: #344049;
+  --gray-800: #1f2b33;
+  /* Category colors */
+  --cat-business: #3b82f6;
+  --cat-money: #22c55e;
+  --cat-cases: #f97316;
+  --cat-marketing: #ec4899;
+  --cat-career: #8b5cf6;
+  --cat-entrepreneur: #14b8a6;
+  --cat-growth: #eab308;
+  --cat-product: #ef4444;
+  --cat-social: #06b6d4;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: #f5f7f8;
+  color: var(--gray-800);
+  line-height: 1.65;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ═══════════════════════════════════════════
+   HEADER — dark teal gradient
+   ═══════════════════════════════════════════ */
+.header {
+  background: linear-gradient(160deg, #082f32, #134e4a, #1f7a73);
+  color: var(--white);
+  padding: 3.5rem 2rem 4.5rem;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.header::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 30% 70%, rgba(138,205,216,.12) 0%, transparent 60%),
+    radial-gradient(ellipse at 70% 30%, rgba(95,191,183,.08) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.header-brand {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: clamp(2.2rem, 5.5vw, 3.4rem);
+  font-weight: 800;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  margin-bottom: .25rem;
+  position: relative;
+  color: var(--white);
+}
+.header-author {
+  font-family: 'DM Sans', sans-serif;
+  font-size: clamp(.85rem, 2vw, 1.05rem);
+  font-weight: 500;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,.7);
+  position: relative;
+  margin-bottom: .6rem;
+}
+.header-sub {
+  font-family: 'DM Sans', sans-serif;
+  font-size: .88rem;
+  font-weight: 400;
+  color: rgba(255,255,255,.5);
+  position: relative;
+}
+.header-line {
+  width: 50px;
+  height: 2px;
+  background: rgba(255,255,255,.3);
+  margin: 1rem auto 0;
+  position: relative;
+}
+
+/* ═══════════════════════════════════════════
+   TOOLBAR
+   ═══════════════════════════════════════════ */
+.toolbar {
+  max-width: 1100px;
+  margin: -1.5rem auto 0;
+  padding: 0 1.5rem;
+  position: relative;
+  z-index: 10;
+}
+.toolbar-inner {
+  background: var(--white);
+  border-radius: 14px;
+  box-shadow: 0 4px 20px rgba(8,47,50,.12), 0 1px 3px rgba(0,0,0,.03);
+  padding: 1rem 1.25rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: .75rem;
+  align-items: center;
+}
+.search-wrap {
+  flex: 1 1 260px;
+  position: relative;
+}
+.search-wrap svg {
+  position: absolute;
+  left: 13px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 16px;
+  height: 16px;
+  color: var(--gray-400);
+  pointer-events: none;
+}
+.search-wrap input {
+  width: 100%;
+  padding: .65rem .9rem .65rem 2.4rem;
+  border: 1.5px solid var(--gray-200);
+  border-radius: 10px;
+  font-family: inherit;
+  font-size: .9rem;
+  color: var(--gray-800);
+  background: var(--gray-50);
+  transition: all .25s ease;
+  outline: none;
+}
+.search-wrap input::placeholder { color: var(--gray-400); }
+.search-wrap input:focus {
+  border-color: var(--teal-400);
+  background: var(--white);
+  box-shadow: 0 0 0 3px rgba(42,157,147,.18);
+}
+
+.sort-select {
+  padding: .6rem .9rem;
+  border: 1.5px solid var(--gray-200);
+  border-radius: 10px;
+  font-family: inherit;
+  font-size: .85rem;
+  color: var(--gray-700);
+  background: var(--gray-50);
+  cursor: pointer;
+  outline: none;
+  transition: border-color .25s ease;
+}
+.sort-select:focus { border-color: var(--teal-400); }
+
+.stats-badge {
+  font-size: .8rem;
+  color: var(--gray-500);
+  white-space: nowrap;
+  margin-left: auto;
+}
+
+/* ═══════════════════════════════════════════
+   TOP MATERIALS
+   ═══════════════════════════════════════════ */
+.top-section {
+  max-width: 1100px;
+  margin: 1.5rem auto 0;
+  padding: 0 1.5rem;
+}
+.top-header {
+  display: flex;
+  align-items: baseline;
+  gap: .5rem;
+  margin-bottom: .7rem;
+}
+.top-label {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--teal-700);
+}
+.top-sub {
+  font-size: .75rem;
+  color: var(--gray-400);
+}
+.top-scroll {
+  display: flex;
+  gap: .85rem;
+  overflow-x: auto;
+  padding-bottom: .5rem;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+}
+.top-scroll::-webkit-scrollbar { height: 4px; }
+.top-scroll::-webkit-scrollbar-track { background: transparent; }
+.top-scroll::-webkit-scrollbar-thumb { background: var(--gray-300); border-radius: 99px; }
+
+.top-card {
+  flex: 0 0 280px;
+  scroll-snap-align: start;
+  background: var(--white);
+  border-radius: 12px;
+  border-left: 3px solid var(--stripe-color, var(--teal-400));
+  box-shadow: 0 1px 4px rgba(8,47,50,.06), 0 0 0 1px rgba(0,0,0,.025);
+  padding: .85rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: .35rem;
+  text-decoration: none;
+  color: inherit;
+  transition: transform .22s ease, box-shadow .22s ease;
+  position: relative;
+}
+.top-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(8,47,50,.12);
+}
+.top-card-rank {
+  position: absolute;
+  top: .5rem;
+  right: .6rem;
+  font-size: .65rem;
+  font-weight: 700;
+  color: var(--gray-300);
+}
+.top-card-title {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: .95rem;
+  font-weight: 700;
+  line-height: 1.3;
+  color: var(--teal-700);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  padding-right: 1.5rem;
+}
+.top-card-meta {
+  display: flex;
+  gap: .6rem;
+  font-size: .68rem;
+  color: var(--gray-400);
+  margin-top: auto;
+}
+.top-card-meta span {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+.top-card-cat {
+  font-size: .65rem;
+  font-weight: 600;
+  color: var(--stripe-color, var(--teal-400));
+}
+
+/* ═══════════════════════════════════════════
+   CONTENT TYPE FILTERS
+   ═══════════════════════════════════════════ */
+.type-filters {
+  max-width: 1100px;
+  margin: 1.25rem auto 0;
+  padding: 0 1.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: .4rem;
+  align-items: center;
+}
+.type-filters-label {
+  font-size: .75rem;
+  font-weight: 500;
+  color: var(--gray-500);
+  margin-right: .3rem;
+}
+
+/* ═══════════════════════════════════════════
+   CATEGORY PILLS
+   ═══════════════════════════════════════════ */
+.filters {
+  max-width: 1100px;
+  margin: .6rem auto 0;
+  padding: 0 1.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: .4rem;
+  align-items: center;
+}
+.filters-label {
+  font-size: .75rem;
+  font-weight: 500;
+  color: var(--gray-500);
+  margin-right: .3rem;
+}
+.pill {
+  padding: .4rem .9rem;
+  border: 1.5px solid var(--pill-color, var(--teal-400));
+  border-radius: 99px;
+  background: var(--white);
+  font-family: inherit;
+  font-size: .78rem;
+  font-weight: 500;
+  color: var(--pill-color, var(--teal-700));
+  cursor: pointer;
+  transition: all .22s ease;
+  white-space: nowrap;
+}
+.pill:hover {
+  background: color-mix(in srgb, var(--pill-color, var(--teal-400)) 8%, white);
+  border-color: var(--pill-color, var(--teal-500));
+}
+.pill.active {
+  background: var(--pill-color, var(--teal-700));
+  border-color: var(--pill-color, var(--teal-700));
+  color: var(--white);
+}
+
+/* ═══════════════════════════════════════════
+   SUBCATEGORY PILLS
+   ═══════════════════════════════════════════ */
+.sub-filters {
+  max-width: 1100px;
+  margin: .4rem auto 0;
+  padding: 0 1.5rem 0 3rem;
+  display: none;
+  flex-wrap: wrap;
+  gap: .35rem;
+  align-items: center;
+}
+.sub-filters.visible { display: flex; }
+.sub-filters-label {
+  font-size: .72rem;
+  color: var(--gray-400);
+  margin-right: .2rem;
+}
+.sub-pill {
+  padding: .3rem .7rem;
+  border: 1.5px solid var(--gray-300);
+  border-radius: 99px;
+  background: var(--white);
+  font-family: inherit;
+  font-size: .72rem;
+  font-weight: 500;
+  color: var(--gray-600);
+  cursor: pointer;
+  transition: all .22s ease;
+  white-space: nowrap;
+}
+.sub-pill:hover {
+  border-color: var(--teal-400);
+  color: var(--teal-700);
+}
+.sub-pill.active {
+  background: var(--teal-600);
+  border-color: var(--teal-600);
+  color: var(--white);
+}
+
+/* ═══════════════════════════════════════════
+   CARDS GRID
+   ═══════════════════════════════════════════ */
+.grid {
+  max-width: 1100px;
+  margin: 1.5rem auto 4rem;
+  padding: 0 1.5rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
+  gap: 1.2rem;
+}
+
+/* ── CARD ── */
+.card {
+  background: var(--white);
+  border-radius: 14px;
+  box-shadow: 0 1px 4px rgba(8,47,50,.06), 0 0 0 1px rgba(0,0,0,.025);
+  padding: 0 1.4rem 1.3rem;
+  display: flex;
+  flex-direction: column;
+  gap: .55rem;
+  transition: transform .28s cubic-bezier(.22,1,.36,1), box-shadow .28s ease;
+  position: relative;
+  overflow: hidden;
+  opacity: 0;
+  animation: cardIn .4s ease forwards;
+}
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(8,47,50,.13), 0 2px 8px rgba(0,0,0,.04);
+}
+
+@keyframes cardIn {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* top accent stripe — always visible, color set via inline style */
+.card::before {
+  content: '';
+  display: block;
+  height: 3px;
+  margin: 0 -1.4rem 0;
+  background: var(--stripe-color, var(--teal-400));
+  transition: filter .25s ease;
+}
+.card:hover::before {
+  filter: brightness(1.15);
+}
+
+/* ── Title row ── */
+.card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: .6rem;
+  padding-top: .9rem;
+}
+.card-title {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 1.2rem;
+  font-weight: 700;
+  line-height: 1.3;
+  color: var(--teal-700);
+}
+.card-date {
+  font-size: .72rem;
+  color: var(--gray-400);
+  white-space: nowrap;
+  flex-shrink: 0;
+  padding-top: 4px;
+}
+
+/* ── Category badge ── */
+.card-cat-badge {
+  display: inline-block;
+  font-size: .7rem;
+  font-weight: 600;
+  padding: .15rem .6rem;
+  border-radius: 99px;
+  color: var(--white);
+  background: var(--stripe-color, var(--teal-400));
+  align-self: flex-start;
+}
+
+/* ── Type badge ── */
+.card-type-badge {
+  display: inline-block;
+  font-size: .65rem;
+  font-weight: 600;
+  padding: .15rem .55rem;
+  border-radius: 99px;
+  align-self: flex-start;
+}
+.card-type-badge.type-stream {
+  background: #fef3c7;
+  color: #92400e;
+}
+.card-type-badge.type-text {
+  background: var(--gray-100);
+  color: var(--gray-500);
+}
+
+/* ── Topic ── */
+.card-topic {
+  font-size: .85rem;
+  color: var(--gray-600);
+  line-height: 1.55;
+}
+
+/* ── Key theses ── */
+.card-theses {
+  display: flex;
+  flex-direction: column;
+  gap: .3rem;
+  margin: .1rem 0;
+}
+.thesis {
+  font-size: .8rem;
+  color: var(--gray-600);
+  line-height: 1.5;
+  padding-left: 1.1rem;
+  position: relative;
+}
+.thesis::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: .5em;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--aqua-400);
+}
+
+/* ── Summary with quote icon ── */
+.card-summary {
+  font-size: .8rem;
+  font-style: italic;
+  color: var(--teal-700);
+  font-weight: 500;
+  padding: .65rem .85rem .65rem 2.2rem;
+  background: var(--aqua-50);
+  border-radius: 8px;
+  line-height: 1.55;
+  position: relative;
+}
+.card-summary::before {
+  content: '\201C';
+  position: absolute;
+  left: .65rem;
+  top: .3rem;
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 1.6rem;
+  font-style: normal;
+  color: var(--aqua-400);
+  line-height: 1;
+}
+
+/* ── Footer ── */
+.card-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .5rem;
+  margin-top: auto;
+  padding-top: .6rem;
+  border-top: 1px solid var(--gray-200);
+}
+.meta {
+  display: flex;
+  gap: .65rem;
+  font-size: .7rem;
+  color: var(--gray-400);
+  flex-shrink: 0;
+}
+.meta span {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+/* ── Open link button ── */
+.card-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  align-self: flex-start;
+  font-family: inherit;
+  font-size: .78rem;
+  font-weight: 500;
+  color: var(--white);
+  background: var(--teal-700);
+  padding: .4rem .85rem;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: background .22s ease;
+}
+.card-link:hover { background: var(--teal-600); }
+
+/* ═══════════════════════════════════════════
+   EMPTY STATE
+   ═══════════════════════════════════════════ */
+.empty {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 5rem 1rem;
+  color: var(--gray-400);
+}
+.empty-glyph {
+  font-size: 2.8rem;
+  display: block;
+  margin-bottom: .6rem;
+  opacity: .5;
+}
+.empty-text { font-size: 1rem; }
+
+/* ═══════════════════════════════════════════
+   SCROLL-TO-TOP
+   ═══════════════════════════════════════════ */
+.to-top {
+  position: fixed;
+  bottom: 1.75rem;
+  right: 1.75rem;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: none;
+  background: var(--teal-700);
+  color: var(--white);
+  cursor: pointer;
+  box-shadow: 0 3px 12px rgba(8,47,50,.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: all .25s ease;
+  z-index: 100;
+}
+.to-top.show { opacity: 1; pointer-events: auto; }
+.to-top:hover { background: var(--teal-500); transform: translateY(-2px); }
+
+/* ═══════════════════════════════════════════
+   RESPONSIVE
+   ═══════════════════════════════════════════ */
+@media (max-width: 768px) {
+  .header { padding: 2.5rem 1.25rem 3.5rem; }
+  .toolbar-inner { padding: .85rem; flex-direction: column; }
+  .search-wrap { flex: 1 1 100%; }
+  .stats-badge { margin-left: 0; }
+  .grid { grid-template-columns: 1fr; padding: 0 1rem; gap: 1rem; }
+  .top-section { padding: 0 1rem; }
+  .top-card { flex: 0 0 240px; }
+  .type-filters { padding: 0 1rem; }
+  .filters { padding: 0 1rem; }
+  .sub-filters { padding: 0 1rem 0 2rem; }
+  .card { padding: 0 1.2rem 1.2rem; }
+}
+@media (max-width: 400px) {
+  .card-top { flex-direction: column; gap: .2rem; }
+}
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-brand">СЕКРЕТЫ</div>
+  <div class="header-author">от Тани Меламори</div>
+  <div class="header-line"></div>
+  <div class="header-sub">Библиотека знаний</div>
+</header>
+
+<div class="toolbar">
+  <div class="toolbar-inner">
+    <div class="search-wrap">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21"/></svg>
+      <input type="text" id="search" placeholder="Поиск по заголовку, теме, тезисам...">
+    </div>
+    <select class="sort-select" id="sort">
+      <option value="date-desc">Сначала новые</option>
+      <option value="date-asc">Сначала старые</option>
+      <option value="views">По просмотрам</option>
+      <option value="forwards">По пересылкам</option>
+    </select>
+    <span class="stats-badge" id="stats"></span>
+  </div>
+</div>
+
+<div class="top-section" id="topSection">
+  <div class="top-header">
+    <span class="top-label">Топ-материалы</span>
+    <span class="top-sub">самые читаемые посты</span>
+  </div>
+  <div class="top-scroll" id="topScroll"></div>
+</div>
+
+<div class="type-filters" id="typeFilters"></div>
+
+<div class="filters" id="filters"></div>
+
+<div class="sub-filters" id="subFilters"></div>
+
+<div class="grid" id="grid"></div>
+
+<button class="to-top" id="toTop" title="Наверх">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+</button>
+
+<script src="knowledge_base.js"></script>
+<script>
+(() => {
+  'use strict';
+
+  const grid        = document.getElementById('grid');
+  const topScroll   = document.getElementById('topScroll');
+  const topSection  = document.getElementById('topSection');
+  const searchEl    = document.getElementById('search');
+  const sortEl      = document.getElementById('sort');
+  const statsEl     = document.getElementById('stats');
+  const typeFlEl    = document.getElementById('typeFilters');
+  const filtersEl   = document.getElementById('filters');
+  const subFlEl     = document.getElementById('subFilters');
+  const toTopBtn    = document.getElementById('toTop');
+
+  let activeCat = null;
+  let activeType = null;   // null = all, 'text', 'stream', 'materials'
+  let activeSubCat = null; // null = all within parent, '2024'/'2025'/'2026'
+  let timer = null;
+
+  /* Category → color mapping */
+  const CAT_COLORS = {
+    'Внутрянка большого бизнеса': '#3b82f6',
+    'Деньги':                     '#22c55e',
+    'Кейсы':                      '#f97316',
+    'Маркетинг и продажи':        '#ec4899',
+    'Портфельная карьера':        '#8b5cf6',
+    'Путь предпринимателя':       '#14b8a6',
+    'Рост личности':              '#eab308',
+    'Создание продукта':          '#ef4444',
+    'Соцсети и личный бренд':     '#06b6d4',
+  };
+
+  /* Content type → label */
+  const TYPE_LABELS = {
+    'text':      'Текст',
+    'stream':    'Эфир',
+  };
+
+  function getCatColor(categories) {
+    if (!categories || !categories.length) return '#2a9d93';
+    return CAT_COLORS[categories[0]] || '#2a9d93';
+  }
+
+  function getPostType(p) {
+    return p.type || 'text';
+  }
+
+  const cats = [...new Set(POSTS_DATA.flatMap(p => p.category || []))].sort();
+
+  /* ── Type filter row ── */
+  function buildTypeFilters() {
+    const label = mk('span', 'type-filters-label', 'Тип:');
+    typeFlEl.appendChild(label);
+    const all = mk('button', 'pill active', 'Все');
+    all.dataset.type = '';
+    all.addEventListener('click', () => { activeType = null; render(); });
+    typeFlEl.appendChild(all);
+    Object.entries(TYPE_LABELS).forEach(([key, lbl]) => {
+      const b = mk('button', 'pill', lbl);
+      b.dataset.type = key;
+      b.addEventListener('click', () => { activeType = key; render(); });
+      typeFlEl.appendChild(b);
+    });
+  }
+
+  function syncTypePills() {
+    typeFlEl.querySelectorAll('.pill').forEach(b => {
+      b.classList.toggle('active',
+        activeType === null ? b.dataset.type === '' : b.dataset.type === activeType
+      );
+    });
+  }
+
+  /* ── Category filter row ── */
+  function buildFilters() {
+    const label = mk('span', 'filters-label', 'Категория:');
+    filtersEl.appendChild(label);
+    const all = mk('button', 'pill active', 'Все (' + POSTS_DATA.length + ')');
+    all.dataset.cat = '';
+    all.addEventListener('click', () => { activeCat = null; activeSubCat = null; render(); });
+    filtersEl.appendChild(all);
+    cats.forEach(c => {
+      const count = POSTS_DATA.filter(p => (p.category || []).includes(c)).length;
+      const b = mk('button', 'pill', c + ' (' + count + ')');
+      b.dataset.cat = c;
+      if (CAT_COLORS[c]) b.style.setProperty('--pill-color', CAT_COLORS[c]);
+      b.addEventListener('click', () => { activeCat = c; activeSubCat = null; render(); });
+      filtersEl.appendChild(b);
+    });
+  }
+
+  /* ── Subcategory definitions ── */
+  const SUB_CONFIGS = {
+    'Путь предпринимателя': {
+      label: 'Период:',
+      items: [
+        { key: '2024', label: 'Путь Тани 2024' },
+        { key: '2025', label: 'Путь Тани 2025' },
+        { key: '2026', label: 'Путь Тани 2026' },
+      ],
+      filter(p, key) {
+        if (p.subcategory !== 'Путь Тани') return false;
+        const y = p.year || new Date(p.date).getFullYear().toString();
+        return y === key;
+      }
+    },
+    'Кейсы': {
+      label: 'Подтип:',
+      items: [
+        { key: 'Бизнес-разборы', label: 'Бизнес-разборы' },
+      ],
+      filter(p, key) { return p.subcategory === key; }
+    }
+  };
+
+  /* ── Subcategory filter row (rebuilt on category change) ── */
+  let _lastSubCat = undefined;
+  function buildSubFilters() {
+    const conf = activeCat ? SUB_CONFIGS[activeCat] : null;
+    if (!conf) {
+      subFlEl.classList.remove('visible');
+      subFlEl.innerHTML = '';
+      _lastSubCat = null;
+      return;
+    }
+    /* Only rebuild DOM when category changed */
+    if (_lastSubCat === activeCat) {
+      subFlEl.querySelectorAll('.sub-pill').forEach(b => {
+        b.classList.toggle('active',
+          activeSubCat === null ? b.dataset.sub === '' : b.dataset.sub === activeSubCat
+        );
+      });
+      return;
+    }
+    _lastSubCat = activeCat;
+    subFlEl.innerHTML = '';
+    subFlEl.classList.add('visible');
+    subFlEl.appendChild(mk('span', 'sub-filters-label', conf.label));
+    const all = mk('button', 'sub-pill active', 'Все');
+    all.dataset.sub = '';
+    all.addEventListener('click', () => { activeSubCat = null; render(); });
+    subFlEl.appendChild(all);
+    conf.items.forEach(item => {
+      const b = mk('button', 'sub-pill', item.label);
+      b.dataset.sub = item.key;
+      b.addEventListener('click', () => { activeSubCat = item.key; render(); });
+      subFlEl.appendChild(b);
+    });
+  }
+
+  function syncPills() {
+    filtersEl.querySelectorAll('.pill').forEach(b => {
+      b.classList.toggle('active',
+        activeCat === null ? b.dataset.cat === '' : b.dataset.cat === activeCat
+      );
+    });
+    /* Show/hide and sync subcategory row */
+    if (!SUB_CONFIGS[activeCat]) activeSubCat = null;
+    buildSubFilters();
+  }
+
+  function mk(tag, cls, txt) {
+    const el = document.createElement(tag);
+    if (cls) el.className = cls;
+    if (txt) el.textContent = txt;
+    return el;
+  }
+
+  function fmtDate(iso) {
+    return new Date(iso).toLocaleDateString('ru-RU', { day: 'numeric', month: 'short', year: 'numeric' });
+  }
+
+  function esc(s) {
+    const d = document.createElement('div');
+    d.textContent = s;
+    return d.innerHTML;
+  }
+
+  function render() {
+    const q = searchEl.value.trim().toLowerCase();
+    const s = sortEl.value;
+
+    let posts = [...POSTS_DATA];
+
+    /* Content type filter */
+    if (activeType) {
+      posts = posts.filter(p => getPostType(p) === activeType);
+    }
+
+    /* Category filter — posts with multiple categories appear in all */
+    if (activeCat) posts = posts.filter(p => (p.category || []).includes(activeCat));
+
+    /* Subcategory filter */
+    if (activeSubCat && activeCat && SUB_CONFIGS[activeCat]) {
+      posts = posts.filter(p => SUB_CONFIGS[activeCat].filter(p, activeSubCat));
+    }
+
+    if (q) {
+      const norm = s => s.toLowerCase().replace(/[-–—]/g, ' ');
+      const qn = norm(q);
+      posts = posts.filter(p => {
+        return norm([p.generated_title, p.topic, p.summary, ...(p.key_theses || []), p.text]
+          .filter(Boolean).join(' ')).includes(qn);
+      });
+    }
+
+    posts.sort((a, b) => {
+      if (s === 'date-desc') return new Date(b.date) - new Date(a.date);
+      if (s === 'date-asc')  return new Date(a.date) - new Date(b.date);
+      if (s === 'views')     return (b.views || 0) - (a.views || 0);
+      if (s === 'forwards')  return (b.forwards || 0) - (a.forwards || 0);
+      return 0;
+    });
+
+    syncTypePills();
+    syncPills();
+    statsEl.textContent = posts.length + ' из ' + POSTS_DATA.length;
+
+    grid.innerHTML = '';
+
+    if (!posts.length) {
+      grid.innerHTML = '<div class="empty"><span class="empty-glyph">&#8984;</span><div class="empty-text">Ничего не найдено</div></div>';
+      return;
+    }
+
+    const frag = document.createDocumentFragment();
+
+    posts.forEach((p, i) => {
+      const card = mk('article', 'card');
+      card.style.animationDelay = Math.min(i, 20) * 35 + 'ms';
+
+      const displayCat = activeCat && (p.category || []).includes(activeCat) ? activeCat : (p.category || [])[0];
+      const color = displayCat ? (CAT_COLORS[displayCat] || '#2a9d93') : '#2a9d93';
+      card.style.setProperty('--stripe-color', color);
+
+      const thesesHtml = (p.key_theses || [])
+        .map(t => '<div class="thesis">' + esc(t) + '</div>').join('');
+
+      const catBadge = displayCat
+        ? '<span class="card-cat-badge">' + esc(displayCat) + '</span>'
+        : '';
+
+      const pType = getPostType(p);
+      const typeBadge = '<span class="card-type-badge type-' + pType + '">' +
+        (pType === 'stream' ? 'Эфир' : 'Текст') + '</span>';
+
+      card.innerHTML =
+        '<div class="card-top">' +
+          '<div class="card-title">' + esc(p.generated_title || 'Без заголовка') + '</div>' +
+          '<span class="card-date">' + fmtDate(p.date) + '</span>' +
+        '</div>' +
+        catBadge + ' ' + typeBadge +
+        '<div class="card-topic">' + esc(p.topic || '') + '</div>' +
+        (thesesHtml ? '<div class="card-theses">' + thesesHtml + '</div>' : '') +
+        (p.summary ? '<div class="card-summary">' + esc(p.summary) + '</div>' : '') +
+        '<div class="card-bottom">' +
+          '<div class="meta">' +
+            '<span>' +
+              '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>' +
+              (p.views ?? '—') +
+            '</span>' +
+            '<span>' +
+              '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>' +
+              (p.forwards ?? '—') +
+            '</span>' +
+          '</div>' +
+        '</div>' +
+        (p.link
+          ? '<a class="card-link" href="' + esc(p.link) + '" target="_blank" rel="noopener">' +
+              'Читать в телеграме' +
+              '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>' +
+            '</a>'
+          : '');
+
+      frag.appendChild(card);
+    });
+
+    grid.appendChild(frag);
+  }
+
+  searchEl.addEventListener('input', () => { clearTimeout(timer); timer = setTimeout(render, 180); });
+  sortEl.addEventListener('change', render);
+
+  window.addEventListener('scroll', () => {
+    toTopBtn.classList.toggle('show', window.scrollY > 500);
+  });
+  toTopBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+
+  /* ── Top materials section ── */
+  function buildTopSection() {
+    const TOP_N = 10;
+    const top = [...POSTS_DATA].sort((a, b) => (b.views || 0) - (a.views || 0)).slice(0, TOP_N);
+    const frag = document.createDocumentFragment();
+    top.forEach((p, i) => {
+      const a = document.createElement('a');
+      a.className = 'top-card';
+      if (p.link) { a.href = p.link; a.target = '_blank'; a.rel = 'noopener'; }
+      const cat = (p.category || [])[0];
+      const color = cat ? (CAT_COLORS[cat] || '#2a9d93') : '#2a9d93';
+      a.style.setProperty('--stripe-color', color);
+      a.innerHTML =
+        '<span class="top-card-rank">#' + (i + 1) + '</span>' +
+        '<div class="top-card-cat">' + esc(cat || '') + '</div>' +
+        '<div class="top-card-title">' + esc(p.generated_title || '') + '</div>' +
+        '<div class="top-card-meta">' +
+          '<span>' +
+            '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>' +
+            (p.views ?? '—') +
+          '</span>' +
+          '<span>' +
+            '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>' +
+            (p.forwards ?? '—') +
+          '</span>' +
+        '</div>';
+      frag.appendChild(a);
+    });
+    topScroll.appendChild(frag);
+  }
+
+  buildTopSection();
+  buildTypeFilters();
+  buildFilters();
+  render();
+})();
+</script>
+</body>
+</html>
