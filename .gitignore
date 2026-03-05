@@ -1,0 +1,6 @@
+.env
+onboarding_log.csv
+__pycache__/
+*.pyc
+node_modules/
+_make_excel.js
