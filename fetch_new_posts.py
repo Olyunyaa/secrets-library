@@ -43,7 +43,7 @@ SONNET_MODEL = "claude-sonnet-4-5-20250929"
 
 # ── Removed UIDs (admin/announcements excluded from JS) ──────────
 REMOVED_UIDS = {
-    "2024_13", "2024_423", "2024_69",
+    "2024_13", "2024_423", "2024_69", "2024_57",
     "2025_331", "2025_53", "2025_583", "2025_93",
     "2026_65",
 }
