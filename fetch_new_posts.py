@@ -32,6 +32,7 @@ CHANNEL_YEAR = {
 
 # ── File paths ───────────────────────────────────────────────────
 PROJECT_DIR = "/Users/olgaperova/Desktop/Ontri Проект для Секреты"
+PHOTOS_DIR = os.path.join(PROJECT_DIR, "photos")
 ENRICHED_FILE = os.path.join(PROJECT_DIR, "knowledge_base_enriched.json")
 JS_FILE = os.path.join(PROJECT_DIR, "knowledge_base.js")
 ENV_FILE = os.path.join(PROJECT_DIR, ".env")
@@ -83,6 +84,7 @@ async def fetch_new_posts(cutoff_date: datetime):
         return []
 
     print("Telegram authorized.\n")
+    os.makedirs(PHOTOS_DIR, exist_ok=True)
     all_posts = []
 
     for channel_id, channel_name in CHANNELS.items():
@@ -91,20 +93,34 @@ async def fetch_new_posts(cutoff_date: datetime):
         async for msg in client.iter_messages(channel_id, limit=500, offset_date=None):
             if msg.date.replace(tzinfo=timezone.utc) <= cutoff_date:
                 break
-            if not msg.text:
+            if not msg.text and not msg.photo:
                 continue
             post_link = f"https://t.me/c/{channel_id}/{msg.id}"
             year_prefix = CHANNEL_YEAR[channel_id]
+
+            # Download photo if present
+            photo_path = None
+            if msg.photo:
+                photo_filename = f"{year_prefix}_{msg.id}.jpg"
+                photo_full_path = os.path.join(PHOTOS_DIR, photo_filename)
+                try:
+                    await client.download_media(msg, file=photo_full_path)
+                    photo_path = f"photos/{photo_filename}"
+                    print(f"    photo: {photo_filename}")
+                except Exception as e:
+                    print(f"    photo download error: {e}")
+
             all_posts.append({
                 "id": msg.id,
                 "channel_id": channel_id,
                 "channel_name": channel_name,
                 "date": msg.date.isoformat(),
-                "text": msg.text,
+                "text": msg.text or "",
                 "link": post_link,
                 "views": getattr(msg, "views", 0) or 0,
                 "forwards": getattr(msg, "forwards", 0) or 0,
                 "uid": f"{year_prefix}_{msg.id}",
+                "photo": photo_path,
             })
             count += 1
         print(f"  → {count} new posts")
@@ -394,7 +410,7 @@ def git_commit_and_push(new_count):
     os.chdir(PROJECT_DIR)
 
     try:
-        subprocess.run(["git", "add", "knowledge_base_enriched.json", "knowledge_base.js"],
+        subprocess.run(["git", "add", "knowledge_base_enriched.json", "knowledge_base.js", "photos/"],
                        check=True, capture_output=True, text=True)
         result = subprocess.run(["git", "status", "--porcelain"], capture_output=True, text=True)
         if not result.stdout.strip():
