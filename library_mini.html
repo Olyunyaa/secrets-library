@@ -1427,8 +1427,15 @@ body {
   });
   function updateCatToggleLabel() {
     if (activeCat) {
-      catToggle.innerHTML = 'Категория: <span class="active-cat">' + esc(activeCat) + '</span> <span class="cat-toggle-arrow">▾</span>';
+      const pal = CAT_PALETTE[activeCat] || { bg: '#e5f2f8', text: '#0a5a7a' };
+      catToggle.style.background = pal.bg;
+      catToggle.style.borderColor = pal.text;
+      catToggle.style.color = pal.text;
+      catToggle.innerHTML = esc(activeCat) + ' <span class="cat-toggle-arrow">▾</span>';
     } else {
+      catToggle.style.background = '';
+      catToggle.style.borderColor = '';
+      catToggle.style.color = '';
       catToggle.innerHTML = 'Категория <span class="cat-toggle-arrow">▾</span>';
     }
     filtersEl.classList.remove('expanded');
