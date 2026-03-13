@@ -1048,7 +1048,12 @@ body {
     return p.type || 'text';
   }
 
-  const cats = [...new Set(POSTS_DATA.flatMap(p => p.category || []))].sort();
+  function catCount(c) {
+    if (c === 'Путь предпринимателя')
+      return POSTS_DATA.filter(p => (p.category || []).includes(c) && p.subcategory !== 'Путь Тани').length;
+    return POSTS_DATA.filter(p => (p.category || []).includes(c)).length;
+  }
+  const cats = [...new Set(POSTS_DATA.flatMap(p => p.category || []))].sort((a, b) => catCount(b) - catCount(a));
 
   /* ── renderPostText: format raw post text to HTML ── */
   const BULLET_RE = /^[\u2022\u25CF\u25CB\u25AA\u25B8\u25B9\u25BA\u25C6\u25C7]|^\p{Emoji_Presentation}|^\p{Extended_Pictographic}/u;
@@ -1128,7 +1133,7 @@ body {
     all.addEventListener('click', () => { activeCat = null; activeSubCat = null; render(true); });
     filtersEl.appendChild(all);
     cats.forEach(c => {
-      const count = POSTS_DATA.filter(p => (p.category || []).includes(c)).length;
+      const count = catCount(c);
       const b = mk('button', 'pill', c + ' (' + count + ')');
       b.dataset.cat = c;
       if (CAT_PALETTE[c]) {
