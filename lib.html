@@ -1,0 +1,1498 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>СЕКРЕТЫ — Библиотека материалов клуба</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  /* Blue-teal brand */
+  --teal-900: #042840;
+  --teal-800: #063352;
+  --teal-700: #084566;
+  --teal-600: #0a5a7a;
+  --teal-500: #0f7090;
+  --teal-400: #1a8fa8;
+  --teal-300: #3db5cc;
+  /* Aqua accents */
+  --aqua-500: #8acdd8;
+  --aqua-400: #9ed8e2;
+  --aqua-300: #a8dde6;
+  --aqua-200: #bbe5ec;
+  --aqua-100: #d4eff4;
+  --aqua-50:  #eaf7fa;
+  --aqua-25:  #f3fbfc;
+  /* Neutrals */
+  --white:    #ffffff;
+  --gray-50:  #fafbfb;
+  --gray-100: #f2f4f5;
+  --gray-200: #e4e7e9;
+  --gray-300: #d0d5d8;
+  --gray-400: #9ca5ab;
+  --gray-500: #6e7a82;
+  --gray-600: #4a5660;
+  --gray-700: #344049;
+  --gray-800: #1f2b33;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: #f5f7f8;
+  color: var(--gray-800);
+  line-height: 1.7;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  font-size: 0.9rem;
+}
+
+/* ═══════════════════════════════════════════
+   HEADER
+   ═══════════════════════════════════════════ */
+.header {
+  background: linear-gradient(160deg, #063352, #0a5a7a, #1a8fa8);
+  color: var(--white);
+  padding: 45px 20px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  max-height: 30vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.header::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 30% 70%, rgba(138,205,216,.12) 0%, transparent 60%),
+    radial-gradient(ellipse at 70% 30%, rgba(61,181,204,.08) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.header-brand {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 2.5rem;
+  font-weight: 800;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  margin-bottom: .15rem;
+  position: relative;
+  color: var(--white);
+}
+.header-author {
+  font-family: 'Inter', sans-serif;
+  font-size: .85rem;
+  font-weight: 500;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,.7);
+  position: relative;
+  margin-bottom: .3rem;
+}
+.header-sub {
+  font-family: 'Inter', sans-serif;
+  font-size: .75rem;
+  font-weight: 400;
+  color: rgba(255,255,255,.5);
+  position: relative;
+}
+.header-line {
+  width: 40px;
+  height: 2px;
+  background: rgba(255,255,255,.3);
+  margin: .5rem auto 0;
+  position: relative;
+}
+
+/* ═══════════════════════════════════════════
+   STATS SECTION
+   ═══════════════════════════════════════════ */
+.stats-bar {
+  max-width: 800px;
+  margin: -1.2rem auto 0;
+  padding: 0 1.5rem;
+  position: relative;
+  z-index: 11;
+}
+.stats-bar-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .5rem;
+}
+.stats-row-1 {
+  display: flex;
+  justify-content: center;
+  gap: .75rem;
+  width: 100%;
+}
+.stat-card {
+  background: var(--white);
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(6,51,82,.08);
+  padding: .7rem 1.6rem;
+  text-align: center;
+  min-width: 130px;
+  flex: 1;
+  max-width: 220px;
+  cursor: pointer;
+  transition: box-shadow .2s ease, transform .2s ease;
+}
+.stat-card:hover {
+  box-shadow: 0 4px 16px rgba(6,51,82,.14);
+  transform: translateY(-1px);
+}
+.stat-card.active {
+  box-shadow: 0 0 0 2px var(--teal-500), 0 4px 16px rgba(6,51,82,.14);
+}
+.stat-card-number {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1.55rem;
+  font-weight: 700;
+  color: var(--teal-600);
+  line-height: 1.2;
+}
+.stat-card-label {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: .7rem;
+  font-weight: 500;
+  color: var(--gray-500);
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  margin-top: .1rem;
+}
+.stats-row-2 {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  padding-top: .1rem;
+}
+.stat-mini {
+  display: flex;
+  align-items: center;
+  gap: .3rem;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: .78rem;
+  color: rgba(8,69,102,.45);
+}
+.stat-mini-icon { font-size: .85rem; line-height: 1; }
+.stat-mini-number { font-weight: 600; }
+.stat-mini-label { font-weight: 400; }
+
+/* ═══════════════════════════════════════════
+   TOOLBAR
+   ═══════════════════════════════════════════ */
+.toolbar {
+  max-width: 1100px;
+  margin: 1rem auto 0;
+  padding: 0 1.5rem;
+  position: relative;
+  z-index: 10;
+}
+.toolbar-inner {
+  background: var(--white);
+  border-radius: 14px;
+  box-shadow: 0 4px 20px rgba(6,51,82,.12), 0 1px 3px rgba(0,0,0,.03);
+  padding: 1rem 1.25rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: .75rem;
+  align-items: center;
+}
+.search-wrap {
+  flex: 1 1 260px;
+  position: relative;
+}
+.search-wrap svg {
+  position: absolute;
+  left: 13px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 16px;
+  height: 16px;
+  color: var(--gray-400);
+  pointer-events: none;
+}
+.search-wrap input {
+  width: 100%;
+  padding: .65rem .9rem .65rem 2.4rem;
+  border: 1.5px solid var(--gray-200);
+  border-radius: 10px;
+  font-family: inherit;
+  font-size: .9rem;
+  color: var(--gray-800);
+  background: var(--gray-50);
+  transition: all .25s ease;
+  outline: none;
+}
+.search-wrap input::placeholder { color: var(--gray-400); }
+.search-wrap input:focus {
+  border-color: var(--teal-400);
+  background: var(--white);
+  box-shadow: 0 0 0 3px rgba(26,143,168,.18);
+}
+
+/* ── Custom sort dropdown ── */
+.sort-dropdown { position: relative; user-select: none; }
+.sort-toggle {
+  display: flex;
+  align-items: center;
+  gap: .45rem;
+  padding: .65rem 1rem;
+  border: 1.5px solid #0f7090;
+  border-radius: 99px;
+  background: var(--white);
+  font-family: inherit;
+  font-size: .85rem;
+  font-weight: 500;
+  color: var(--gray-700);
+  cursor: pointer;
+  transition: border-color .2s ease, box-shadow .2s ease;
+  white-space: nowrap;
+  min-height: 44px;
+}
+.sort-toggle:hover { border-color: #0a5a7a; }
+.sort-toggle.open {
+  border-color: #0a5a7a;
+  box-shadow: 0 0 0 3px rgba(15,112,144,.15);
+}
+.sort-chevron {
+  width: 14px; height: 14px;
+  color: #0f7090;
+  transition: transform .2s ease;
+  flex-shrink: 0;
+}
+.sort-toggle.open .sort-chevron { transform: rotate(180deg); }
+.sort-options {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  min-width: 100%;
+  background: var(--white);
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(6,51,82,.14), 0 1px 3px rgba(0,0,0,.04);
+  padding: .35rem 0;
+  z-index: 50;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-4px);
+  transition: opacity .18s ease, transform .18s ease, visibility .18s ease;
+}
+.sort-options.open {
+  opacity: 1; visibility: visible; transform: translateY(0);
+}
+.sort-option {
+  padding: .5rem 1rem;
+  font-size: .85rem;
+  color: var(--gray-700);
+  cursor: pointer;
+  transition: background-color .15s ease, color .15s ease;
+  white-space: nowrap;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+}
+.sort-option:hover { background: #e5f2f8; color: #0a5a7a; }
+.sort-option.active { color: #0a5a7a; font-weight: 600; }
+
+.stats-badge {
+  font-size: .8rem;
+  color: var(--gray-500);
+  white-space: nowrap;
+  margin-left: auto;
+}
+
+/* ═══════════════════════════════════════════
+   TOP MATERIALS
+   ═══════════════════════════════════════════ */
+.top-section {
+  max-width: 1100px;
+  margin: 1.5rem auto 0;
+  padding: 0 1.5rem;
+}
+.top-toggle { display: none; }
+.top-header {
+  display: flex;
+  align-items: baseline;
+  gap: .5rem;
+  margin-bottom: .7rem;
+}
+.top-label {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--teal-700);
+}
+.top-sub {
+  font-size: .75rem;
+  color: var(--gray-400);
+}
+.top-scroll {
+  display: flex;
+  gap: .85rem;
+  overflow-x: auto;
+  padding-bottom: .5rem;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+}
+.top-scroll::-webkit-scrollbar { height: 4px; }
+.top-scroll::-webkit-scrollbar-track { background: transparent; }
+.top-scroll::-webkit-scrollbar-thumb { background: var(--gray-300); border-radius: 99px; }
+
+.top-card {
+  flex: 0 0 280px;
+  scroll-snap-align: start;
+  background: var(--white);
+  border-radius: 12px;
+  border-left: 3px solid var(--stripe-color, var(--teal-400));
+  box-shadow: 0 1px 4px rgba(6,51,82,.06), 0 0 0 1px rgba(0,0,0,.025);
+  padding: .85rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: .35rem;
+  text-decoration: none;
+  color: inherit;
+  transition: transform .22s ease, box-shadow .22s ease;
+  position: relative;
+}
+.top-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(6,51,82,.12);
+}
+.top-card-rank {
+  position: absolute;
+  top: .5rem; right: .6rem;
+  font-size: .65rem;
+  font-weight: 700;
+  color: var(--gray-300);
+}
+.top-card-title {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: .95rem;
+  font-weight: 700;
+  line-height: 1.3;
+  color: var(--teal-700);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  padding-right: 1.5rem;
+}
+.top-card-meta {
+  display: flex;
+  gap: .6rem;
+  font-size: .68rem;
+  color: var(--gray-400);
+  margin-top: auto;
+}
+.top-card-meta span {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+.top-card-cat {
+  font-size: .65rem;
+  font-weight: 600;
+  color: var(--stripe-color, var(--teal-400));
+}
+
+/* ═══════════════════════════════════════════
+   CONTENT TYPE FILTERS
+   ═══════════════════════════════════════════ */
+.type-filters {
+  max-width: 1100px;
+  margin: 1.25rem auto 0;
+  padding: 0 1.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: .4rem;
+  align-items: center;
+}
+.type-filters-label {
+  font-size: .75rem;
+  font-weight: 500;
+  color: var(--gray-500);
+  margin-right: .3rem;
+}
+
+/* ═══════════════════════════════════════════
+   CATEGORY PILLS
+   ═══════════════════════════════════════════ */
+.filters {
+  max-width: 1100px;
+  margin: .6rem auto 0;
+  padding: 0 1.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: .4rem;
+  align-items: center;
+}
+.filters-label {
+  font-size: .75rem;
+  font-weight: 500;
+  color: var(--gray-500);
+  margin-right: .3rem;
+}
+.pill {
+  padding: .4rem .9rem;
+  border: 1.5px solid var(--gray-200);
+  border-radius: 99px;
+  background: var(--white);
+  font-family: inherit;
+  font-size: .78rem;
+  font-weight: 500;
+  color: var(--gray-600);
+  cursor: pointer;
+  transition: all .2s ease;
+  white-space: nowrap;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+}
+.pill:hover {
+  background: var(--gray-100);
+  border-color: var(--gray-300);
+  color: var(--gray-700);
+}
+.pill.active {
+  background: var(--pill-bg, var(--gray-100));
+  border-color: var(--pill-text, var(--gray-400));
+  color: var(--pill-text, var(--gray-800));
+  font-weight: 600;
+}
+.pill[data-cat=""].active,
+.pill[data-type=""].active {
+  background: var(--teal-700);
+  border-color: var(--teal-700);
+  color: var(--white);
+}
+
+/* ═══════════════════════════════════════════
+   SUBCATEGORY PILLS
+   ═══════════════════════════════════════════ */
+.sub-filters {
+  max-width: 1100px;
+  margin: .4rem auto 0;
+  padding: 0 1.5rem 0 3rem;
+  display: none;
+  flex-wrap: wrap;
+  gap: .35rem;
+  align-items: center;
+}
+.sub-filters.visible { display: flex; }
+.sub-filters-label {
+  font-size: .72rem;
+  color: var(--gray-400);
+  margin-right: .2rem;
+}
+.sub-pill {
+  padding: .3rem .7rem;
+  border: 1.5px solid var(--gray-300);
+  border-radius: 99px;
+  background: var(--white);
+  font-family: inherit;
+  font-size: .72rem;
+  font-weight: 500;
+  color: var(--gray-600);
+  cursor: pointer;
+  transition: background-color .2s ease, color .2s ease, transform .2s ease, border-color .2s ease;
+  white-space: nowrap;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+}
+.sub-pill:hover {
+  border-color: var(--teal-400);
+  color: var(--teal-700);
+}
+.sub-pill.active {
+  background: var(--teal-600);
+  border-color: var(--teal-600);
+  color: var(--white);
+  transform: scale(1.05);
+}
+
+/* ═══════════════════════════════════════════
+   CARDS GRID
+   ═══════════════════════════════════════════ */
+.grid {
+  max-width: 1100px;
+  margin: 1.5rem auto 4rem;
+  padding: 0 1.5rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.2rem;
+  transition: opacity .3s ease;
+}
+
+/* ── CARD ── */
+.card {
+  background: var(--white);
+  border-radius: 14px;
+  box-shadow: 0 1px 4px rgba(6,51,82,.06), 0 0 0 1px rgba(0,0,0,.025);
+  padding: 0 1.2rem 1.1rem;
+  display: flex;
+  flex-direction: column;
+  gap: .45rem;
+  transition: transform .28s cubic-bezier(.22,1,.36,1), box-shadow .28s ease;
+  position: relative;
+  overflow: hidden;
+  opacity: 0;
+  animation: cardIn .4s ease forwards;
+}
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 28px rgba(6,51,82,.12), 0 2px 6px rgba(0,0,0,.03);
+}
+
+@keyframes cardIn {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* top accent stripe */
+.card::before {
+  content: '';
+  display: block;
+  height: 3px;
+  margin: 0 -1.2rem 0;
+  background: var(--stripe-color, var(--teal-400));
+  transition: filter .25s ease;
+}
+.card:hover::before { filter: brightness(1.15); }
+
+/* ── Title row ── */
+.card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: .6rem;
+  padding-top: .8rem;
+}
+.card-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--teal-700);
+}
+.card-date {
+  font-size: .72rem;
+  color: var(--gray-400);
+  white-space: nowrap;
+  flex-shrink: 0;
+  padding-top: 4px;
+}
+
+/* ── Badges row ── */
+.card-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .35rem;
+  align-items: center;
+}
+.card-cat-badge {
+  display: inline-block;
+  font-size: .72rem;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 20px;
+  background: #e5f2f8;
+  color: #0a5a7a;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  transition: filter .2s ease;
+  white-space: nowrap;
+}
+.card-cat-badge:hover { filter: brightness(.95); }
+
+.card-type-badge {
+  display: inline-block;
+  font-size: .65rem;
+  font-weight: 600;
+  padding: .15rem .55rem;
+  border-radius: 4px;
+  white-space: nowrap;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  transition: filter .2s ease;
+}
+.card-type-badge:hover { filter: brightness(.92); }
+.card-type-badge.type-stream,
+.card-type-badge.type-audio,
+.card-type-badge.type-text,
+.card-type-badge.type-materials {
+  background: var(--gray-100);
+  color: var(--gray-500);
+}
+
+/* ── Topic ── */
+.card-topic {
+  font-size: .85rem;
+  color: var(--gray-600);
+  line-height: 1.55;
+}
+
+/* ── Expand/collapse button ── */
+.card-expand-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  align-self: flex-start;
+  font-family: inherit;
+  font-size: .78rem;
+  font-weight: 500;
+  color: var(--white);
+  background: #0f7090;
+  padding: .45rem .9rem;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background .22s ease;
+  min-height: 44px;
+}
+.card-expand-btn:hover { background: #0a5a7a; }
+
+/* ── Full text block ── */
+.card-full-text {
+  display: none;
+  font-size: .82rem;
+  color: var(--gray-700);
+  line-height: 1.65;
+  padding: .8rem;
+  background: var(--gray-50);
+  border-radius: 8px;
+  border-left: 3px solid var(--stripe-color, var(--teal-400));
+  word-break: break-word;
+}
+.card-full-text.open { display: block; }
+.card-full-text img {
+  max-width: 100%;
+  border-radius: 8px;
+  margin-bottom: .5rem;
+  cursor: zoom-in;
+}
+
+/* ── Lightbox overlay ── */
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: rgba(0,0,0,.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity .25s ease, visibility .25s ease;
+  cursor: zoom-out;
+}
+.lightbox.open { opacity: 1; visibility: visible; }
+.lightbox img {
+  max-width: 92vw;
+  max-height: 90vh;
+  border-radius: 6px;
+  object-fit: contain;
+  box-shadow: 0 8px 40px rgba(0,0,0,.5);
+}
+.lightbox-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255,255,255,.15);
+  color: #fff;
+  font-size: 1.4rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background .2s ease;
+}
+.lightbox-close:hover { background: rgba(255,255,255,.3); }
+.card-full-text a {
+  color: var(--teal-500);
+  text-decoration: underline;
+  word-break: break-all;
+}
+.card-full-text a:hover { color: var(--teal-700); }
+
+/* ── Rendered post text ── */
+.post-full-text {
+  font-size: .9rem;
+  line-height: 1.7;
+  color: #1f2937;
+  padding: 12px 0;
+}
+.post-full-text p {
+  margin: 0 0 .8em;
+}
+.post-full-text p:last-child { margin-bottom: 0; }
+.post-full-text strong { font-weight: 600; }
+.post-full-text a {
+  color: #0a5a7a;
+  text-decoration: underline;
+  word-break: break-all;
+}
+.post-full-text a:hover { color: var(--teal-700); }
+.post-full-text .bullet-line {
+  padding-left: 1em;
+}
+
+/* ═══════════════════════════════════════════
+   EMPTY STATE
+   ═══════════════════════════════════════════ */
+.empty {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 5rem 1rem;
+  color: var(--gray-400);
+}
+.empty-glyph {
+  font-size: 2.8rem;
+  display: block;
+  margin-bottom: .6rem;
+  opacity: .5;
+}
+.empty-text { font-size: 1rem; }
+
+/* ═══════════════════════════════════════════
+   SCROLL-TO-TOP
+   ═══════════════════════════════════════════ */
+.to-top {
+  position: fixed;
+  bottom: 1.75rem;
+  right: 1.75rem;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: none;
+  background: var(--teal-700);
+  color: var(--white);
+  cursor: pointer;
+  box-shadow: 0 3px 12px rgba(6,51,82,.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: all .25s ease;
+  z-index: 100;
+}
+.to-top.show { opacity: 1; pointer-events: auto; }
+.to-top:hover { background: var(--teal-500); transform: translateY(-2px); }
+
+/* ═══════════════════════════════════════════
+   RESPONSIVE — mobile first under 600px
+   ═══════════════════════════════════════════ */
+@media (max-width: 600px) {
+  /* ── 1. Header: compact ── */
+  .header { padding: 16px; max-height: none; }
+  .header-brand { font-size: 1.4rem; letter-spacing: .15em; margin-bottom: .1rem; }
+  .header-author { font-size: .75rem; margin-bottom: .15rem; }
+  .header-line { display: none; }
+  .header-sub { font-size: .65rem; margin-top: 0; }
+
+  /* ── 2. Stats bar: compact single row ── */
+  .stats-bar { padding: 0 .75rem; margin-top: -.8rem; }
+  .stats-row-1 { gap: .35rem; }
+  .stat-card {
+    padding: .4rem .5rem;
+    min-width: 0;
+    border-radius: 10px;
+    min-height: 44px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .stat-card-number { font-size: 1.1rem; }
+  .stat-card-label { font-size: .6rem; }
+  .stats-row-2 { gap: 1rem; padding-top: 0; }
+  .stat-mini { font-size: .7rem; }
+
+  /* ── 3. Toolbar: search + sort on one line, no card wrapper ── */
+  .toolbar { padding: 0 .75rem; margin-top: .75rem; }
+  .toolbar-inner {
+    flex-direction: row;
+    flex-wrap: nowrap;
+    padding: 0;
+    background: none;
+    box-shadow: none;
+    border-radius: 0;
+    gap: .5rem;
+    align-items: stretch;
+  }
+  .search-wrap { flex: 7 1 0; min-width: 0; }
+  .search-wrap input {
+    min-height: 44px;
+    font-size: .85rem;
+    padding: .5rem .7rem .5rem 2.2rem;
+  }
+  .sort-dropdown { flex: 3 1 0; min-width: 0; }
+  .sort-toggle {
+    min-height: 44px;
+    padding: .5rem .6rem;
+    font-size: .8rem;
+    gap: .3rem;
+    width: 100%;
+    justify-content: center;
+  }
+  .sort-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .stats-badge { display: none; }
+
+  /* ── 4. Топ-материалы: collapsible on mobile ── */
+  .top-section { padding: 0 .75rem; margin-top: 1rem; }
+  .top-header { display: none; }
+  .top-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    padding: .45rem .9rem;
+    border: 1.5px solid var(--teal-500);
+    border-radius: 99px;
+    background: var(--white);
+    font-family: inherit;
+    font-size: .8rem;
+    font-weight: 600;
+    color: var(--teal-600);
+    cursor: pointer;
+    min-height: 44px;
+    margin-bottom: .5rem;
+    transition: background .2s ease;
+  }
+  .top-toggle:hover { background: var(--aqua-50); }
+  .top-scroll { display: none; }
+  .top-section.expanded .top-scroll { display: flex; }
+
+  /* ── 5. Grid: single column ── */
+  .grid {
+    grid-template-columns: 1fr;
+    padding: 0 .75rem;
+    gap: .9rem;
+    margin-top: 1rem;
+  }
+
+  /* ── 6. Filter pills: horizontal scroll, no wrap ── */
+  .type-filters,
+  .filters {
+    padding: 0 .75rem;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .type-filters::-webkit-scrollbar,
+  .filters::-webkit-scrollbar { display: none; }
+  .type-filters-label,
+  .filters-label { flex-shrink: 0; }
+  .pill { flex-shrink: 0; min-height: 44px; }
+  .sub-filters {
+    padding: 0 .75rem 0 1.5rem;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .sub-filters::-webkit-scrollbar { display: none; }
+  .sub-pill { flex-shrink: 0; min-height: 44px; }
+
+  /* ── 7. Cards ── */
+  .card { padding: 0 1rem 1rem; }
+  .card::before { margin: 0 -1rem 0; }
+  .card-top { flex-direction: column; gap: .2rem; }
+  .card-expand-btn { min-height: 44px; }
+}
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-brand">СЕКРЕТЫ</div>
+  <div class="header-author">Тани Меламори</div>
+  <div class="header-line"></div>
+  <div class="header-sub">Библиотека материалов клуба</div>
+</header>
+
+<div class="stats-bar">
+  <div class="stats-bar-inner" id="statsBar"></div>
+</div>
+
+<div class="toolbar">
+  <div class="toolbar-inner">
+    <div class="search-wrap">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21"/></svg>
+      <input type="text" id="search" placeholder="Поиск по заголовку, теме, тезисам...">
+    </div>
+    <div class="sort-dropdown" id="sort">
+      <div class="sort-toggle">
+        <span class="sort-label">Сначала новые</span>
+        <svg class="sort-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="sort-options">
+        <div class="sort-option active" data-value="date-desc">Сначала новые</div>
+        <div class="sort-option" data-value="date-asc">Сначала старые</div>
+        <div class="sort-option" data-value="views">Сначала популярные</div>
+      </div>
+    </div>
+    <span class="stats-badge" id="stats"></span>
+  </div>
+</div>
+
+<div class="top-section" id="topSection">
+  <button class="top-toggle" id="topToggle">⭐ Топ-материалы <span class="top-toggle-arrow">▾</span></button>
+  <div class="top-header">
+    <span class="top-label">Топ-материалы</span>
+    <span class="top-sub">самые читаемые посты</span>
+  </div>
+  <div class="top-scroll" id="topScroll"></div>
+</div>
+
+<div class="type-filters" id="typeFilters"></div>
+
+<div class="filters" id="filters"></div>
+
+<div class="sub-filters" id="subFilters"></div>
+
+<div class="grid" id="grid"></div>
+
+<div class="lightbox" id="lightbox">
+  <button class="lightbox-close" id="lightboxClose">&times;</button>
+  <img id="lightboxImg" src="" alt="">
+</div>
+
+<button class="to-top" id="toTop" title="Наверх">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+</button>
+
+<script src="knowledge_base.js"></script>
+<script>
+(() => {
+  'use strict';
+
+  const grid        = document.getElementById('grid');
+  const topScroll   = document.getElementById('topScroll');
+  const topSection  = document.getElementById('topSection');
+  const searchEl    = document.getElementById('search');
+  const sortEl      = document.getElementById('sort');
+  sortEl.value = 'date-desc';
+  const statsEl     = document.getElementById('stats');
+  const typeFlEl    = document.getElementById('typeFilters');
+  const filtersEl   = document.getElementById('filters');
+  const subFlEl     = document.getElementById('subFilters');
+  const toTopBtn    = document.getElementById('toTop');
+
+  let activeCat = null;
+  let activeType = null;
+  let activeSubCat = null;
+  let timer = null;
+
+  const CAT_PALETTE = {
+    'Внутрянка большого бизнеса': { bg: '#dce7f0', text: '#2a5f8f' },
+    'Деньги':                     { bg: '#edeadb', text: '#6b5d26' },
+    'Кейсы':                      { bg: '#f0e3e0', text: '#8a4238' },
+    'Маркетинг и продажи':        { bg: '#efe8dd', text: '#7d5a2f' },
+    'Портфельная карьера':        { bg: '#deede9', text: '#2a6b5e' },
+    'Путь предпринимателя':       { bg: '#dfe8f3', text: '#34567a' },
+    'Рост личности':              { bg: '#e5e0f0', text: '#4f3d8a' },
+    'Создание продукта':          { bg: '#e0ede6', text: '#2d6a4f' },
+    'Соцсети и личный бренд':     { bg: '#ede0ea', text: '#7a3e6d' },
+  };
+
+  const TYPE_LABELS = {
+    'text':      'Текст',
+    'stream':    'Эфир',
+    'materials': 'Материалы',
+  };
+  const MATERIALS_RE = /docs\.google\.com\/(presentation|document)|notion\.(so|site)|drive\.google\.com/;
+
+  function getCatColor(categories) {
+    if (!categories || !categories.length) return '#1a8fa8';
+    const pal = CAT_PALETTE[categories[0]];
+    return pal ? pal.text : '#1a8fa8';
+  }
+
+  function getPostType(p) {
+    return p.type || 'text';
+  }
+
+  const cats = [...new Set(POSTS_DATA.flatMap(p => p.category || []))].sort();
+
+  /* ── renderPostText: format raw post text to HTML ── */
+  const BULLET_RE = /^[\u2022\u25CF\u25CB\u25AA\u25B8\u25B9\u25BA\u25C6\u25C7]|^\p{Emoji_Presentation}|^\p{Extended_Pictographic}/u;
+
+  function renderPostText(raw, title) {
+    if (!raw) return '';
+    // Strip leading title (possibly wrapped in **) to avoid duplication
+    let cleaned = raw;
+    if (title) {
+      const escaped = title.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const re = new RegExp('^\\s*(?:\\*\\*)?\\s*' + escaped + '\\s*(?:\\*\\*)?[\\s\\n]*');
+      cleaned = cleaned.replace(re, '');
+    }
+    // Split into paragraphs on double newline
+    const paragraphs = cleaned.split(/\n{2,}/);
+    const htmlParts = paragraphs.map(para => {
+      // Process each line within the paragraph
+      const lines = para.split('\n');
+      const lineHtmls = lines.map(line => {
+        let s = esc(line);
+        // **bold** → <strong>
+        s = s.replace(/\*\*([\s\S]+?)\*\*/g, '<strong>$1</strong>');
+        // [text](url) → <a>
+        s = s.replace(/\[([^\]]+)\]\((https?:\/\/[^\)]+)\)/g, '<a href="$2" target="_blank" rel="noopener" style="color:#0a5a7a">$1</a>');
+        // bare URLs not already inside href="..."
+        s = s.replace(/(?<!="|">)(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener" style="color:#0a5a7a">$1</a>');
+        // Wrap bullet lines
+        if (BULLET_RE.test(line.trim())) {
+          return '<div class="bullet-line">' + s + '</div>';
+        }
+        return s;
+      });
+      // Join non-bullet lines with <br>, bullet divs stand alone
+      let result = '';
+      for (const lh of lineHtmls) {
+        if (lh.startsWith('<div class="bullet-line">')) {
+          result += lh;
+        } else {
+          result += (result && !result.endsWith('</div>') ? '<br>' : '') + lh;
+        }
+      }
+      return '<p>' + result + '</p>';
+    });
+    return '<div class="post-full-text">' + htmlParts.join('') + '</div>';
+  }
+
+  /* ── Type filter row ── */
+  function buildTypeFilters() {
+    const label = mk('span', 'type-filters-label', 'Тип:');
+    typeFlEl.appendChild(label);
+    const all = mk('button', 'pill active', 'Все');
+    all.dataset.type = '';
+    all.addEventListener('click', () => { activeType = null; render(true); });
+    typeFlEl.appendChild(all);
+    Object.entries(TYPE_LABELS).forEach(([key, lbl]) => {
+      const b = mk('button', 'pill', lbl);
+      b.dataset.type = key;
+      b.addEventListener('click', () => { activeType = key; render(true); });
+      typeFlEl.appendChild(b);
+    });
+  }
+
+  function syncTypePills() {
+    typeFlEl.querySelectorAll('.pill').forEach(b => {
+      b.classList.toggle('active',
+        activeType === null ? b.dataset.type === '' : b.dataset.type === activeType
+      );
+    });
+  }
+
+  /* ── Category filter row ── */
+  function buildFilters() {
+    const label = mk('span', 'filters-label', 'Категория:');
+    filtersEl.appendChild(label);
+    const all = mk('button', 'pill active', 'Все (' + POSTS_DATA.length + ')');
+    all.dataset.cat = '';
+    all.addEventListener('click', () => { activeCat = null; activeSubCat = null; render(true); });
+    filtersEl.appendChild(all);
+    cats.forEach(c => {
+      const count = POSTS_DATA.filter(p => (p.category || []).includes(c)).length;
+      const b = mk('button', 'pill', c + ' (' + count + ')');
+      b.dataset.cat = c;
+      if (CAT_PALETTE[c]) {
+        b.style.setProperty('--pill-bg', CAT_PALETTE[c].bg);
+        b.style.setProperty('--pill-text', CAT_PALETTE[c].text);
+      }
+      b.addEventListener('click', () => { activeCat = c; activeSubCat = null; render(true); });
+      filtersEl.appendChild(b);
+    });
+  }
+
+  /* ── Subcategory definitions ── */
+  const SUB_CONFIGS = {
+    'Путь предпринимателя': {
+      label: 'Период:',
+      items: [
+        { key: '2024', label: 'Путь Тани 2024' },
+        { key: '2025', label: 'Путь Тани 2025' },
+        { key: '2026', label: 'Путь Тани 2026' },
+      ],
+      filter(p, key) {
+        if (p.subcategory !== 'Путь Тани') return false;
+        const y = p.year || new Date(p.date).getFullYear().toString();
+        return y === key;
+      }
+    },
+    'Кейсы': {
+      label: 'Подтип:',
+      items: [
+        { key: 'Бизнес-разборы', label: 'Бизнес-разборы' },
+      ],
+      filter(p, key) { return p.subcategory === key; }
+    }
+  };
+
+  let _lastSubCat = undefined;
+  function buildSubFilters() {
+    const conf = activeCat ? SUB_CONFIGS[activeCat] : null;
+    if (!conf) {
+      subFlEl.classList.remove('visible');
+      subFlEl.innerHTML = '';
+      _lastSubCat = null;
+      return;
+    }
+    if (_lastSubCat === activeCat) {
+      subFlEl.querySelectorAll('.sub-pill').forEach(b => {
+        b.classList.toggle('active',
+          activeSubCat === null ? b.dataset.sub === '' : b.dataset.sub === activeSubCat
+        );
+      });
+      return;
+    }
+    _lastSubCat = activeCat;
+    subFlEl.innerHTML = '';
+    subFlEl.classList.add('visible');
+    subFlEl.appendChild(mk('span', 'sub-filters-label', conf.label));
+    const all = mk('button', 'sub-pill active', 'Все');
+    all.dataset.sub = '';
+    all.addEventListener('click', () => { activeSubCat = null; render(true); });
+    subFlEl.appendChild(all);
+    conf.items.forEach(item => {
+      const b = mk('button', 'sub-pill', item.label);
+      b.dataset.sub = item.key;
+      b.addEventListener('click', () => { activeSubCat = item.key; render(true); });
+      subFlEl.appendChild(b);
+    });
+  }
+
+  function syncPills() {
+    filtersEl.querySelectorAll('.pill').forEach(b => {
+      b.classList.toggle('active',
+        activeCat === null ? b.dataset.cat === '' : b.dataset.cat === activeCat
+      );
+    });
+    if (!SUB_CONFIGS[activeCat]) activeSubCat = null;
+    buildSubFilters();
+  }
+
+  function mk(tag, cls, txt) {
+    const el = document.createElement(tag);
+    if (cls) el.className = cls;
+    if (txt) el.textContent = txt;
+    return el;
+  }
+
+  function fmtDate(iso) {
+    return new Date(iso).toLocaleDateString('ru-RU', { day: 'numeric', month: 'short', year: 'numeric' });
+  }
+
+  function esc(s) {
+    const d = document.createElement('div');
+    d.textContent = s;
+    return d.innerHTML;
+  }
+
+  function fadeGrid() {
+    grid.style.opacity = '0.7';
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => { grid.style.opacity = '1'; });
+    });
+  }
+
+  function render(doFade) {
+    if (doFade) fadeGrid();
+    const q = searchEl.value.trim().toLowerCase();
+    const s = sortEl.value;
+
+    let posts = [...POSTS_DATA];
+
+    if (activeType) {
+      if (activeType === 'stream') {
+        posts = posts.filter(p => { const t = getPostType(p); return t === 'stream' || t === 'audio'; });
+      } else if (activeType === 'materials') {
+        posts = posts.filter(p => MATERIALS_RE.test(p.text || ''));
+      } else {
+        posts = posts.filter(p => getPostType(p) === activeType);
+      }
+    }
+
+    if (activeCat) posts = posts.filter(p => (p.category || []).includes(activeCat));
+
+    if (activeSubCat && activeCat && SUB_CONFIGS[activeCat]) {
+      posts = posts.filter(p => SUB_CONFIGS[activeCat].filter(p, activeSubCat));
+    }
+
+    if (q) {
+      const norm = s => s.toLowerCase().replace(/[-–—]/g, ' ');
+      const qn = norm(q);
+      posts = posts.filter(p => {
+        return norm([p.generated_title, p.topic, p.summary, ...(p.key_theses || []), p.text]
+          .filter(Boolean).join(' ')).includes(qn);
+      });
+    }
+
+    posts.sort((a, b) => {
+      if (s === 'date-desc') return new Date(b.date) - new Date(a.date);
+      if (s === 'date-asc')  return new Date(a.date) - new Date(b.date);
+      if (s === 'views')     return (b.views || 0) - (a.views || 0);
+      if (s === 'forwards')  return (b.forwards || 0) - (a.forwards || 0);
+      return 0;
+    });
+
+    syncTypePills();
+    syncStatCards();
+    syncPills();
+    statsEl.textContent = posts.length + ' из ' + POSTS_DATA.length;
+
+    grid.innerHTML = '';
+
+    if (!posts.length) {
+      grid.innerHTML = '<div class="empty"><span class="empty-glyph">&#8984;</span><div class="empty-text">Ничего не найдено</div></div>';
+      return;
+    }
+
+    const frag = document.createDocumentFragment();
+
+    posts.forEach((p, i) => {
+      const card = mk('article', 'card');
+      card.style.animationDelay = Math.min(i, 20) * 35 + 'ms';
+
+      const cats = p.category || [];
+      const primaryCat = activeCat && cats.includes(activeCat) ? activeCat : cats[0];
+      const pal = primaryCat ? CAT_PALETTE[primaryCat] : null;
+      card.style.setProperty('--stripe-color', pal ? pal.text : '#1a8fa8');
+
+      const pType = getPostType(p);
+      const isAudio = pType === 'audio';
+      const isStreamOrAudio = pType === 'stream' || isAudio;
+
+      let typeBadge;
+      if (isAudio) {
+        typeBadge = '<button class="card-type-badge type-audio" data-typef="stream">Аудио</button>';
+      } else {
+        typeBadge = '<button class="card-type-badge type-' + pType + '" data-typef="' + pType + '">' +
+          (pType === 'stream' ? 'Эфир' : 'Текст') + '</button>';
+      }
+
+      const hasMaterials = MATERIALS_RE.test(p.text || '');
+      if (hasMaterials) {
+        typeBadge += '<button class="card-type-badge type-materials" data-typef="materials">Материалы</button>';
+      }
+
+      /* Build expand button: text posts get toggle, stream/audio get link */
+      let expandHtml = '';
+      if (isStreamOrAudio && p.link) {
+        expandHtml = '<a class="card-expand-btn" href="' + esc(p.link) + '" target="_blank" rel="noopener">' +
+          'Смотреть эфир' +
+          '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>' +
+          '</a>';
+      } else if (p.text) {
+        const photoHtml = p.photo ? '<img src="' + esc(p.photo) + '" alt="">' : '';
+        expandHtml =
+          '<button class="card-expand-btn" data-action="toggle">Читать пост целиком</button>' +
+          '<div class="card-full-text">' + photoHtml + renderPostText(p.text, p.generated_title) + '</div>';
+      }
+
+      card.innerHTML =
+        '<div class="card-top">' +
+          '<div class="card-title">' + esc(p.generated_title || 'Без заголовка') + '</div>' +
+          '<span class="card-date">' + fmtDate(p.date) + '</span>' +
+        '</div>' +
+        '<div class="card-badges">' +
+          cats.map(function(c) {
+            var cp = CAT_PALETTE[c] || { bg: '#e5f2f8', text: '#0a5a7a' };
+            return '<button class="card-cat-badge" data-cat="' + esc(c) + '" style="background:' + cp.bg + ';color:' + cp.text + '">' + esc(c) + '</button>';
+          }).join('') +
+          typeBadge +
+        '</div>' +
+        '<div class="card-topic">' + esc(p.topic || '') + '</div>' +
+        expandHtml;
+
+      /* Category badge click → filter */
+      card.querySelectorAll('.card-cat-badge').forEach(btn => {
+        btn.addEventListener('click', () => {
+          activeCat = btn.dataset.cat;
+          activeSubCat = null;
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+          render(true);
+        });
+      });
+
+      /* Type badge click → filter */
+      card.querySelectorAll('.card-type-badge[data-typef]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          activeType = btn.dataset.typef;
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+          render(true);
+        });
+      });
+
+      /* Expand/collapse toggle */
+      const toggleBtn = card.querySelector('[data-action="toggle"]');
+      if (toggleBtn) {
+        toggleBtn.addEventListener('click', () => {
+          const fullText = card.querySelector('.card-full-text');
+          const isOpen = fullText.classList.toggle('open');
+          toggleBtn.textContent = isOpen ? 'Свернуть' : 'Читать пост целиком';
+        });
+      }
+
+      frag.appendChild(card);
+    });
+
+    grid.appendChild(frag);
+  }
+
+  searchEl.addEventListener('input', () => { clearTimeout(timer); timer = setTimeout(render, 180); });
+
+  /* ── Custom sort dropdown ── */
+  const sortToggle  = sortEl.querySelector('.sort-toggle');
+  const sortOptions = sortEl.querySelector('.sort-options');
+  const sortLabel   = sortEl.querySelector('.sort-label');
+
+  sortToggle.addEventListener('click', (e) => {
+    e.stopPropagation();
+    sortOptions.classList.toggle('open');
+    sortToggle.classList.toggle('open');
+  });
+
+  sortEl.querySelectorAll('.sort-option').forEach(opt => {
+    opt.addEventListener('click', (e) => {
+      e.stopPropagation();
+      sortEl.value = opt.dataset.value;
+      sortLabel.textContent = opt.textContent;
+      sortEl.querySelectorAll('.sort-option').forEach(o => o.classList.remove('active'));
+      opt.classList.add('active');
+      sortOptions.classList.remove('open');
+      sortToggle.classList.remove('open');
+      render(true);
+    });
+  });
+
+  document.addEventListener('click', () => {
+    sortOptions.classList.remove('open');
+    sortToggle.classList.remove('open');
+  });
+
+  window.addEventListener('scroll', () => {
+    toTopBtn.classList.toggle('show', window.scrollY > 500);
+  });
+  toTopBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+
+  /* ── Top-materials toggle (mobile) ── */
+  const topToggle = document.getElementById('topToggle');
+  topToggle.addEventListener('click', () => {
+    const expanded = topSection.classList.toggle('expanded');
+    topToggle.querySelector('.top-toggle-arrow').textContent = expanded ? '▴' : '▾';
+  });
+
+  /* ── Lightbox ── */
+  const lightbox = document.getElementById('lightbox');
+  const lightboxImg = document.getElementById('lightboxImg');
+  document.getElementById('lightboxClose').addEventListener('click', () => lightbox.classList.remove('open'));
+  lightbox.addEventListener('click', (e) => { if (e.target !== lightboxImg) lightbox.classList.remove('open'); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') lightbox.classList.remove('open'); });
+  grid.addEventListener('click', (e) => {
+    const img = e.target.closest('.card-full-text img');
+    if (!img) return;
+    lightboxImg.src = img.src;
+    lightbox.classList.add('open');
+  });
+
+  /* ── Top materials section ── */
+  function buildTopSection() {
+    const TOP_N = 10;
+    const top = [...POSTS_DATA].sort((a, b) => (b.views || 0) - (a.views || 0)).slice(0, TOP_N);
+    const frag = document.createDocumentFragment();
+    top.forEach((p, i) => {
+      const a = document.createElement('a');
+      a.className = 'top-card';
+      if (p.link) { a.href = p.link; a.target = '_blank'; a.rel = 'noopener'; }
+      const cat = (p.category || [])[0];
+      const color = cat ? ((CAT_PALETTE[cat] || {}).text || '#1a8fa8') : '#1a8fa8';
+      a.style.setProperty('--stripe-color', color);
+      a.innerHTML =
+        '<span class="top-card-rank">#' + (i + 1) + '</span>' +
+        '<div class="top-card-cat">' + esc(cat || '') + '</div>' +
+        '<div class="top-card-title">' + esc(p.generated_title || '') + '</div>' +
+        '<div class="top-card-meta">' +
+          '<span>' +
+            '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>' +
+            (p.views ?? '—') +
+          '</span>' +
+          '<span>' +
+            '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>' +
+            (p.forwards ?? '—') +
+          '</span>' +
+        '</div>';
+      frag.appendChild(a);
+    });
+    topScroll.appendChild(frag);
+  }
+
+  /* ── Stats section ── */
+  function buildStatsBar() {
+    const bar = document.getElementById('statsBar');
+    const totalPosts = POSTS_DATA.length;
+    const totalStreams = POSTS_DATA.filter(p => getPostType(p) === 'stream').length;
+    const totalViews = POSTS_DATA.reduce((s, p) => s + (p.views || 0), 0);
+    const totalForwards = POSTS_DATA.reduce((s, p) => s + (p.forwards || 0), 0);
+    const fmt = n => n.toLocaleString('ru-RU');
+    const totalEfirs = totalStreams + POSTS_DATA.filter(p => getPostType(p) === 'audio').length;
+    const totalMaterials = POSTS_DATA.filter(p => MATERIALS_RE.test(p.text || '')).length;
+
+    bar.innerHTML =
+      '<div class="stats-row-1">' +
+        '<div class="stat-card" data-filter=""><div class="stat-card-number">' + fmt(totalPosts) + '</div><div class="stat-card-label">Постов</div></div>' +
+        '<div class="stat-card" data-filter="text"><div class="stat-card-number">' + fmt(totalPosts - totalEfirs) + '</div><div class="stat-card-label">Текстов</div></div>' +
+        '<div class="stat-card" data-filter="stream"><div class="stat-card-number">' + fmt(totalEfirs) + '</div><div class="stat-card-label">Эфиров</div></div>' +
+        '<div class="stat-card" data-filter="materials"><div class="stat-card-number">' + fmt(totalMaterials) + '</div><div class="stat-card-label">Материалов</div></div>' +
+      '</div>' +
+      '<div class="stats-row-2">' +
+        '<div class="stat-mini"><span class="stat-mini-icon">👁</span><span class="stat-mini-number">' + fmt(totalViews) + '</span><span class="stat-mini-label">просмотров</span></div>' +
+        '<div class="stat-mini"><span class="stat-mini-icon">↗</span><span class="stat-mini-number">' + fmt(totalForwards) + '</span><span class="stat-mini-label">репостов</span></div>' +
+      '</div>';
+
+    bar.querySelectorAll('.stat-card[data-filter]').forEach(card => {
+      card.addEventListener('click', () => {
+        const f = card.dataset.filter;
+        activeType = f === '' ? null : f;
+        syncStatCards();
+        render(true);
+      });
+    });
+    syncStatCards();
+  }
+
+  function syncStatCards() {
+    document.querySelectorAll('.stat-card[data-filter]').forEach(card => {
+      const f = card.dataset.filter;
+      card.classList.toggle('active', activeType === null ? f === '' : f === activeType);
+    });
+  }
+
+  buildStatsBar();
+  buildTopSection();
+  buildTypeFilters();
+  buildFilters();
+  render();
+})();
+</script>
+</body>
+</html>
