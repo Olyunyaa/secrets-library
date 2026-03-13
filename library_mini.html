@@ -322,6 +322,7 @@ body {
   padding: 0 1.5rem;
 }
 .top-toggle { display: none; }
+.cat-toggle { display: none; }
 .top-header {
   display: flex;
   align-items: baseline;
@@ -887,14 +888,39 @@ body {
     margin-top: 1rem;
   }
 
-  /* ── 6. Filter pills: wrap to next line ── */
-  .type-filters,
-  .filters {
+  /* ── 6. Filter pills: collapsible categories ── */
+  .type-filters {
     padding: 4px .75rem;
     flex-wrap: wrap;
     gap: 6px;
   }
-  .pill { min-height: 44px; }
+  .pill { min-height: 44px; font-size: .75rem; padding: .35rem .7rem; }
+  .filters {
+    padding: 4px .75rem;
+    flex-wrap: wrap;
+    gap: 6px;
+    display: none;
+  }
+  .filters.expanded { display: flex; }
+  .cat-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    padding: .45rem .9rem;
+    border: 1.5px solid var(--teal-500);
+    border-radius: 99px;
+    background: var(--white);
+    font-family: inherit;
+    font-size: .8rem;
+    font-weight: 600;
+    color: var(--teal-600);
+    cursor: pointer;
+    min-height: 44px;
+    margin: .4rem 0 0 .75rem;
+    transition: background .2s ease;
+  }
+  .cat-toggle:hover { background: var(--aqua-50); }
+  .cat-toggle .active-cat { color: var(--teal-800); }
   .sub-filters {
     padding: 4px .75rem 4px 1.5rem;
     flex-wrap: wrap;
@@ -955,6 +981,7 @@ body {
 
 <div class="type-filters" id="typeFilters"></div>
 
+<button class="cat-toggle" id="catToggle">Категория <span class="cat-toggle-arrow">▾</span></button>
 <div class="filters" id="filters"></div>
 
 <div class="sub-filters" id="subFilters"></div>
@@ -1247,6 +1274,7 @@ body {
     syncTypePills();
     syncStatCards();
     syncPills();
+    updateCatToggleLabel();
     statsEl.textContent = posts.length + ' из ' + POSTS_DATA.length;
 
     grid.innerHTML = '';
@@ -1383,6 +1411,21 @@ body {
     toTopBtn.classList.toggle('show', window.scrollY > 500);
   });
   toTopBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+
+  /* ── Category toggle (mobile) ── */
+  const catToggle = document.getElementById('catToggle');
+  catToggle.addEventListener('click', () => {
+    const expanded = filtersEl.classList.toggle('expanded');
+    catToggle.querySelector('.cat-toggle-arrow').textContent = expanded ? '▴' : '▾';
+  });
+  function updateCatToggleLabel() {
+    if (activeCat) {
+      catToggle.innerHTML = 'Категория: <span class="active-cat">' + esc(activeCat) + '</span> <span class="cat-toggle-arrow">▾</span>';
+    } else {
+      catToggle.innerHTML = 'Категория <span class="cat-toggle-arrow">▾</span>';
+    }
+    filtersEl.classList.remove('expanded');
+  }
 
   /* ── Top-materials toggle (mobile) ── */
   const topToggle = document.getElementById('topToggle');
