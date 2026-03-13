@@ -845,16 +845,14 @@ body {
     font-size: .85rem;
     padding: .5rem .7rem .5rem 2.2rem;
   }
-  .sort-dropdown { flex: 3 1 0; min-width: 0; }
+  .sort-dropdown { flex: 0 0 auto; min-width: fit-content; }
   .sort-toggle {
     min-height: 44px;
     padding: .5rem .6rem;
     font-size: .8rem;
     gap: .3rem;
-    width: 100%;
-    justify-content: center;
+    white-space: nowrap;
   }
-  .sort-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .stats-badge { display: none; }
 
   /* ── 4. Топ-материалы: collapsible on mobile ── */
@@ -889,29 +887,20 @@ body {
     margin-top: 1rem;
   }
 
-  /* ── 6. Filter pills: horizontal scroll, no wrap ── */
+  /* ── 6. Filter pills: wrap to next line ── */
   .type-filters,
   .filters {
-    padding: 0 .75rem;
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
+    padding: 4px .75rem;
+    flex-wrap: wrap;
+    gap: 6px;
   }
-  .type-filters::-webkit-scrollbar,
-  .filters::-webkit-scrollbar { display: none; }
-  .type-filters-label,
-  .filters-label { flex-shrink: 0; }
-  .pill { flex-shrink: 0; min-height: 44px; }
+  .pill { min-height: 44px; }
   .sub-filters {
-    padding: 0 .75rem 0 1.5rem;
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
+    padding: 4px .75rem 4px 1.5rem;
+    flex-wrap: wrap;
+    gap: 6px;
   }
-  .sub-filters::-webkit-scrollbar { display: none; }
-  .sub-pill { flex-shrink: 0; min-height: 44px; }
+  .sub-pill { min-height: 44px; }
 
   /* ── 7. Cards ── */
   .card { padding: 0 1rem 1rem; }
