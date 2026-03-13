@@ -1343,20 +1343,22 @@ body {
 
       /* Category badge click → filter */
       card.querySelectorAll('.card-cat-badge').forEach(btn => {
-        btn.addEventListener('click', () => {
+        btn.addEventListener('click', (e) => {
+          e.preventDefault();
           activeCat = btn.dataset.cat;
           activeSubCat = null;
-          window.scrollTo({ top: 0, behavior: 'smooth' });
           render(true);
+          typeFlEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
         });
       });
 
       /* Type badge click → filter */
       card.querySelectorAll('.card-type-badge[data-typef]').forEach(btn => {
-        btn.addEventListener('click', () => {
+        btn.addEventListener('click', (e) => {
+          e.preventDefault();
           activeType = btn.dataset.typef;
-          window.scrollTo({ top: 0, behavior: 'smooth' });
           render(true);
+          typeFlEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
         });
       });
 
