@@ -580,6 +580,7 @@ body {
   align-items: flex-start;
   gap: .6rem;
   padding-top: .8rem;
+  padding-right: 2.2rem;
 }
 .card-title {
   font-family: 'Playfair Display', serif;
@@ -773,6 +774,50 @@ body {
   opacity: .5;
 }
 .empty-text { font-size: 1rem; }
+
+/* ═══════════════════════════════════════════
+   FAVORITES STAR
+   ═══════════════════════════════════════════ */
+.card-star {
+  position: absolute;
+  top: 0;
+  right: .4rem;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  z-index: 2;
+  -webkit-tap-highlight-color: transparent;
+}
+.card-star svg {
+  width: 20px;
+  height: 20px;
+  color: #c0c8cd;
+  transition: color .2s ease, transform .2s ease;
+}
+.card-star.active svg {
+  color: #f0b429;
+  transform: scale(1.1);
+}
+.card-star.pop svg {
+  animation: starPop .4s ease;
+}
+@keyframes starPop {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.35); }
+  70%  { transform: scale(1.15); }
+  100% { transform: scale(1.1); }
+}
+.pill[data-type="favs"].active {
+  background: #fef5e0;
+  border-color: #e09f18;
+  color: #b07d0e;
+}
 
 /* ═══════════════════════════════════════════
    SCROLL-TO-TOP
@@ -1019,6 +1064,22 @@ body {
   let activeSubCat = null;
   let timer = null;
 
+  /* ── Favorites (localStorage) ── */
+  const FAVS_KEY = 'secrets_favorites';
+  function getFavs() {
+    try { return new Set(JSON.parse(localStorage.getItem(FAVS_KEY) || '[]')); }
+    catch { return new Set(); }
+  }
+  function saveFavs(set) {
+    localStorage.setItem(FAVS_KEY, JSON.stringify([...set]));
+  }
+  let favs = getFavs();
+
+  function postKey(p) { return p.channel_id + '_' + p.id; }
+
+  const STAR_OUTLINE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>';
+  const STAR_FILLED  = '<svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>';
+
   const CAT_PALETTE = {
     'Внутрянка большого бизнеса': { bg: '#dce7f0', text: '#2a5f8f' },
     'Деньги':                     { bg: '#edeadb', text: '#6b5d26' },
@@ -1114,6 +1175,10 @@ body {
       b.addEventListener('click', () => { activeType = key; render(true); });
       typeFlEl.appendChild(b);
     });
+    const favPill = mk('button', 'pill', '★ Избранное (' + favs.size + ')');
+    favPill.dataset.type = 'favs';
+    favPill.addEventListener('click', () => { activeType = 'favs'; render(true); });
+    typeFlEl.appendChild(favPill);
   }
 
   function syncTypePills() {
@@ -1122,6 +1187,11 @@ body {
         activeType === null ? b.dataset.type === '' : b.dataset.type === activeType
       );
     });
+  }
+
+  function updateFavsPill() {
+    const pill = typeFlEl.querySelector('.pill[data-type="favs"]');
+    if (pill) pill.textContent = '★ Избранное (' + favs.size + ')';
   }
 
   /* ── Category filter row ── */
@@ -1244,7 +1314,10 @@ body {
     let posts = [...POSTS_DATA];
 
     if (activeType) {
-      if (activeType === 'stream') {
+      if (activeType === 'favs') {
+        favs = getFavs();
+        posts = posts.filter(p => favs.has(postKey(p)));
+      } else if (activeType === 'stream') {
         posts = posts.filter(p => { const t = getPostType(p); return t === 'stream' || t === 'audio'; });
       } else if (activeType === 'materials') {
         posts = posts.filter(p => MATERIALS_RE.test(p.text || ''));
@@ -1277,6 +1350,7 @@ body {
     });
 
     syncTypePills();
+    updateFavsPill();
     syncStatCards();
     syncPills();
     updateCatToggleLabel();
@@ -1331,7 +1405,12 @@ body {
           '<div class="card-full-text">' + photoHtml + renderPostText(p.text, p.generated_title) + '</div>';
       }
 
+      const pk = postKey(p);
+      const isFav = favs.has(pk);
       card.innerHTML =
+        '<button class="card-star' + (isFav ? ' active' : '') + '" data-uid="' + pk + '" aria-label="В избранное">' +
+          (isFav ? STAR_FILLED : STAR_OUTLINE) +
+        '</button>' +
         '<div class="card-top">' +
           '<div class="card-title">' + esc(p.generated_title || 'Без заголовка') + '</div>' +
           '<span class="card-date">' + fmtDate(p.date) + '</span>' +
@@ -1459,6 +1538,23 @@ body {
     if (!img) return;
     lightboxImg.src = img.src;
     lightbox.classList.add('open');
+  });
+
+  /* ── Star (favorite) click handler ── */
+  grid.addEventListener('click', (e) => {
+    const btn = e.target.closest('.card-star');
+    if (!btn) return;
+    e.stopPropagation();
+    const uid = btn.dataset.uid;
+    const isNowFav = !favs.has(uid);
+    if (isNowFav) favs.add(uid); else favs.delete(uid);
+    saveFavs(favs);
+    btn.classList.toggle('active', isNowFav);
+    btn.innerHTML = isNowFav ? STAR_FILLED : STAR_OUTLINE;
+    btn.classList.remove('pop');
+    void btn.offsetWidth; // reflow
+    btn.classList.add('pop');
+    updateFavsPill();
   });
 
   /* ── Top materials section ── */
