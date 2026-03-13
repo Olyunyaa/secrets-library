@@ -802,36 +802,96 @@ body {
   100% { transform: scale(1); }
 }
 
-/* ── Toolbar: Избранное toggle ── */
-.fav-toggle {
-  display: inline-flex;
+/* ═══════════════════════════════════════════
+   CATEGORY DROPDOWN (mobile)
+   ═══════════════════════════════════════════ */
+.cat-dropdown { display: none; }
+
+.cat-dropdown-toggle {
+  display: flex;
   align-items: center;
-  gap: .35rem;
-  padding: .5rem .85rem;
+  justify-content: space-between;
+  gap: .4rem;
+  padding: .55rem 1rem;
   border: 1.5px solid var(--gray-200);
   border-radius: 99px;
   background: var(--white);
   font-family: inherit;
   font-size: .82rem;
   font-weight: 500;
+  color: var(--gray-700);
+  cursor: pointer;
+  min-height: 44px;
+  transition: border-color .2s ease, box-shadow .2s ease, background .2s ease;
+}
+.cat-dropdown-toggle:hover { border-color: var(--gray-300); }
+.cat-dropdown-toggle.open {
+  border-color: var(--teal-400);
+  box-shadow: 0 0 0 3px rgba(26,143,168,.15);
+}
+.cat-dropdown-options {
+  position: absolute;
+  left: 0; right: 0;
+  top: calc(100% + 4px);
+  background: var(--white);
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(6,51,82,.14), 0 1px 3px rgba(0,0,0,.04);
+  padding: .35rem 0;
+  z-index: 50;
+  max-height: 60vh;
+  overflow-y: auto;
+  opacity: 0; visibility: hidden; transform: translateY(-4px);
+  transition: opacity .18s ease, transform .18s ease, visibility .18s ease;
+}
+.cat-dropdown-options.open { opacity: 1; visibility: visible; transform: translateY(0); }
+.cat-dropdown-option {
+  padding: .5rem 1rem;
+  font-size: .82rem;
+  color: var(--gray-700);
+  cursor: pointer;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  transition: background .15s ease;
+}
+.cat-dropdown-option:hover { background: #e5f2f8; }
+.cat-dropdown-option.active { font-weight: 600; color: var(--teal-700); }
+.cat-dropdown-option .cat-dot {
+  width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+}
+
+/* ═══════════════════════════════════════════
+   TOGGLES ROW (Row 4)
+   ═══════════════════════════════════════════ */
+.toggles-row {
+  display: none; /* shown only on mobile */
+}
+.toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+  padding: .5rem .9rem;
+  border: 1.5px solid var(--gray-200);
+  border-radius: 99px;
+  background: var(--white);
+  font-family: inherit;
+  font-size: .8rem;
+  font-weight: 500;
   color: var(--gray-600);
   cursor: pointer;
-  white-space: nowrap;
   min-height: 44px;
   transition: all .2s ease;
 }
-.fav-toggle:hover {
-  border-color: var(--gray-300);
-  color: var(--gray-700);
-}
-.fav-toggle.active {
+.toggle-btn:hover { border-color: var(--gray-300); color: var(--gray-700); }
+.toggle-btn.active {
   background: #e8f4f8;
-  border-color: #0a5a7a;
-  color: #0a5a7a;
+  border-color: var(--teal-500);
+  color: var(--teal-700);
   font-weight: 600;
 }
-.fav-toggle .fav-count {
-  font-size: .7rem;
+.toggle-btn .fav-count {
+  font-size: .68rem;
   font-weight: 600;
   background: var(--gray-200);
   color: var(--gray-600);
@@ -841,10 +901,20 @@ body {
   text-align: center;
   transition: background .2s ease, color .2s ease;
 }
-.fav-toggle.active .fav-count {
-  background: #0a5a7a;
+.toggle-btn.active .fav-count {
+  background: var(--teal-600);
   color: var(--white);
 }
+
+/* ── Fav carousel section ── */
+.fav-section {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+  display: none;
+}
+.fav-section.expanded { display: block; }
+.fav-section .top-scroll { display: flex; }
 
 /* ═══════════════════════════════════════════
    SCROLL-TO-TOP
@@ -900,11 +970,11 @@ body {
   .stats-row-2 { gap: 1rem; padding-top: 0; }
   .stat-mini { font-size: .7rem; }
 
-  /* ── 3. Toolbar: 2-row layout on mobile ── */
+  /* ── Row 1: Search (~65%) + Sort (~33%) ── */
   .toolbar { padding: 0 .75rem; margin-top: .75rem; }
   .toolbar-inner {
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     padding: 0;
     background: none;
     box-shadow: none;
@@ -912,17 +982,15 @@ body {
     gap: .5rem;
     align-items: stretch;
   }
-  .search-wrap { flex: 0 0 100%; min-width: 0; order: 0; }
+  .search-wrap { flex: 65 1 0; min-width: 0; }
   .search-wrap input {
     width: 100%;
     height: 44px;
     min-height: 44px;
     font-size: .85rem;
     padding: .5rem .7rem .5rem 2.2rem;
-    text-overflow: clip;
-    overflow: visible;
   }
-  .sort-dropdown { flex: 7 1 0; min-width: 0; order: 1; }
+  .sort-dropdown { flex: 33 1 0; min-width: 0; }
   .sort-toggle {
     width: 100%;
     min-height: 44px;
@@ -930,77 +998,26 @@ body {
     font-size: .8rem;
     gap: .3rem;
     white-space: nowrap;
-    overflow: visible;
-    text-overflow: clip;
   }
-  .fav-toggle { flex: 3 1 0; min-width: 0; order: 2; font-size: .78rem; padding: .4rem .7rem; justify-content: center; overflow: visible; text-overflow: clip; }
   .stats-badge { display: none; }
 
-  /* ── 4. Топ-материалы: collapsible on mobile ── */
-  .top-section { padding: 0 .75rem; margin-top: 1rem; }
-  .top-header { display: none; }
-  .top-toggle {
-    display: inline-flex;
-    align-items: center;
-    gap: .35rem;
-    padding: .45rem .9rem;
-    border: 1.5px solid var(--teal-500);
-    border-radius: 99px;
-    background: var(--white);
-    font-family: inherit;
-    font-size: .8rem;
-    font-weight: 600;
-    color: var(--teal-600);
-    cursor: pointer;
-    min-height: 44px;
-    margin-bottom: .5rem;
-    transition: background .2s ease;
-  }
-  .top-toggle:hover { background: var(--aqua-50); }
-  .top-scroll { display: none; }
-  .top-section.expanded .top-scroll { display: flex; }
-
-  /* ── 5. Grid: single column ── */
-  .grid {
-    grid-template-columns: 1fr;
-    padding: 0 .75rem;
-    gap: .9rem;
-    margin-top: 1rem;
-  }
-
-  /* ── 6. Filter pills: collapsible categories ── */
+  /* ── Row 2: Type pills ── */
   .type-filters {
     padding: 4px .75rem;
     flex-wrap: wrap;
     gap: 6px;
   }
   .pill { min-height: 44px; font-size: .75rem; padding: .35rem .7rem; }
-  .filters {
-    padding: 4px .75rem;
-    flex-wrap: wrap;
-    gap: 6px;
-    display: none;
+
+  /* ── Row 3: Category dropdown (replaces pills on mobile) ── */
+  .cat-dropdown {
+    display: block;
+    position: relative;
+    margin: .4rem .75rem 0;
   }
-  .filters.expanded { display: flex; }
-  .cat-toggle {
-    display: inline-flex;
-    align-items: center;
-    gap: .35rem;
-    padding: .45rem .9rem;
-    border: 1.5px solid var(--teal-500);
-    border-radius: 99px;
-    background: var(--white);
-    font-family: inherit;
-    font-size: .8rem;
-    font-weight: 600;
-    color: var(--teal-600);
-    cursor: pointer;
-    min-height: 44px;
-    margin: .4rem 0 0 .75rem;
-    transition: background .2s ease;
-  }
-  .cat-toggle:hover { background: var(--aqua-50); }
-  .cat-toggle .active-cat { color: var(--teal-800); }
+  .cat-toggle { display: none; }
+  .filters { display: none !important; }
+
   .sub-filters {
     padding: 4px .75rem 4px 1.5rem;
     flex-wrap: wrap;
@@ -1008,7 +1025,30 @@ body {
   }
   .sub-pill { min-height: 44px; }
 
-  /* ── 7. Cards ── */
+  /* ── Row 4: Top + Favorites toggles ── */
+  .toggles-row {
+    display: flex;
+    gap: .5rem;
+    padding: .5rem .75rem 0;
+  }
+  .toggles-row .toggle-btn { flex: 1 1 0; justify-content: center; }
+
+  /* ── Carousels on mobile ── */
+  .top-section { padding: 0 .75rem; margin-top: .5rem; }
+  .top-header { display: none; }
+  .top-scroll { display: none; }
+  .top-section.expanded .top-scroll { display: flex; }
+  .fav-section { padding: 0 .75rem; margin-top: .5rem; }
+
+  /* ── Grid: single column ── */
+  .grid {
+    grid-template-columns: 1fr;
+    padding: 0 .75rem;
+    gap: .9rem;
+    margin-top: 1rem;
+  }
+
+  /* ── Cards ── */
   .card { padding: 0 1rem 1rem; }
   .card::before { margin: 0 -1rem 0; }
   .card-top { flex-direction: column; gap: .2rem; }
@@ -1043,29 +1083,45 @@ body {
       <div class="sort-options">
         <div class="sort-option active" data-value="date-desc">Сначала новые</div>
         <div class="sort-option" data-value="date-asc">Сначала старые</div>
-        <div class="sort-option" data-value="views">Сначала популярные</div>
+        <div class="sort-option" data-value="views">Популярные</div>
       </div>
     </div>
-    <button class="fav-toggle" id="favToggle">♡ Избранное <span class="fav-count" id="favCount">0</span></button>
     <span class="stats-badge" id="stats"></span>
   </div>
 </div>
 
+<div class="type-filters" id="typeFilters"></div>
+
+<!-- Row 3: Category dropdown (mobile) + pills (desktop) -->
+<div class="cat-dropdown" id="catDropdown">
+  <div class="cat-dropdown-toggle" id="catDropdownToggle">
+    <span class="cat-dropdown-label">Категория: Все</span>
+    <svg class="sort-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+  <div class="cat-dropdown-options" id="catDropdownOptions"></div>
+</div>
+<button class="cat-toggle" id="catToggle">Категория <span class="cat-toggle-arrow">▾</span></button>
+<div class="filters" id="filters"></div>
+
+<div class="sub-filters" id="subFilters"></div>
+
+<!-- Row 4: Toggles row -->
+<div class="toggles-row" id="togglesRow">
+  <button class="toggle-btn" id="topToggle">⭐ Топ-материалы</button>
+  <button class="toggle-btn" id="favToggle">♡ Избранное <span class="fav-count" id="favCount">0</span></button>
+</div>
+
+<!-- Carousels -->
 <div class="top-section" id="topSection">
-  <button class="top-toggle" id="topToggle">⭐ Топ-материалы <span class="top-toggle-arrow">▾</span></button>
   <div class="top-header">
     <span class="top-label">Топ-материалы</span>
     <span class="top-sub">самые читаемые посты</span>
   </div>
   <div class="top-scroll" id="topScroll"></div>
 </div>
-
-<div class="type-filters" id="typeFilters"></div>
-
-<button class="cat-toggle" id="catToggle">Категория <span class="cat-toggle-arrow">▾</span></button>
-<div class="filters" id="filters"></div>
-
-<div class="sub-filters" id="subFilters"></div>
+<div class="fav-section" id="favSection">
+  <div class="top-scroll" id="favScroll"></div>
+</div>
 
 <div class="grid" id="grid"></div>
 
@@ -1225,19 +1281,14 @@ body {
   }
 
   const favToggleBtn = document.getElementById('favToggle');
-  const favCountEl   = document.getElementById('favCount');
+  const favSection   = document.getElementById('favSection');
+  const favScroll    = document.getElementById('favScroll');
+  const topToggleBtn = document.getElementById('topToggle');
 
   function updateFavsUI() {
-    favCountEl.textContent = favs.size;
-    favToggleBtn.classList.toggle('active', activeType === 'favs');
-    const heart = activeType === 'favs' ? HEART_ON : HEART_OFF;
-    favToggleBtn.innerHTML = heart + ' Избранное <span class="fav-count" id="favCount">' + favs.size + '</span>';
+    favToggleBtn.innerHTML = (favToggleBtn.classList.contains('active') ? HEART_ON : HEART_OFF) +
+      ' Избранное <span class="fav-count">' + favs.size + '</span>';
   }
-
-  favToggleBtn.addEventListener('click', () => {
-    activeType = activeType === 'favs' ? null : 'favs';
-    render(true);
-  });
 
   /* ── Category filter row ── */
   function buildFilters() {
@@ -1359,10 +1410,7 @@ body {
     let posts = [...POSTS_DATA];
 
     if (activeType) {
-      if (activeType === 'favs') {
-        favs = getFavs();
-        posts = posts.filter(p => favs.has(postKey(p)));
-      } else if (activeType === 'stream') {
+      if (activeType === 'stream') {
         posts = posts.filter(p => { const t = getPostType(p); return t === 'stream' || t === 'audio'; });
       } else if (activeType === 'materials') {
         posts = posts.filter(p => MATERIALS_RE.test(p.text || ''));
@@ -1399,6 +1447,7 @@ body {
     syncStatCards();
     syncPills();
     updateCatToggleLabel();
+    selectCatDD(activeCat || '');
     statsEl.textContent = posts.length + ' из ' + POSTS_DATA.length;
 
     grid.innerHTML = '';
@@ -1539,11 +1588,11 @@ body {
   });
 
   window.addEventListener('scroll', () => {
-    toTopBtn.classList.toggle('show', window.scrollY > 500);
+    toTopBtn.classList.toggle('show', window.scrollY > 300);
   });
   toTopBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
 
-  /* ── Category toggle (mobile) ── */
+  /* ── Category toggle (mobile — old pill expander, kept for desktop) ── */
   const catToggle = document.getElementById('catToggle');
   catToggle.addEventListener('click', () => {
     const expanded = filtersEl.classList.toggle('expanded');
@@ -1565,12 +1614,112 @@ body {
     filtersEl.classList.remove('expanded');
   }
 
-  /* ── Top-materials toggle (mobile) ── */
-  const topToggle = document.getElementById('topToggle');
-  topToggle.addEventListener('click', () => {
-    const expanded = topSection.classList.toggle('expanded');
-    topToggle.querySelector('.top-toggle-arrow').textContent = expanded ? '▴' : '▾';
+  /* ── Category dropdown (mobile) ── */
+  const catDDToggle  = document.getElementById('catDropdownToggle');
+  const catDDOptions = document.getElementById('catDropdownOptions');
+  const catDDLabel   = catDDToggle.querySelector('.cat-dropdown-label');
+
+  function buildCatDropdown() {
+    const allOpt = mk('div', 'cat-dropdown-option active', 'Все (' + POSTS_DATA.length + ')');
+    allOpt.dataset.cat = '';
+    allOpt.addEventListener('click', () => { activeCat = null; activeSubCat = null; selectCatDD(''); render(true); });
+    catDDOptions.appendChild(allOpt);
+    cats.forEach(c => {
+      const opt = mk('div', 'cat-dropdown-option');
+      const pal = CAT_PALETTE[c];
+      const dot = '<span class="cat-dot" style="background:' + (pal ? pal.text : '#1a8fa8') + '"></span>';
+      opt.innerHTML = dot + esc(c) + ' <span style="color:var(--gray-400);font-size:.75rem">(' + catCount(c) + ')</span>';
+      opt.dataset.cat = c;
+      opt.addEventListener('click', () => { activeCat = c; activeSubCat = null; selectCatDD(c); render(true); });
+      catDDOptions.appendChild(opt);
+    });
+  }
+
+  function selectCatDD(c) {
+    catDDOptions.classList.remove('open');
+    catDDToggle.classList.remove('open');
+    catDDOptions.querySelectorAll('.cat-dropdown-option').forEach(o => {
+      o.classList.toggle('active', o.dataset.cat === (c || ''));
+    });
+    if (c) {
+      const pal = CAT_PALETTE[c] || { bg: '#e5f2f8', text: '#0a5a7a' };
+      catDDLabel.textContent = c;
+      catDDToggle.style.background = pal.bg;
+      catDDToggle.style.borderColor = pal.text;
+      catDDToggle.style.color = pal.text;
+    } else {
+      catDDLabel.textContent = 'Категория: Все';
+      catDDToggle.style.background = '';
+      catDDToggle.style.borderColor = '';
+      catDDToggle.style.color = '';
+    }
+  }
+
+  catDDToggle.addEventListener('click', (e) => {
+    e.stopPropagation();
+    catDDOptions.classList.toggle('open');
+    catDDToggle.classList.toggle('open');
   });
+  document.addEventListener('click', () => {
+    catDDOptions.classList.remove('open');
+    catDDToggle.classList.remove('open');
+  });
+
+  /* ── Row 4: Top + Favorites carousel toggles ── */
+  function closeAllCarousels() {
+    topSection.classList.remove('expanded');
+    topToggleBtn.classList.remove('active');
+    favSection.classList.remove('expanded');
+    favToggleBtn.classList.remove('active');
+    updateFavsUI();
+  }
+
+  topToggleBtn.addEventListener('click', () => {
+    const wasOpen = topSection.classList.contains('expanded');
+    closeAllCarousels();
+    if (!wasOpen) {
+      topSection.classList.add('expanded');
+      topToggleBtn.classList.add('active');
+    }
+  });
+
+  favToggleBtn.addEventListener('click', () => {
+    const wasOpen = favSection.classList.contains('expanded');
+    closeAllCarousels();
+    if (!wasOpen) {
+      buildFavCarousel();
+      favSection.classList.add('expanded');
+      favToggleBtn.classList.add('active');
+    }
+    updateFavsUI();
+  });
+
+  function buildFavCarousel() {
+    favScroll.innerHTML = '';
+    favs = getFavs();
+    if (!favs.size) {
+      favScroll.innerHTML = '<div style="padding:1rem;color:var(--gray-400);font-size:.85rem;white-space:nowrap">Нет сохранённых постов</div>';
+      return;
+    }
+    const favPosts = POSTS_DATA.filter(p => favs.has(postKey(p)));
+    const frag = document.createDocumentFragment();
+    favPosts.forEach((p, i) => {
+      const a = document.createElement('a');
+      a.className = 'top-card';
+      if (p.link) { a.href = p.link; a.target = '_blank'; a.rel = 'noopener'; }
+      const cat = (p.category || [])[0];
+      const color = cat ? ((CAT_PALETTE[cat] || {}).text || '#1a8fa8') : '#1a8fa8';
+      a.style.setProperty('--stripe-color', color);
+      a.innerHTML =
+        '<div class="top-card-cat">' + esc(cat || '') + '</div>' +
+        '<div class="top-card-title">' + esc(p.generated_title || '') + '</div>' +
+        '<div class="top-card-meta">' +
+          '<span>' + fmtDate(p.date) + '</span>' +
+        '</div>';
+      frag.appendChild(a);
+    });
+    favScroll.appendChild(frag);
+  }
 
   /* ── Lightbox ── */
   const lightbox = document.getElementById('lightbox');
@@ -1600,6 +1749,7 @@ body {
     void btn.offsetWidth;
     btn.classList.add('pop');
     updateFavsUI();
+    if (favSection.classList.contains('expanded')) buildFavCarousel();
   });
 
   /* ── Top materials section ── */
@@ -1678,6 +1828,7 @@ body {
   buildTopSection();
   buildTypeFilters();
   buildFilters();
+  buildCatDropdown();
   render();
 })();
 </script>
