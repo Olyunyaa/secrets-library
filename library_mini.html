@@ -318,6 +318,7 @@ body {
   margin: 1.5rem auto 0;
   padding: 0 1.5rem;
 }
+.top-toggle { display: none; }
 .top-header {
   display: flex;
   align-items: baseline;
@@ -853,8 +854,29 @@ body {
   .sort-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .stats-badge { display: none; }
 
-  /* ── 4. Hide Топ-материалы on mobile ── */
-  .top-section { display: none; }
+  /* ── 4. Топ-материалы: collapsible on mobile ── */
+  .top-section { padding: 0 .75rem; margin-top: 1rem; }
+  .top-header { display: none; }
+  .top-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    padding: .45rem .9rem;
+    border: 1.5px solid var(--teal-500);
+    border-radius: 99px;
+    background: var(--white);
+    font-family: inherit;
+    font-size: .8rem;
+    font-weight: 600;
+    color: var(--teal-600);
+    cursor: pointer;
+    min-height: 44px;
+    margin-bottom: .5rem;
+    transition: background .2s ease;
+  }
+  .top-toggle:hover { background: var(--aqua-50); }
+  .top-scroll { display: none; }
+  .top-section.expanded .top-scroll { display: flex; }
 
   /* ── 5. Grid: single column ── */
   .grid {
@@ -931,6 +953,7 @@ body {
 </div>
 
 <div class="top-section" id="topSection">
+  <button class="top-toggle" id="topToggle">⭐ Топ-материалы <span class="top-toggle-arrow">▾</span></button>
   <div class="top-header">
     <span class="top-label">Топ-материалы</span>
     <span class="top-sub">самые читаемые посты</span>
@@ -1368,6 +1391,13 @@ body {
     toTopBtn.classList.toggle('show', window.scrollY > 500);
   });
   toTopBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+
+  /* ── Top-materials toggle (mobile) ── */
+  const topToggle = document.getElementById('topToggle');
+  topToggle.addEventListener('click', () => {
+    const expanded = topSection.classList.toggle('expanded');
+    topToggle.querySelector('.top-toggle-arrow').textContent = expanded ? '▴' : '▾';
+  });
 
   /* ── Lightbox ── */
   const lightbox = document.getElementById('lightbox');
