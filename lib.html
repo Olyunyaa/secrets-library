@@ -780,38 +780,58 @@ body {
    ═══════════════════════════════════════════ */
 .card-star {
   position: absolute;
-  top: 0;
-  right: .4rem;
-  width: 36px;
-  height: 36px;
+  top: 6px;
+  right: .5rem;
+  width: 34px;
+  height: 34px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: none;
-  border: none;
+  background: rgba(255,255,255,.7);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  border: 1.5px solid rgba(0,0,0,.06);
+  border-radius: 50%;
   cursor: pointer;
   padding: 0;
   z-index: 2;
   -webkit-tap-highlight-color: transparent;
+  transition: background .25s ease, border-color .25s ease, box-shadow .25s ease;
+}
+.card-star:hover {
+  background: rgba(255,255,255,.92);
+  border-color: rgba(0,0,0,.1);
+}
+.card-star.active {
+  background: #fef9eb;
+  border-color: rgba(240,180,41,.3);
+  box-shadow: 0 0 8px rgba(240,180,41,.25);
 }
 .card-star svg {
-  width: 20px;
-  height: 20px;
-  color: #c0c8cd;
-  transition: color .2s ease, transform .2s ease;
+  width: 18px;
+  height: 18px;
+  color: #b8c2c8;
+  transition: color .25s ease, transform .25s ease, filter .25s ease;
+  filter: drop-shadow(0 0 0 transparent);
+}
+.card-star:hover svg {
+  color: #d4a017;
+  transform: scale(1.08);
 }
 .card-star.active svg {
   color: #f0b429;
-  transform: scale(1.1);
+  transform: scale(1.05);
+  filter: drop-shadow(0 1px 3px rgba(224,159,24,.4));
 }
 .card-star.pop svg {
-  animation: starPop .4s ease;
+  animation: starPop .45s cubic-bezier(.34,1.56,.64,1);
 }
 @keyframes starPop {
   0%   { transform: scale(1); }
-  40%  { transform: scale(1.35); }
-  70%  { transform: scale(1.15); }
-  100% { transform: scale(1.1); }
+  35%  { transform: scale(1.4); }
+  55%  { transform: scale(.95); }
+  75%  { transform: scale(1.15); }
+  100% { transform: scale(1.05); }
 }
 .pill[data-type="favs"].active {
   background: #fef5e0;
