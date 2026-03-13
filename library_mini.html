@@ -780,14 +780,14 @@ body {
    ═══════════════════════════════════════════ */
 .card-fav {
   position: absolute;
-  top: 12px;
-  right: .85rem;
+  top: 4px;
+  right: .3rem;
   background: none;
   border: none;
   cursor: pointer;
-  padding: 0;
+  padding: 8px;
   z-index: 2;
-  font-size: 1rem;
+  font-size: 1.4rem;
   line-height: 1;
   color: #cbd5e1;
   -webkit-tap-highlight-color: transparent;
@@ -900,10 +900,10 @@ body {
   .stats-row-2 { gap: 1rem; padding-top: 0; }
   .stat-mini { font-size: .7rem; }
 
-  /* ── 3. Toolbar: search + sort on one line, no card wrapper ── */
+  /* ── 3. Toolbar: 2-row layout on mobile ── */
   .toolbar { padding: 0 .75rem; margin-top: .75rem; }
   .toolbar-inner {
-    flex-direction: row;
+    display: flex;
     flex-wrap: wrap;
     padding: 0;
     background: none;
@@ -912,21 +912,28 @@ body {
     gap: .5rem;
     align-items: stretch;
   }
-  .fav-toggle { font-size: .78rem; padding: .4rem .7rem; order: -1; flex: 0 0 auto; }
-  .search-wrap { flex: 7 1 0; min-width: 0; }
+  .search-wrap { flex: 0 0 100%; min-width: 0; order: 0; }
   .search-wrap input {
+    width: 100%;
+    height: 44px;
     min-height: 44px;
     font-size: .85rem;
     padding: .5rem .7rem .5rem 2.2rem;
+    text-overflow: clip;
+    overflow: visible;
   }
-  .sort-dropdown { flex: 0 0 auto; min-width: fit-content; }
+  .sort-dropdown { flex: 7 1 0; min-width: 0; order: 1; }
   .sort-toggle {
+    width: 100%;
     min-height: 44px;
     padding: .5rem .6rem;
     font-size: .8rem;
     gap: .3rem;
     white-space: nowrap;
+    overflow: visible;
+    text-overflow: clip;
   }
+  .fav-toggle { flex: 3 1 0; min-width: 0; order: 2; font-size: .78rem; padding: .4rem .7rem; justify-content: center; overflow: visible; text-overflow: clip; }
   .stats-badge { display: none; }
 
   /* ── 4. Топ-материалы: collapsible on mobile ── */
@@ -1026,7 +1033,7 @@ body {
   <div class="toolbar-inner">
     <div class="search-wrap">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21"/></svg>
-      <input type="text" id="search" placeholder="Поиск по заголовку, теме, тезисам...">
+      <input type="text" id="search" placeholder="Поиск по заголовку, теме...">
     </div>
     <div class="sort-dropdown" id="sort">
       <div class="sort-toggle">
