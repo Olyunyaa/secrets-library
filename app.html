@@ -635,8 +635,7 @@ body {
 .card-type-badge:hover { filter: brightness(.92); }
 .card-type-badge.type-stream,
 .card-type-badge.type-audio,
-.card-type-badge.type-text,
-.card-type-badge.type-materials {
+.card-type-badge.type-text {
   background: var(--gray-100);
   color: var(--gray-500);
 }
@@ -1259,9 +1258,7 @@ function initApp() {
   const TYPE_LABELS = {
     'text':      'Текст',
     'stream':    'Эфир',
-    'materials': 'Материалы',
   };
-  const MATERIALS_RE = /docs\.google\.com\/(presentation|document)|notion\.(so|site)|drive\.google\.com/;
 
   function getCatColor(categories) {
     if (!categories || !categories.length) return '#1a8fa8';
@@ -1410,6 +1407,13 @@ function initApp() {
         { key: 'Бизнес-разборы', label: 'Бизнес-разборы' },
       ],
       filter(p, key) { return p.subcategory === key; }
+    },
+    'Рост личности': {
+      label: 'Серия:',
+      items: [
+        { key: 'Менторство у психолога', label: 'Менторство у психолога' },
+      ],
+      filter(p, key) { return p.subcategory === key; }
     }
   };
 
@@ -1539,8 +1543,6 @@ function initApp() {
       if (activeType) {
         if (activeType === 'stream') {
           posts = posts.filter(p => { const t = getPostType(p); return t === 'stream' || t === 'audio'; });
-        } else if (activeType === 'materials') {
-          posts = posts.filter(p => MATERIALS_RE.test(p.text || ''));
         } else {
           posts = posts.filter(p => getPostType(p) === activeType);
         }
@@ -1606,11 +1608,6 @@ function initApp() {
       } else {
         typeBadge = '<button class="card-type-badge type-' + pType + '" data-typef="' + pType + '">' +
           (pType === 'stream' ? 'Эфир' : 'Текст') + '</button>';
-      }
-
-      const hasMaterials = MATERIALS_RE.test(p.text || '');
-      if (hasMaterials) {
-        typeBadge += '<button class="card-type-badge type-materials" data-typef="materials">Материалы</button>';
       }
 
       /* Build expand button: text posts get toggle, stream/audio get link */
@@ -1920,14 +1917,12 @@ function initApp() {
     const totalForwards = POSTS_DATA.reduce((s, p) => s + (p.forwards || 0), 0);
     const fmt = n => n.toLocaleString('ru-RU');
     const totalEfirs = totalStreams + POSTS_DATA.filter(p => getPostType(p) === 'audio').length;
-    const totalMaterials = POSTS_DATA.filter(p => MATERIALS_RE.test(p.text || '')).length;
 
     bar.innerHTML =
       '<div class="stats-row-1">' +
         '<div class="stat-card" data-filter=""><div class="stat-card-number">' + fmt(totalPosts) + '</div><div class="stat-card-label">Постов</div></div>' +
         '<div class="stat-card" data-filter="text"><div class="stat-card-number">' + fmt(totalPosts - totalEfirs) + '</div><div class="stat-card-label">Текстов</div></div>' +
         '<div class="stat-card" data-filter="stream"><div class="stat-card-number">' + fmt(totalEfirs) + '</div><div class="stat-card-label">Эфиров</div></div>' +
-        '<div class="stat-card" data-filter="materials"><div class="stat-card-number">' + fmt(totalMaterials) + '</div><div class="stat-card-label">Материалов</div></div>' +
       '</div>' +
       '<div class="stats-row-2">' +
         '<div class="stat-mini"><span class="stat-mini-icon">👁</span><span class="stat-mini-number">' + fmt(totalViews) + '</span><span class="stat-mini-label">просмотров</span></div>' +
