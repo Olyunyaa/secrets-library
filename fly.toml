@@ -1,0 +1,11 @@
+app = "secrets-library-bot"
+primary_region = "ams"
+
+[build]
+
+[env]
+  DATA_DIR = "/data"
+
+[mounts]
+  source = "bot_data"
+  destination = "/data"

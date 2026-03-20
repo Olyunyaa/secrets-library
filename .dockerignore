@@ -1,0 +1,10 @@
+.env
+__pycache__
+*.pyc
+_from_desktop/
+*.html
+*.xlsx
+*.csv
+*.png
+*.jpg
+.git

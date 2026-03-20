@@ -917,6 +917,53 @@ body {
 .fav-section .top-scroll { display: flex; }
 
 /* ═══════════════════════════════════════════
+   ROADMAP BANNER
+   ═══════════════════════════════════════════ */
+.roadmap-banner {
+  max-width: 1100px;
+  margin: 1rem auto 0;
+  padding: 0 1.5rem;
+  display: none;
+}
+.roadmap-banner.visible { display: block; }
+.roadmap-banner-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .75rem;
+  background: #e8f4f8;
+  border-radius: 12px;
+  padding: .75rem 1.2rem;
+}
+.roadmap-banner-text {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: .95rem;
+  font-weight: 600;
+  color: var(--teal-700);
+}
+.roadmap-banner-btn {
+  font-family: inherit;
+  font-size: .78rem;
+  font-weight: 500;
+  color: var(--teal-600);
+  background: var(--white);
+  border: 1.5px solid var(--teal-400);
+  border-radius: 99px;
+  padding: .4rem .9rem;
+  cursor: pointer;
+  white-space: nowrap;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  transition: all .2s ease;
+}
+.roadmap-banner-btn:hover {
+  background: var(--teal-700);
+  border-color: var(--teal-700);
+  color: var(--white);
+}
+
+/* ═══════════════════════════════════════════
    SCROLL-TO-TOP
    ═══════════════════════════════════════════ */
 .to-top {
@@ -1123,6 +1170,13 @@ body {
   <div class="top-scroll" id="favScroll"></div>
 </div>
 
+<div class="roadmap-banner" id="roadmapBanner">
+  <div class="roadmap-banner-inner">
+    <span class="roadmap-banner-text">Ваша персональная дорожная карта</span>
+    <button class="roadmap-banner-btn" onclick="exitRoadmap()">Показать все материалы</button>
+  </div>
+</div>
+
 <div class="grid" id="grid"></div>
 
 <div class="lightbox" id="lightbox">
@@ -1150,11 +1204,23 @@ body {
   const filtersEl   = document.getElementById('filters');
   const subFlEl     = document.getElementById('subFilters');
   const toTopBtn    = document.getElementById('toTop');
+  const roadmapBanner = document.getElementById('roadmapBanner');
 
   let activeCat = null;
   let activeType = null;
   let activeSubCat = null;
   let timer = null;
+
+  /* ── Roadmap deep-link mode ── */
+  const urlParams = new URLSearchParams(window.location.search);
+  const idsParam = urlParams.get('ids');
+  let roadmapMode = false;
+  let roadmapIds = [];
+
+  if (idsParam) {
+    roadmapIds = idsParam.split(',');
+    roadmapMode = true;
+  }
 
   /* ── Favorites (localStorage) ── */
   const FAVS_KEY = 'secrets_favorites';
@@ -1232,6 +1298,12 @@ body {
         let s = esc(line);
         // **bold** → <strong>
         s = s.replace(/\*\*([\s\S]+?)\*\*/g, '<strong>$1</strong>');
+        // __italic__ → <em>
+        s = s.replace(/__([\s\S]+?)__/g, '<em>$1</em>');
+        // ~~strike~~ → <del>
+        s = s.replace(/~~([\s\S]+?)~~/g, '<del>$1</del>');
+        // Strip leftover markdown markers
+        s = s.replace(/\*\*/g, '').replace(/__/g, '').replace(/~~/g, '');
         // [text](url) → <a>
         s = s.replace(/\[([^\]]+)\]\((https?:\/\/[^\)]+)\)/g, '<a href="$2" target="_blank" rel="noopener" style="color:#0a5a7a">$1</a>');
         // bare URLs not already inside href="..."
@@ -1402,53 +1474,103 @@ body {
     });
   }
 
+  /* ── Roadmap UI: show/hide controls ── */
+  const roadmapHideEls = [
+    document.querySelector('.stats-bar'),
+    document.querySelector('.toolbar'),
+    typeFlEl,
+    document.getElementById('catDropdown'),
+    document.getElementById('catToggle'),
+    filtersEl,
+    subFlEl,
+    document.getElementById('togglesRow'),
+    topSection,
+    document.getElementById('favSection'),
+  ];
+
+  function applyRoadmapUI() {
+    const hide = roadmapMode;
+    roadmapHideEls.forEach(el => { if (el) el.style.display = hide ? 'none' : ''; });
+    roadmapBanner.classList.toggle('visible', hide);
+  }
+
+  window.exitRoadmap = function() {
+    roadmapMode = false;
+    roadmapIds = [];
+    applyRoadmapUI();
+    history.replaceState(null, '', window.location.pathname);
+    render(true);
+  };
+
   function render(doFade) {
     if (doFade) fadeGrid();
-    const q = searchEl.value.trim().toLowerCase();
-    const s = sortEl.value;
+    applyRoadmapUI();
 
-    let posts = [...POSTS_DATA];
+    let posts;
 
-    if (activeType) {
-      if (activeType === 'stream') {
-        posts = posts.filter(p => { const t = getPostType(p); return t === 'stream' || t === 'audio'; });
-      } else if (activeType === 'materials') {
-        posts = posts.filter(p => MATERIALS_RE.test(p.text || ''));
-      } else {
-        posts = posts.filter(p => getPostType(p) === activeType);
-      }
-    }
-
-    if (activeCat) posts = posts.filter(p => (p.category || []).includes(activeCat));
-
-    if (activeSubCat && activeCat && SUB_CONFIGS[activeCat]) {
-      posts = posts.filter(p => SUB_CONFIGS[activeCat].filter(p, activeSubCat));
-    }
-
-    if (q) {
-      const norm = s => s.toLowerCase().replace(/[-–—]/g, ' ');
-      const qn = norm(q);
-      posts = posts.filter(p => {
-        return norm([p.generated_title, p.topic, p.summary, ...(p.key_theses || []), p.text]
-          .filter(Boolean).join(' ')).includes(qn);
+    if (roadmapMode) {
+      /* Roadmap mode: filter & sort by roadmapIds order */
+      const idSet = new Set(roadmapIds);
+      const matched = POSTS_DATA.filter(p => {
+        const pk = postKey(p);
+        const uid = p.uid || '';
+        return idSet.has(pk) || idSet.has(uid);
       });
+      /* Sort by roadmapIds order */
+      matched.sort((a, b) => {
+        const aKey = roadmapIds.indexOf(postKey(a)) !== -1 ? roadmapIds.indexOf(postKey(a)) : roadmapIds.indexOf(a.uid || '');
+        const bKey = roadmapIds.indexOf(postKey(b)) !== -1 ? roadmapIds.indexOf(postKey(b)) : roadmapIds.indexOf(b.uid || '');
+        return aKey - bKey;
+      });
+      posts = matched;
+      statsEl.textContent = posts.length + ' материалов';
+    } else {
+      const q = searchEl.value.trim().toLowerCase();
+      const s = sortEl.value;
+
+      posts = [...POSTS_DATA];
+
+      if (activeType) {
+        if (activeType === 'stream') {
+          posts = posts.filter(p => { const t = getPostType(p); return t === 'stream' || t === 'audio'; });
+        } else if (activeType === 'materials') {
+          posts = posts.filter(p => MATERIALS_RE.test(p.text || ''));
+        } else {
+          posts = posts.filter(p => getPostType(p) === activeType);
+        }
+      }
+
+      if (activeCat) posts = posts.filter(p => (p.category || []).includes(activeCat));
+
+      if (activeSubCat && activeCat && SUB_CONFIGS[activeCat]) {
+        posts = posts.filter(p => SUB_CONFIGS[activeCat].filter(p, activeSubCat));
+      }
+
+      if (q) {
+        const norm = s => s.toLowerCase().replace(/[-–—]/g, ' ');
+        const qn = norm(q);
+        posts = posts.filter(p => {
+          return norm([p.generated_title, p.topic, p.summary, ...(p.key_theses || []), p.text]
+            .filter(Boolean).join(' ')).includes(qn);
+        });
+      }
+
+      posts.sort((a, b) => {
+        if (s === 'date-desc') return new Date(b.date) - new Date(a.date);
+        if (s === 'date-asc')  return new Date(a.date) - new Date(b.date);
+        if (s === 'views')     return (b.views || 0) - (a.views || 0);
+        if (s === 'forwards')  return (b.forwards || 0) - (a.forwards || 0);
+        return 0;
+      });
+
+      syncTypePills();
+      updateFavsUI();
+      syncStatCards();
+      syncPills();
+      updateCatToggleLabel();
+      selectCatDD(activeCat || '');
+      statsEl.textContent = posts.length + ' из ' + POSTS_DATA.length;
     }
-
-    posts.sort((a, b) => {
-      if (s === 'date-desc') return new Date(b.date) - new Date(a.date);
-      if (s === 'date-asc')  return new Date(a.date) - new Date(b.date);
-      if (s === 'views')     return (b.views || 0) - (a.views || 0);
-      if (s === 'forwards')  return (b.forwards || 0) - (a.forwards || 0);
-      return 0;
-    });
-
-    syncTypePills();
-    updateFavsUI();
-    syncStatCards();
-    syncPills();
-    updateCatToggleLabel();
-    selectCatDD(activeCat || '');
-    statsEl.textContent = posts.length + ' из ' + POSTS_DATA.length;
 
     grid.innerHTML = '';
 
