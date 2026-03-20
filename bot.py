@@ -583,12 +583,10 @@ async def answer_q4(update: Update, context: ContextTypes.DEFAULT_TYPE):
     total_deliveries = (len(unique_ids) + BATCH_SIZE - 1) // BATCH_SIZE
     url = build_url(first_batch)
     text = f"День 1 из {period_days} 📚 Вот первые материалы для тебя:"
-    kb = InlineKeyboardMarkup([[
-        InlineKeyboardButton(
-            "Открыть материалы",
-            web_app=WebAppInfo(url=url),
-        )
-    ]])
+    kb = InlineKeyboardMarkup([
+        [InlineKeyboardButton("Открыть материалы", web_app=WebAppInfo(url=url))],
+        [InlineKeyboardButton("Вся дорожная карта", web_app=WebAppInfo(url=combined_url))],
+    ])
     await query.message.reply_text(text, reply_markup=kb)
 
     save_user_roadmap(user.id, {
@@ -695,14 +693,13 @@ async def drip_delivery_job(context: ContextTypes.DEFAULT_TYPE):
         start_date = date.fromisoformat(entry.get("start_date", today.isoformat()))
         current_day = (today - start_date).days + 1
 
-        url = build_url(next_batch)
+        url = build_url(posts[:new_sent_index])
+        full_url = entry.get("url", build_url(posts))
         text = f"День {current_day} из {period_days} 📚 Новые материалы для тебя:"
-        kb = InlineKeyboardMarkup([[
-            InlineKeyboardButton(
-                "Открыть материалы",
-                web_app=WebAppInfo(url=url),
-            )
-        ]])
+        kb = InlineKeyboardMarkup([
+            [InlineKeyboardButton("Открыть материалы", web_app=WebAppInfo(url=url))],
+            [InlineKeyboardButton("Вся дорожная карта", web_app=WebAppInfo(url=full_url))],
+        ])
 
         try:
             await context.bot.send_message(
