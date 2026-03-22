@@ -29,11 +29,13 @@ ANTHROPIC_KEY = os.environ["ANTHROPIC_API_KEY"]
 KB_PATH = Path(__file__).parent / "knowledge_base.js"
 DATA_DIR = Path(os.environ.get("DATA_DIR", str(Path(__file__).parent)))
 LOG_PATH = DATA_DIR / "onboarding_log.csv"
+ANALYTICS_PATH = DATA_DIR / "analytics_log.csv"
 USER_ROADMAPS_PATH = DATA_DIR / "user_roadmaps.json"
 
 BATCH_SIZE = 2
-DRIP_INTERVALS = {7: 1, 14: 2, 28: 3, 60: 4, 90: 5}
+DRIP_INTERVALS = {7: 1, 14: 2, 28: 3, 60: 4}
 BASE_URL = "https://olyunyaa.github.io/secrets-library/app.html"
+BONUS_LIMIT = 15  # max bonus posts per topic via "Больше про..." button
 
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger(__name__)
@@ -47,10 +49,10 @@ AWAITING_CORRECTION = set()  # set of user_ids awaiting correction text
 # ── Questions & options ──
 Q1_TEXT = "Как бы вы описали себя сегодня?\n_можно выбрать несколько вариантов_"
 Q1_OPTIONS = [
-    ("hire_start", "В найме, хочу начать своё"),
-    ("hire_plus", "В найме + уже веду свой проект"),
+    ("hire_start", "В найме и хочу начать своё"),
+    ("hire_plus", "В найме + свои консультации/проект"),
     ("freelance", "Фрилансер или предприниматель"),
-    ("blog", "Хочу вести блог и расти в соцсетях"),
+    ("blog", "Хочу личный бренд и расти в соцсетях"),
     ("explore", "Пока изучаю и присматриваюсь"),
 ]
 
@@ -75,7 +77,6 @@ Q3_OPTIONS = [
     ("14", "14 дней"),
     ("28", "28 дней — один сезон"),
     ("60", "60 дней"),
-    ("90", "90 дней — глубокое погружение"),
 ]
 
 Q4_TEXT = "Как вам удобнее получать материалы?"
@@ -154,6 +155,20 @@ Q2_TO_PAIN = {
     "money": "pain_11_money",
 }
 
+PAIN_TO_Q2 = {v: k for k, v in Q2_TO_PAIN.items()}
+
+ALL_CATEGORIES = [
+    "Путь предпринимателя",
+    "Создание продукта",
+    "Соцсети и личный бренд",
+    "Рост личности",
+    "Маркетинг и продажи",
+    "Внутрянка большого бизнеса",
+    "Кейсы",
+    "Деньги",
+    "Портфельная карьера",
+]
+
 POSTS_COMPACT = []
 for p in POSTS:
     POSTS_COMPACT.append({
@@ -177,6 +192,16 @@ def log_answers(user_id, username, a1, a2, a2_free, a3):
                          "answer1", "answer2", "answer2_free", "answer3"])
         w.writerow([datetime.now().isoformat(), user_id, username or "",
                      a1, a2, a2_free, a3])
+
+
+def log_event(user_id, username, event, detail=""):
+    """Append a row to analytics_log.csv."""
+    exists = ANALYTICS_PATH.exists()
+    with open(ANALYTICS_PATH, "a", newline="", encoding="utf-8") as f:
+        w = csv.writer(f)
+        if not exists:
+            w.writerow(["timestamp", "user_id", "username", "event", "detail"])
+        w.writerow([datetime.now().isoformat(), user_id, username or "", event, detail])
 
 
 # ── Label lookup ──
@@ -315,9 +340,77 @@ Respond in Russian."""
     return response.content[0].text
 
 
-# ── Claude: free-text follow-up ──
-def generate_selection(user_request, user_context):
+# ── Claude: free-text follow-up (two-stage) ──
+def classify_request(user_request):
+    """Stage 1: Claude classifies user request into 1-3 categories.
+
+    Returns a list of category names.
+    """
     client = anthropic.Anthropic(api_key=ANTHROPIC_KEY)
+
+    prompt = f"""Пользователь бизнес-клуба просит материалы. Определи, к каким категориям относится запрос.
+
+Запрос: {user_request}
+
+Доступные категории:
+{json.dumps(ALL_CATEGORIES, ensure_ascii=False)}
+
+Правила:
+- Выбери 1-3 наиболее подходящие категории
+- Понимай синонимы и контекст: «клиенты», «продавать», «трафик» → «Маркетинг и продажи»; «доход», «заработок», «финансы» → «Деньги»; «блог», «контент», «инстаграм» → «Соцсети и личный бренд»; «выгорание», «страхи», «терапия» → «Рост личности»; «портфель», «фриланс», «несколько проектов» → «Портфельная карьера»; «команда», «найм», «процессы» → «Внутрянка большого бизнеса»; «запуск», «курс», «воронка» → «Создание продукта»
+- Верни ТОЛЬКО JSON-массив строк с названиями категорий
+- Пример: ["Маркетинг и продажи", "Создание продукта"]
+
+Верни ТОЛЬКО JSON-массив."""
+
+    response = client.messages.create(
+        model="claude-haiku-4-5-20251001",
+        max_tokens=256,
+        messages=[{"role": "user", "content": prompt}],
+    )
+    text = response.content[0].text.strip()
+    match = re.search(r'\[.*\]', text, re.DOTALL)
+    if match:
+        cats = json.loads(match.group())
+        return [c for c in cats if c in ALL_CATEGORIES]
+    return []
+
+
+def post_key(p):
+    """Build Mini App compatible ID: channel_id + '_' + id."""
+    return f"{p.get('channel_id', '')}_{p.get('id', '')}"
+
+
+def generate_selection(user_request, user_context):
+    """Two-stage post selection: classify → rank within categories.
+
+    Returns a list of post keys (channel_id_messageId) for Mini App.
+    """
+    # Stage 1: classify request into categories
+    categories = classify_request(user_request)
+    log.info("classify_request: %s → %s", user_request[:50], categories)
+
+    # Filter posts by matched categories
+    if categories:
+        cat_set = set(categories)
+        filtered = [p for p in POSTS
+                     if cat_set & set(p.get("category", []))]
+    else:
+        # No category match — use all posts as fallback
+        filtered = POSTS
+
+    # Stage 2: Claude ranks within filtered posts
+    client = anthropic.Anthropic(api_key=ANTHROPIC_KEY)
+
+    available = []
+    for p in filtered:
+        pk = post_key(p)
+        available.append({
+            "id": pk,
+            "title": p.get("generated_title", ""),
+            "topic": p.get("topic", ""),
+            "views": p.get("views", 0),
+        })
 
     prompt = f"""You are an assistant for a business club. User asks for specific materials.
 
@@ -327,31 +420,32 @@ User context:
 
 User request: {user_request}
 
-Knowledge base:
-
-{json.dumps(POSTS_COMPACT, ensure_ascii=False, indent=None)}
+Available posts (pre-filtered by category):
+{json.dumps(available, ensure_ascii=False, indent=None)}
 
 Rules:
-- Return ONLY a list of posts, no intro text, no conclusion, no advice, no summaries
 - Select posts that directly match the user's request
 - Exclude any posts that look like technical/admin posts (payments, announcements, one-time events)
-- No invented text — only post titles and links from the knowledge base
 - Select 5-15 most relevant posts
-- Group by topic if many posts
+- Prefer posts with higher view counts as a signal of quality
+- Start with foundational/introductory posts, then more specific ones
+- Return ONLY a JSON array of post ID strings, nothing else
+- Example: {json.dumps([a["id"] for a in available[:3]])}
 
-Format strictly (no emoji, no ## or ** or ---):
-[название поста](ссылка)
-[название поста](ссылка)
-
-Each post MUST be a Telegram markdown link: [Title](https://t.me/...)
-Respond in Russian."""
+Return ONLY the JSON array."""
 
     response = client.messages.create(
         model="claude-haiku-4-5-20251001",
-        max_tokens=4096,
+        max_tokens=2048,
         messages=[{"role": "user", "content": prompt}],
     )
-    return response.content[0].text
+    text = response.content[0].text.strip()
+    match = re.search(r'\[.*\]', text, re.DOTALL)
+    if match:
+        ids = json.loads(match.group())
+        valid_ids = {post_key(p) for p in POSTS}
+        return [i for i in ids if i in valid_ids]
+    return []
 
 
 # ── Claude: adjust remaining posts after user correction ──
@@ -416,8 +510,63 @@ Return ONLY the JSON array."""
     return remaining_ids  # fallback: keep as is
 
 
+# ── Claude: suggest more posts by topic ──
+def suggest_more_posts(pain_label, already_sent_ids, count=5):
+    """Ask Claude to pick `count` posts from the knowledge base matching the topic.
+
+    Called when roadmap posts for a pain point are exhausted.
+    Returns a list of post IDs.
+    """
+    client = anthropic.Anthropic(api_key=ANTHROPIC_KEY)
+
+    # Build compact list with post_keys for Claude, excluding already-sent
+    exclude = set(already_sent_ids)
+    available = []
+    for p in POSTS:
+        pk = post_key(p)
+        if pk in exclude:
+            continue
+        available.append({
+            "id": pk,
+            "title": p.get("generated_title", ""),
+            "topic": p.get("topic", ""),
+            "views": p.get("views", 0),
+        })
+
+    prompt = f"""You are an assistant for a business club. The user wants more posts on a specific topic.
+
+Topic: {pain_label}
+
+Available posts (already-sent posts are excluded):
+{json.dumps(available, ensure_ascii=False, indent=None)}
+
+Rules:
+- Select exactly {count} posts most relevant to the topic "{pain_label}"
+- Prefer posts with higher view counts as a signal of quality
+- Exclude technical/admin posts (payments, announcements)
+- Return ONLY a JSON array of post ID strings, nothing else
+- Example: {json.dumps([a["id"] for a in available[:3]])}
+
+Return ONLY the JSON array."""
+
+    response = client.messages.create(
+        model="claude-haiku-4-5-20251001",
+        max_tokens=1024,
+        messages=[{"role": "user", "content": prompt}],
+    )
+    text = response.content[0].text.strip()
+    match = re.search(r'\[.*\]', text, re.DOTALL)
+    if match:
+        ids = json.loads(match.group())
+        valid_ids = {post_key(p) for p in POSTS}
+        return [i for i in ids if i in valid_ids]
+    return []
+
+
 # ── Handlers ──
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    user = update.effective_user
+    log_event(user.id, user.username, "start", "")
     context.user_data.clear()
     context.user_data["sel1"] = set()
     context.user_data["sel2"] = set()
@@ -436,12 +585,14 @@ async def answer_q1(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
 
+    user = query.from_user
     if query.data == DONE_CB:
         selected = context.user_data.get("sel1", set())
         if not selected:
             await query.answer("Выберите хотя бы один вариант!", show_alert=True)
             return Q1
         context.user_data["a1"] = list(selected)
+        log_event(user.id, user.username, "q1_done", ";".join(selected))
         chosen = ", ".join(labels_for(Q1_OPTIONS, selected))
         await query.edit_message_text(f"✅ {chosen}")
         await query.message.reply_text(
@@ -456,6 +607,7 @@ async def answer_q1(update: Update, context: ContextTypes.DEFAULT_TYPE):
     else:
         sel.add(query.data)
     context.user_data["sel1"] = sel
+    log_event(user.id, user.username, "q1_toggle", query.data)
     await query.edit_message_reply_markup(
         reply_markup=make_multi_keyboard(Q1_OPTIONS, sel)
     )
@@ -465,6 +617,7 @@ async def answer_q1(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def answer_q2(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
+    user = query.from_user
 
     if query.data == DONE_CB:
         selected = context.user_data.get("sel2", set())
@@ -472,6 +625,7 @@ async def answer_q2(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await query.answer("Выберите хотя бы один вариант!", show_alert=True)
             return Q2
         context.user_data["a2"] = list(selected)
+        log_event(user.id, user.username, "q2_done", ";".join(selected))
         chosen = ", ".join(labels_for(Q2_OPTIONS, selected))
         await query.edit_message_text(f"✅ {chosen}")
 
@@ -488,6 +642,7 @@ async def answer_q2(update: Update, context: ContextTypes.DEFAULT_TYPE):
     else:
         sel.add(query.data)
     context.user_data["sel2"] = sel
+    log_event(user.id, user.username, "q2_toggle", query.data)
     await query.edit_message_reply_markup(
         reply_markup=make_multi_keyboard(Q2_OPTIONS, sel)
     )
@@ -498,6 +653,8 @@ async def answer_q3(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
     context.user_data["a3"] = query.data
+    user = query.from_user
+    log_event(user.id, user.username, "q3_period", query.data)
     await query.edit_message_text(
         f"✅ {label_for(Q3_OPTIONS, query.data)}"
     )
@@ -506,7 +663,6 @@ async def answer_q3(update: Update, context: ContextTypes.DEFAULT_TYPE):
     a2 = context.user_data["a2"]
     a3 = context.user_data["a3"]
 
-    user = query.from_user
     log_answers(user.id, user.username, ";".join(a1), ";".join(a2), "", a3)
 
     a1_labels = labels_for(Q1_OPTIONS, a1)
@@ -529,6 +685,8 @@ async def answer_q4(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
     choice = query.data
+    user = query.from_user
+    log_event(user.id, user.username, "q4_delivery", choice)
     await query.edit_message_text(
         f"✅ {label_for(Q4_OPTIONS, choice)}"
     )
@@ -573,6 +731,7 @@ async def answer_q4(update: Update, context: ContextTypes.DEFAULT_TYPE):
             "last_delivery": date.today().isoformat(),
             "chat_id": chat_id,
             "pain_keys": a2,
+            "pain_sent": {},
         })
 
         await query.message.reply_text(AFTER_ROADMAP_MSG)
@@ -601,6 +760,7 @@ async def answer_q4(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "last_delivery": date.today().isoformat(),
         "chat_id": chat_id,
         "pain_keys": a2,
+        "pain_sent": {},
     })
 
     await query.message.reply_text(AFTER_ROADMAP_MSG)
@@ -610,15 +770,30 @@ async def answer_q4(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def handle_chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_text = update.message.text
     user_context = context.user_data.get("chat_context", {})
+    user = update.effective_user
+    log_event(user.id, user.username, "chat_request", user_text[:100])
 
-    await update.message.reply_text("Подбираю материалы по твоему запросу...")
+    await update.message.reply_text("Подбираю материалы по вашему запросу...")
 
     try:
-        result = generate_selection(user_text, user_context)
-        chunks = split_message(result, 4000)
-        for chunk in chunks:
-            await update.message.reply_text(chunk, parse_mode="Markdown",
-                                                        disable_web_page_preview=True)
+        post_ids = await asyncio.to_thread(generate_selection, user_text, user_context)
+        if not post_ids:
+            await update.message.reply_text(
+                "Не удалось подобрать материалы по вашему запросу. "
+                "Попробуйте сформулировать иначе."
+            )
+            return CHAT
+        url = build_url(post_ids)
+        kb = InlineKeyboardMarkup([[
+            InlineKeyboardButton(
+                "Открыть подборку",
+                web_app=WebAppInfo(url=url),
+            )
+        ]])
+        await update.message.reply_text(
+            f"📚 Подобрала {len(post_ids)} материалов по вашему запросу:",
+            reply_markup=kb,
+        )
     except Exception as e:
         log.error("Claude API error: %s", e)
         await update.message.reply_text(
@@ -719,6 +894,32 @@ async def drip_delivery_job(context: ContextTypes.DEFAULT_TYPE):
             "last_delivery": today.isoformat(),
         })
 
+        # "Больше про..." buttons (only if user has >1 pain point)
+        pain_keys = entry.get("pain_keys", [])
+        pain_sent = entry.get("pain_sent", {})
+        if len(pain_keys) > 1:
+            more_buttons = []
+            for q2_key in pain_keys:
+                pain_key = Q2_TO_PAIN.get(q2_key)
+                if not pain_key:
+                    continue
+                already_bonus = pain_sent.get(pain_key, 0)
+                if already_bonus >= BONUS_LIMIT:
+                    continue
+                lbl = label_for(Q2_OPTIONS, q2_key)
+                more_buttons.append([InlineKeyboardButton(
+                    f"Больше про: {lbl}", callback_data=f"more_{q2_key}"
+                )])
+            if more_buttons:
+                try:
+                    await context.bot.send_message(
+                        chat_id=chat_id,
+                        text="Хотите углубиться в одну из тем?",
+                        reply_markup=InlineKeyboardMarkup(more_buttons),
+                    )
+                except Exception as e:
+                    log.warning("More-topic buttons failed for user %s: %s", user_id_str, e)
+
         # Every 3rd delivery: ask for feedback
         if delivery_count % 3 == 0 and new_sent_index < len(posts):
             feedback_kb = InlineKeyboardMarkup([
@@ -760,6 +961,7 @@ async def handle_drip_feedback(update: Update, context: ContextTypes.DEFAULT_TYP
     query = update.callback_query
     await query.answer()
     user_id = query.from_user.id
+    log_event(user_id, query.from_user.username, "drip_feedback", query.data)
 
     if query.data == "drip_ok":
         await query.edit_message_text("Отлично! Продолжаем 🚀")
@@ -772,6 +974,102 @@ async def handle_drip_feedback(update: Update, context: ContextTypes.DEFAULT_TYP
             "например, больше про продажи или меньше про блог:"
         )
         raise ApplicationHandlerStop()
+
+
+async def handle_more_topic(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Handle 'more_{q2_key}' callback: send 5 bonus posts on the topic."""
+    query = update.callback_query
+    await query.answer()
+    user_id = query.from_user.id
+    log_event(user_id, query.from_user.username, "more_topic", query.data)
+
+    # Extract q2_key from callback_data "more_<q2_key>"
+    q2_key = query.data[len("more_"):]
+    pain_key = Q2_TO_PAIN.get(q2_key)
+    if not pain_key:
+        await query.edit_message_text("Тема не найдена.")
+        raise ApplicationHandlerStop()
+
+    entry = load_user_roadmap(user_id)
+    if not isinstance(entry, dict):
+        await query.edit_message_text("Не нашёл вашу дорожную карту. Напишите /start")
+        raise ApplicationHandlerStop()
+
+    pain_sent = entry.get("pain_sent", {})
+    already_bonus = pain_sent.get(pain_key, 0)
+    if already_bonus >= BONUS_LIMIT:
+        lbl = label_for(Q2_OPTIONS, q2_key)
+        await query.edit_message_text(
+            f"Вы уже получили максимум дополнительных материалов по теме «{lbl}»."
+        )
+        raise ApplicationHandlerStop()
+
+    lbl = label_for(Q2_OPTIONS, q2_key)
+    await query.edit_message_text(f"Подбираю ещё материалы по теме «{lbl}»...")
+
+    # Collect all post IDs already sent to this user (main roadmap + all bonus)
+    main_posts = set(entry.get("posts", []))
+    # Also track bonus posts already sent for ALL topics (stored as lists in pain_sent_ids)
+    bonus_sent_ids = set()
+    for ids_list in entry.get("pain_sent_ids", {}).values():
+        bonus_sent_ids.update(ids_list)
+    all_sent = main_posts | bonus_sent_ids
+
+    # Get roadmap posts for this pain point that haven't been sent yet
+    roadmap_posts = ROADMAP.get(pain_key, [])
+    remaining_roadmap = [p["id"] for p in roadmap_posts if p["id"] not in all_sent]
+
+    bonus_count = 5
+    bonus_ids = []
+
+    if len(remaining_roadmap) >= bonus_count:
+        bonus_ids = remaining_roadmap[:bonus_count]
+    else:
+        # Take whatever is left from roadmap, fill rest with Claude suggestions
+        bonus_ids = remaining_roadmap[:]
+        needed = bonus_count - len(bonus_ids)
+        if needed > 0:
+            try:
+                exclude = list(all_sent | set(bonus_ids))
+                suggested = await asyncio.to_thread(
+                    suggest_more_posts, lbl, exclude, needed
+                )
+                bonus_ids.extend(suggested[:needed])
+            except Exception as e:
+                log.error("suggest_more_posts failed for %s: %s", pain_key, e)
+
+    if not bonus_ids:
+        await context.bot.send_message(
+            chat_id=query.message.chat_id,
+            text=f"К сожалению, по теме «{lbl}» больше нет подходящих материалов.",
+        )
+        raise ApplicationHandlerStop()
+
+    # Send Mini App button with bonus posts
+    url = build_url(bonus_ids)
+    kb = InlineKeyboardMarkup([[
+        InlineKeyboardButton(
+            "Открыть материалы",
+            web_app=WebAppInfo(url=url),
+        )
+    ]])
+    await context.bot.send_message(
+        chat_id=query.message.chat_id,
+        text=f"📚 Ещё {len(bonus_ids)} материалов по теме «{lbl}»:",
+        reply_markup=kb,
+    )
+
+    # Update pain_sent counter and store sent IDs
+    pain_sent[pain_key] = already_bonus + len(bonus_ids)
+    pain_sent_ids = entry.get("pain_sent_ids", {})
+    prev_ids = pain_sent_ids.get(pain_key, [])
+    pain_sent_ids[pain_key] = prev_ids + bonus_ids
+    update_user_roadmap(user_id, {
+        "pain_sent": pain_sent,
+        "pain_sent_ids": pain_sent_ids,
+    })
+
+    raise ApplicationHandlerStop()
 
 
 class CorrectionFilter(filters.MessageFilter):
@@ -880,9 +1178,13 @@ async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE):
 def main():
     app = ApplicationBuilder().token(BOT_TOKEN).build()
 
-    # Group -1: drip feedback handlers (before ConversationHandler)
+    # Group -1: drip feedback & topic handlers (before ConversationHandler)
     app.add_handler(
         CallbackQueryHandler(handle_drip_feedback, pattern=r"^drip_"),
+        group=-1,
+    )
+    app.add_handler(
+        CallbackQueryHandler(handle_more_topic, pattern=r"^more_"),
         group=-1,
     )
     app.add_handler(
