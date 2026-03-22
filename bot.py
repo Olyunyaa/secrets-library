@@ -45,7 +45,7 @@ Q1, Q2, Q3, Q4, CHAT = range(5)
 AWAITING_CORRECTION = set()  # set of user_ids awaiting correction text
 
 # ── Questions & options ──
-Q1_TEXT = "Как бы ты описал(а) себя сегодня?\n_можно выбрать несколько вариантов_"
+Q1_TEXT = "Как бы вы описали себя сегодня?\n_можно выбрать несколько вариантов_"
 Q1_OPTIONS = [
     ("hire_start", "В найме, хочу начать своё"),
     ("hire_plus", "В найме + уже веду свой проект"),
@@ -54,7 +54,7 @@ Q1_OPTIONS = [
     ("explore", "Пока изучаю и присматриваюсь"),
 ]
 
-Q2_TEXT = "На что хочешь взять фокус в клубе?\n_можно выбрать несколько вариантов_"
+Q2_TEXT = "На что хотите взять фокус в клубе?\n_можно выбрать несколько вариантов_"
 Q2_OPTIONS = [
     ("portfolio_raw", "Как строить портфель без прикрас"),
     ("portfolio_start", "Начать портфельную карьеру"),
@@ -69,7 +69,7 @@ Q2_OPTIONS = [
     ("money", "Больше зарабатывать / второй доход"),
 ]
 
-Q3_TEXT = "На какой период ты хочешь получить дорожную карту?"
+Q3_TEXT = "На какой период вы хотите получить дорожную карту?"
 Q3_OPTIONS = [
     ("7", "7 дней — быстрый старт"),
     ("14", "14 дней"),
@@ -78,7 +78,7 @@ Q3_OPTIONS = [
     ("90", "90 дней — глубокое погружение"),
 ]
 
-Q4_TEXT = "Как тебе удобнее получать материалы?"
+Q4_TEXT = "Как вам удобнее получать материалы?"
 Q4_OPTIONS = [
     ("send_all", "Пришли всё сразу"),
     ("drip", "По несколько постов каждые 1-2 дня"),
@@ -87,23 +87,23 @@ Q4_OPTIONS = [
 
 NETWORK_MSG = ("Для нетворкинга в клубе есть Random Coffee.\n"
                "Каждую пятницу в Чат Секреты 2026 приходит голосование — "
-               "хочешь ли участвовать в Random Coffee на следующей неделе. "
-               "Если хочешь — отметь в голосовалке. В понедельник в чат приходит "
-               "сообщение с разбивкой на пары — тебе нужно написать своей паре "
+               "хотите ли вы участвовать в Random Coffee на следующей неделе. "
+               "Если хотите — отметьте в голосовалке. В понедельник в чат приходит "
+               "сообщение с разбивкой на пары — вам нужно написать своей паре "
                "и договориться о встрече в удобном формате.\n\n"
                "Для тех кто хочет двигаться активнее — трекинг-группы "
                "в чате Секреты Практика. В новом сезоне:\n"
-               "— Групповая коуч-сессия с Ксюшей. Если хочешь быть активным "
-               "участником — заполняй анкету. Выберут трёх участников, каждый "
+               "— Групповая коуч-сессия с Ксюшей. Если хотите быть активным "
+               "участником — заполняйте анкету. Выберут трёх участников, каждый "
                "приходит со своим запросом по соцсетям. Зрителем быть тоже можно.\n"
                "— Книжный клуб с Катей — читаем и обсуждаем вместе.\n"
                "— Action-club с Аней каждую среду и пятницу — участники которые "
                "не пропускают эти встречи, за месяц нормально продвигаются "
                "в своих проектах.")
 
-AFTER_ROADMAP_MSG = ("Если захочешь почитать о чём-то конкретном или получить "
-                     "больше материалов — просто напиши мне об этом, и я подготовлю "
-                     "подборку специально для тебя.")
+AFTER_ROADMAP_MSG = ("Если захотите почитать о чём-то конкретном или получить "
+                     "больше материалов — просто напишите мне об этом, и я подготовлю "
+                     "подборку специально для вас.")
 
 DONE_CB = "done"
 
@@ -422,8 +422,8 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     context.user_data["sel1"] = set()
     context.user_data["sel2"] = set()
     await update.message.reply_text(
-        "Привет! Я помогу тебе найти самые полезные материалы "
-        "в Библиотеке Секретов. Давай познакомимся!"
+        "Привет! Я помогу вам найти самые полезные материалы "
+        "в Библиотеке Секретов. Давайте познакомимся!"
     )
     await update.message.reply_text(
         Q1_TEXT, reply_markup=make_multi_keyboard(Q1_OPTIONS, set()),
@@ -439,7 +439,7 @@ async def answer_q1(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if query.data == DONE_CB:
         selected = context.user_data.get("sel1", set())
         if not selected:
-            await query.answer("Выбери хотя бы один вариант!", show_alert=True)
+            await query.answer("Выберите хотя бы один вариант!", show_alert=True)
             return Q1
         context.user_data["a1"] = list(selected)
         chosen = ", ".join(labels_for(Q1_OPTIONS, selected))
@@ -469,7 +469,7 @@ async def answer_q2(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if query.data == DONE_CB:
         selected = context.user_data.get("sel2", set())
         if not selected:
-            await query.answer("Выбери хотя бы один вариант!", show_alert=True)
+            await query.answer("Выберите хотя бы один вариант!", show_alert=True)
             return Q2
         context.user_data["a2"] = list(selected)
         chosen = ", ".join(labels_for(Q2_OPTIONS, selected))
@@ -542,7 +542,7 @@ async def answer_q4(update: Update, context: ContextTypes.DEFAULT_TYPE):
     unique_ids, per_pain_data = collect_roadmap_posts(a2)
     if not unique_ids:
         await query.message.reply_text(
-            "Не удалось подобрать материалы. Попробуй ещё раз: /start"
+            "Не удалось подобрать материалы. Попробуйте ещё раз: /start"
         )
         return ConversationHandler.END
 
@@ -552,7 +552,7 @@ async def answer_q4(update: Update, context: ContextTypes.DEFAULT_TYPE):
         # Send per-pain Mini App buttons
         for q2_key, lbl, posts in per_pain_data:
             url = build_url([p["id"] for p in posts])
-            text = f"📚 {lbl} — {len(posts)} материалов подобрано для тебя"
+            text = f"📚 {lbl} — {len(posts)} материалов подобрано для вас"
             kb = InlineKeyboardMarkup([[
                 InlineKeyboardButton(
                     "Открыть дорожную карту",
@@ -582,7 +582,7 @@ async def answer_q4(update: Update, context: ContextTypes.DEFAULT_TYPE):
     first_batch = unique_ids[:BATCH_SIZE]
     total_deliveries = (len(unique_ids) + BATCH_SIZE - 1) // BATCH_SIZE
     url = build_url(first_batch)
-    text = f"День 1 из {period_days} 📚 Вот первые материалы для тебя:"
+    text = f"День 1 из {period_days} 📚 Вот первые материалы для вас:"
     kb = InlineKeyboardMarkup([
         [InlineKeyboardButton("Открыть материалы", web_app=WebAppInfo(url=url))],
         [InlineKeyboardButton("Вся дорожная карта", web_app=WebAppInfo(url=combined_url))],
@@ -622,7 +622,7 @@ async def handle_chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
     except Exception as e:
         log.error("Claude API error: %s", e)
         await update.message.reply_text(
-            "Произошла ошибка. Попробуй ещё раз или напиши /start"
+            "Произошла ошибка. Попробуйте ещё раз или напишите /start"
         )
 
     await update.message.reply_text(AFTER_ROADMAP_MSG)
@@ -679,8 +679,8 @@ async def drip_delivery_job(context: ContextTypes.DEFAULT_TYPE):
                 try:
                     await context.bot.send_message(
                         chat_id=chat_id,
-                        text="Напоминаю — у тебя есть новые материалы в дорожной карте! "
-                             "Загляни, когда будет время 📖",
+                        text="Напоминаю — у вас есть новые материалы в дорожной карте! "
+                             "Загляните, когда будет время 📖",
                     )
                 except Exception as e:
                     log.warning("Reminder failed for user %s: %s", user_id_str, e)
@@ -695,7 +695,7 @@ async def drip_delivery_job(context: ContextTypes.DEFAULT_TYPE):
 
         url = build_url(posts[:new_sent_index])
         full_url = entry.get("url", build_url(posts))
-        text = f"День {current_day} из {period_days} 📚 Новые материалы для тебя:"
+        text = f"День {current_day} из {period_days} 📚 Новые материалы для вас:"
         kb = InlineKeyboardMarkup([
             [InlineKeyboardButton("Открыть материалы", web_app=WebAppInfo(url=url))],
             [InlineKeyboardButton("Вся дорожная карта", web_app=WebAppInfo(url=full_url))],
@@ -728,7 +728,7 @@ async def drip_delivery_job(context: ContextTypes.DEFAULT_TYPE):
             try:
                 await context.bot.send_message(
                     chat_id=chat_id,
-                    text="Как тебе материалы? Подходят по теме?",
+                    text="Как вам материалы? Подходят по теме?",
                     reply_markup=feedback_kb,
                 )
             except Exception as e:
@@ -746,7 +746,7 @@ async def drip_delivery_job(context: ContextTypes.DEFAULT_TYPE):
             try:
                 await context.bot.send_message(
                     chat_id=chat_id,
-                    text="🎉 Все материалы из твоей дорожной карты отправлены! "
+                    text="🎉 Все материалы из вашей дорожной карты отправлены! "
                          "Вот полная карта:",
                     reply_markup=done_kb,
                 )
@@ -768,7 +768,7 @@ async def handle_drip_feedback(update: Update, context: ContextTypes.DEFAULT_TYP
     if query.data == "drip_correct":
         AWAITING_CORRECTION.add(user_id)
         await query.edit_message_text(
-            "Напиши, что бы ты хотел(а) изменить — "
+            "Напишите, что бы вы хотели изменить — "
             "например, больше про продажи или меньше про блог:"
         )
         raise ApplicationHandlerStop()
@@ -787,7 +787,7 @@ async def handle_correction_text(update: Update, context: ContextTypes.DEFAULT_T
 
     entry = load_user_roadmap(user_id)
     if not isinstance(entry, dict):
-        await update.message.reply_text("Не нашёл твою дорожную карту. Напиши /start")
+        await update.message.reply_text("Не нашёл вашу дорожную карту. Напишите /start")
         raise ApplicationHandlerStop()
 
     posts = entry.get("posts", [])
@@ -807,7 +807,7 @@ async def handle_correction_text(update: Update, context: ContextTypes.DEFAULT_T
             "posts": new_posts,
             "url": build_url(new_posts),
         })
-        await update.message.reply_text("Скорректировал твой маршрут — продолжаем!")
+        await update.message.reply_text("Скорректировал ваш маршрут — продолжаем!")
     except Exception as e:
         log.error("Correction failed for user %s: %s", user_id, e)
         await update.message.reply_text(
@@ -823,7 +823,7 @@ async def pause_drip(update: Update, context: ContextTypes.DEFAULT_TYPE):
     entry = load_user_roadmap(user_id)
     if not isinstance(entry, dict):
         await update.message.reply_text(
-            "У тебя нет активной рассылки. Напиши /start чтобы начать."
+            "У вас нет активной рассылки. Напишите /start чтобы начать."
         )
         return
     update_user_roadmap(user_id, {"paused": True})
@@ -835,7 +835,7 @@ async def resume_drip(update: Update, context: ContextTypes.DEFAULT_TYPE):
     entry = load_user_roadmap(user_id)
     if not isinstance(entry, dict):
         await update.message.reply_text(
-            "У тебя нет активной рассылки. Напиши /start чтобы начать."
+            "У вас нет активной рассылки. Напишите /start чтобы начать."
         )
         return
     update_user_roadmap(user_id, {"paused": False})
@@ -872,7 +872,7 @@ async def my_roadmap(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("Окей, если захочешь начать — напиши /start")
+    await update.message.reply_text("Окей, если захотите начать — напишите /start")
     return ConversationHandler.END
 
 
