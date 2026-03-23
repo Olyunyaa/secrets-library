@@ -281,17 +281,17 @@ def salebot_send(client_id, message, buttons=None):
 # Button builders
 # ══════════════════════════════════════════════════════════
 
-def make_multi_buttons(options, selected, cb_map):
-    """Build inline buttons with [x]/[ ] marks for multi-select.
+def make_multi_buttons(options, cb_map):
+    """Build inline buttons for multi-select (silent toggle).
 
-    cb_map maps option key → short callback code (Salebot 64-byte limit).
+    No [x]/[ ] marks — Salebot can't edit messages so marks can't update.
+    Clicks are recorded silently; selection shown on 'Готово'.
     """
     buttons = []
     for line_idx, (key, label) in enumerate(options):
-        mark = "[x] " if key in selected else "[ ] "
         buttons.append({
             "type": "inline",
-            "text": mark + label,
+            "text": label,
             "callback": cb_map[key],
             "line": line_idx,
             "index_in_line": 0,
@@ -711,7 +711,7 @@ def handle_start(client_id):
                  "Привет! Я помогу вам найти самые полезные материалы "
                  "в Библиотеке Секретов. Давайте познакомимся!")
     salebot_send(client_id, Q1_TEXT,
-                 buttons=make_multi_buttons(Q1_OPTIONS, set(), Q1_KEY_TO_CB))
+                 buttons=make_multi_buttons(Q1_OPTIONS, Q1_KEY_TO_CB))
 
 
 def handle_q1_input(client_id, text, state):
@@ -729,7 +729,7 @@ def handle_q1_input(client_id, text, state):
             "a1": list(selected),
         })
         salebot_send(client_id, Q2_TEXT,
-                     buttons=make_multi_buttons(Q2_OPTIONS, set(), Q2_KEY_TO_CB))
+                     buttons=make_multi_buttons(Q2_OPTIONS, Q2_KEY_TO_CB))
         return
 
     key = Q1_CB_TO_KEY.get(text)
@@ -742,9 +742,7 @@ def handle_q1_input(client_id, text, state):
         selected.add(key)
     log_event(client_id, "q1_toggle", key)
     update_user_state(client_id, {"sel1": list(selected)})
-    # Brief confirmation only — don't resend full button set
-    chosen = ", ".join(labels_for(Q1_OPTIONS, selected))
-    salebot_send(client_id, f"Выбрано: {chosen}\n\nНажмите «Готово >>>» когда будете готовы")
+    # Silent toggle — no message sent. Result shown on "Готово".
 
 
 def handle_q2_input(client_id, text, state):
@@ -779,9 +777,7 @@ def handle_q2_input(client_id, text, state):
         selected.add(key)
     log_event(client_id, "q2_toggle", key)
     update_user_state(client_id, {"sel2": list(selected)})
-    # Brief confirmation only — don't resend full button set
-    chosen = ", ".join(labels_for(Q2_OPTIONS, selected))
-    salebot_send(client_id, f"Выбрано: {chosen}\n\nНажмите «Готово >>>» когда будете готовы")
+    # Silent toggle — no message sent. Result shown on "Готово".
 
 
 def handle_q3_input(client_id, text, state):
