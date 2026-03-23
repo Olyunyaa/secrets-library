@@ -8,10 +8,12 @@
 
 ## Ключевые файлы
 
-### Telegram-бот
-- **`bot.py`** — основной бот. Онбординг (5 вопросов: Q1-Q4 + CHAT), дорожные карты на основе roadmap JSON, drip-рассылка (JobQueue, ежедневно в 10:00 МСК) с реальным днём карты («День X из Y»), команда `/my_roadmap`, свободный чат с Claude для подбора постов, коррекция маршрута по обратной связи (Claude перестраивает оставшиеся посты), кнопки «Больше про [тему]» в drip-батчах (5 бонусных постов по теме, Claude-фоллбэк если roadmap исчерпан, лимит 15 бонусных на тему). Env vars: `TELEGRAM_BOT_TOKEN`, `ANTHROPIC_API_KEY`, `DATA_DIR`.
+### Бот (Salebot.pro интеграция)
+- **`bot_salebot.py`** — **активный** бот (Flask webhook + Salebot API). Та же бизнес-логика: онбординг Q1-Q4 + CHAT, дорожные карты, drip-рассылка (APScheduler, 10:00 МСК), свободный чат с Claude, коррекция маршрута, кнопки «Больше про [тему]». Работает через Salebot.pro — все сообщения идут через бота Sailbot (управляемого Salebot). Env vars: `SALEBOT_API_KEY`, `WEBHOOK_SECRET`, `ANTHROPIC_API_KEY`, `DATA_DIR`.
+- **`bot.py`** — **backup** (старый standalone Telegram-бот на polling, `python-telegram-bot`). Не используется в production.
 - **`roadmap_all_pains_v4.json`** — 11 pain points с подобранными постами для каждого. Используется для формирования дорожных карт.
-- **`user_roadmaps.json`** — сохранённые дорожные карты пользователей (sent_index, delivery_count, pause и т.д.)
+- **`user_roadmaps.json`** — сохранённые дорожные карты пользователей (sent_index, delivery_count, pause и т.д.). Ключ: Salebot client_id.
+- **`user_states.json`** — состояния диалогов (state machine: q1→q2→q3→q4→chat). Ключ: Salebot client_id.
 - **`onboarding_log.csv`** — лог ответов пользователей на онбординг
 
 ### Библиотеки (две активные версии!)
@@ -37,10 +39,9 @@
 - **`CATEGORY_AUDIT_FULL_REPORT.txt`** — результаты аудита
 
 ### Деплой (Fly.io)
-- **`Dockerfile`** — Python 3.11-slim, копирует bot.py + data files, запускает `python bot.py`
-- **`fly.toml`** — конфиг Fly.io: регион fra, volume `/data` для persistent storage
-- **`requirements.txt`** — `python-telegram-bot[job-queue]==21.*`, python-dotenv, pytz, anthropic
-- **`Procfile`** — `worker: python bot.py` (legacy, не используется на Fly.io)
+- **`Dockerfile`** — Python 3.11-slim, копирует bot_salebot.py + data files, запускает `python bot_salebot.py`
+- **`fly.toml`** — конфиг Fly.io: регион ams, HTTP service на порту 8080 (для webhook), volume `/data`, min_machines_running=1
+- **`requirements.txt`** — flask, requests, python-dotenv, pytz, anthropic, apscheduler
 - **`.dockerignore`** — исключает .env, HTML, изображения, _from_desktop
 
 ### Прочее
@@ -49,13 +50,22 @@
 
 ## Принятые решения
 
-### Архитектура бота
-- **Polling** (не webhook) — проще для single-instance бота
+### Архитектура бота (Salebot.pro интеграция — 23.03.2026)
+- **Flask webhook** (не polling) — Salebot шлёт outgoing webhook на наш endpoint
+- **Salebot API** (`/api/{key}/message`) для отправки сообщений пользователям
+- **APScheduler** вместо python-telegram-bot JobQueue для drip-рассылки
+- **Синхронные** обработчики (не async) — Flask + requests
+- **Salebot client_id** как первичный ключ пользователя (не Telegram user_id)
+- **user_states.json** — persistent state machine (вместо ConversationHandler)
+- **Multi-select UX**: каждый toggle отправляет НОВОЕ сообщение с [x]/[ ] маркерами (Salebot API не может редактировать сообщения)
+- **Нажатие inline-кнопки**: Salebot отправляет текст кнопки как обычное сообщение → мы парсим текст и сопоставляем с опциями
+
+### Старые решения (сохранены)
 - **Claude Haiku 4.5** для генерации дорожных карт и подбора постов (баланс цена/качество)
-- **Drip-рассылка**: batch по 2 поста, интервалы зависят от периода (7д→каждый день, 90д→каждые 5 дней)
+- **Drip-рассылка**: batch по 2 поста, интервалы зависят от периода (7д→каждый день, 60д→каждые 4 дня)
 - **Обратная связь**: каждые 3 батча спрашиваем "Как материалы?", при коррекции Claude перестраивает оставшийся маршрут
 - **«Больше про...»**: кнопки показываются только при >1 pain point; 5 постов за нажатие; лимит 15 бонусных на тему; сначала из roadmap, потом Claude Haiku подбирает из общей базы
-- **Persistent storage**: `DATA_DIR` env var → `/data` volume на Fly.io, локально — рядом с bot.py
+- **Persistent storage**: `DATA_DIR` env var → `/data` volume на Fly.io, локально — рядом с bot_salebot.py
 
 ### Хостинг
 - **Fly.io** (бесплатный tier) — выбран после того, как Railway оказался платным. Машина во Франкфурте (fra), 1GB encrypted volume для данных.
@@ -76,16 +86,29 @@
 - `/app.html` → Mini App для бота (с `?ids=` фильтрацией)
 
 ## Env vars (в .env и Fly.io secrets)
-- `TELEGRAM_BOT_TOKEN` — токен бота
+- `SALEBOT_API_KEY` — API ключ Salebot.pro
+- `WEBHOOK_SECRET` — секрет для URL webhook-а (часть URL: `/webhook/<secret>`)
 - `ANTHROPIC_API_KEY` — ключ Anthropic API
 - `DATA_DIR` — путь к папке данных (на Fly.io: `/data`, локально: не задан → `Path(__file__).parent`)
+- `TELEGRAM_BOT_TOKEN` — ~~старый~~ токен бота (не используется в bot_salebot.py, нужен для bot.py backup)
 
 ## Команды
+
+### Установить secrets перед первым деплоем Salebot-версии
+```bash
+~/.fly/bin/flyctl secrets set SALEBOT_API_KEY="6d4e8f02719f0033413928f783a7c2ba" --app secrets-library-bot
+~/.fly/bin/flyctl secrets set WEBHOOK_SECRET="$(python3 -c 'import secrets; print(secrets.token_urlsafe(32))')" --app secrets-library-bot
+```
 
 ### Деплой бота на Fly.io
 ```bash
 cd ~/Desktop/Ontri\ Проект\ для\ Секреты/
 ~/.fly/bin/flyctl deploy --app secrets-library-bot --yes
+```
+
+### Узнать WEBHOOK_SECRET (для передачи Вове)
+```bash
+~/.fly/bin/flyctl ssh console --app secrets-library-bot -C 'echo $WEBHOOK_SECRET'
 ```
 
 ### Логи бота
@@ -106,39 +129,45 @@ git commit -m "Update library"
 git push
 ```
 
-## Текущий статус (обновлено 22.03.2026)
+## Текущий статус (обновлено 23.03.2026)
 
-- Бот **задеплоен и работает** на Fly.io (Франкфурт)
-- bot.py обновлён: 5 вопросов онбординга (Q1-Q4 + CHAT), drip с реальным днём карты, `/my_roadmap`, коррекция маршрута
-- bot.py: все обращения к пользователю переведены с «ты» на «вы»
-- bot.py: добавлены кнопки «Больше про [тему]» в drip-рассылке — 5 бонусных постов по теме, Claude-фоллбэк, лимит 15
-- `app.html` обновлён: убраны «материалы», добавлена подкатегория «Менторство у психолога» под «Рост личности»
-- База знаний: 496 постов (9 лишних постов удалены)
-- «Создание продукта с нуля. Часть 5» переименован → «Запуск продукта с нуля. Часть 5, заключительная» (в knowledge_base_enriched.json и knowledge_base.js)
-- Fly.io volume `/data` подключён, user_roadmaps.json и onboarding_log.csv создадутся при первом использовании
+### Salebot.pro интеграция — 23.03.2026
+- Создан **`bot_salebot.py`** — Flask webhook app с полной бизнес-логикой из bot.py
+- Архитектура: Пользователь ↔ Telegram ↔ Salebot.pro ↔ Flask (Fly.io) ↔ Salebot API → пользователю
+- Multi-select: [x]/[ ] маркеры в тексте кнопок (Salebot не может редактировать сообщения)
+- State machine в `user_states.json` (вместо ConversationHandler)
+- APScheduler для drip (вместо JobQueue)
+- URL-кнопки (вместо WebAppInfo) — app.html НЕ использует Telegram.WebApp API
+- Dockerfile и fly.toml обновлены для HTTP service
+- requirements.txt обновлён: flask, requests, apscheduler (вместо python-telegram-bot)
+- **Не задеплоено** — нужно: установить secrets, задеплоить, дать Вове webhook URL
 
-### Кнопки «Больше про...» — добавлено 22.03.2026
-- В `drip_delivery_job()`: после каждого батча показываются кнопки «Больше про: [тема]» (если у пользователя >1 pain point)
-- `handle_more_topic()`: обработчик нажатия — отправляет 5 бонусных постов по теме
-- `suggest_more_posts()`: Claude Haiku подбирает посты из базы когда roadmap по теме исчерпан
-- Хранение: `pain_sent` (счётчик бонусных) и `pain_sent_ids` (ID отправленных) в user_roadmaps.json
-- Лимит: 15 бонусных постов на тему (BONUS_LIMIT)
-- **Не задеплоено** — нужен деплой бота
-
-### Дорожная карта (roadmap_all_pains_v4.json) — изменения 22.03.2026
-- **pain_2_portfolio_start**: убран «Введение или что за "секреты" мы будем обсуждать?», добавлены «Портфельная карьера. Вступление» (2025_445) и «С чего начать портфель?» (2025_456) в начало
-- **pain_3_project_start**: добавлен «С чего начать портфель?» (2025_456) первым постом; добавлены «Запуск продукта с нуля» части 1–5 (2025_269, 2025_277, 2025_280, 2025_306, 2025_329) в конец
-- Убран «Как записаться на коуч-сессию с Ксюшей Романовой?» (из pain про блоки/страхи)
-- **Не задеплоено** — нужен деплой бота и пуш статики на GitHub Pages
+### Предыдущие изменения
+- База знаний: 496 постов (9 лишних удалены)
+- `app.html` обновлён: убраны «материалы», подкатегория «Менторство у психолога»
+- roadmap_all_pains_v4.json обновлён (pain_2, pain_3)
+- Fly.io volume `/data` подключён
 
 ## Что осталось сделать
 
-- [ ] **Задеплоить бота** на Fly.io (bot.py — кнопки «Больше про...», обращение на «вы»)
-- [ ] **Запушить статику** на GitHub Pages (knowledge_base.js переименование поста)
-- [ ] Протестировать кнопки «Больше про...»: онбординг с 2+ pain points → drip → нажать кнопку → проверить 5 постов
-- [ ] Протестировать Claude-фоллбэк: нажать кнопку много раз до исчерпания roadmap → проверить что Claude подключается
-- [ ] Протестировать бота end-to-end: `/start` → онбординг → дорожная карта → drip
-- [ ] Проверить drip-рассылку (дождаться следующего дня или протестировать вручную)
-- [ ] Добавить `.gitignore` для исключения временных/личных файлов из репо
-- [ ] Рассмотреть webhook вместо polling для экономии ресурсов Fly.io (polling держит машину active 24/7)
-- [ ] Обновить library_v2.html — убрать «материалы» аналогично app.html
+### Деплой Salebot-версии
+- [ ] Установить Fly.io secrets: `SALEBOT_API_KEY`, `WEBHOOK_SECRET`
+- [ ] Задеплоить bot_salebot.py на Fly.io
+- [ ] Дать Вове webhook URL: `https://secrets-library-bot.fly.dev/webhook/<secret>`
+- [ ] Вова: настроить webhook URL в Salebot.pro
+- [ ] Вова: настроить Reply keyboard: "Онбординг и Библиотека", "Библиотека" (URL), "Моя дорожная карта"
+- [ ] Вова: НЕ создавать funnels для текстов кнопок, отключить auto-response
+
+### Тестирование
+- [ ] Отправить "Онбординг и Библиотека" → должен прийти Q1
+- [ ] Пройти весь онбординг Q1→Q2→Q3→Q4
+- [ ] Проверить roadmap URL-кнопку
+- [ ] Написать свободный текст → Claude подберёт посты
+- [ ] Проверить drip delivery (дождаться 10:00 или тестовый запуск)
+- [ ] Проверить "Больше про..." кнопки
+- [ ] Проверить pause/resume/my_roadmap
+
+### Прочее
+- [ ] **Запушить статику** на GitHub Pages
+- [ ] Добавить `.gitignore`
+- [ ] Обновить library_v2.html — убрать «материалы»
