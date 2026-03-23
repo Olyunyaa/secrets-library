@@ -298,7 +298,7 @@ def make_multi_buttons(options, cb_map):
         })
     buttons.append({
         "type": "inline",
-        "text": "Готово >>>",
+        "text": "Готово",
         "callback": "done",
         "line": len(options),
         "index_in_line": 0,
