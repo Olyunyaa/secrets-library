@@ -1561,9 +1561,21 @@ function initApp() {
           return norm([p.generated_title, p.topic, p.summary, ...(p.key_theses || []), p.text]
             .filter(Boolean).join(' ')).includes(qn);
         });
+        // Relevance scoring: title > topic > theses/summary > text-only
+        posts.forEach(p => {
+          let score = 0;
+          if (norm(p.generated_title || '').includes(qn)) score += 100;
+          if (norm(p.topic || '').includes(qn)) score += 50;
+          if (norm((p.key_theses || []).join(' ')).includes(qn)) score += 20;
+          if (norm(p.summary || '').includes(qn)) score += 20;
+          p._relevance = score;
+        });
       }
 
       posts.sort((a, b) => {
+        // When searching, sort by relevance first, then by selected sort
+        if (q && (a._relevance || 0) !== (b._relevance || 0))
+          return (b._relevance || 0) - (a._relevance || 0);
         if (s === 'date-desc') return new Date(b.date) - new Date(a.date);
         if (s === 'date-asc')  return new Date(a.date) - new Date(b.date);
         if (s === 'views')     return (b.views || 0) - (a.views || 0);
