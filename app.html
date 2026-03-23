@@ -1802,6 +1802,24 @@ function initApp() {
     catDDToggle.classList.remove('open');
   });
 
+  /* ── Scroll to post card in grid ── */
+  function scrollToPost(pk) {
+    // Reset filters so the post is visible
+    activeCat = null; activeType = null; activeSubCat = null;
+    searchEl.value = '';
+    render();
+    // Find the card with matching data-uid
+    const card = grid.querySelector('.card-fav[data-uid="' + pk + '"]');
+    if (card) {
+      const cardEl = card.closest('.card');
+      if (cardEl) {
+        cardEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        cardEl.style.outline = '2px solid var(--teal-500)';
+        setTimeout(() => { cardEl.style.outline = ''; }, 2000);
+      }
+    }
+  }
+
   /* ── Row 4: Top + Favorites carousel toggles ── */
   function closeAllCarousels() {
     topSection.classList.remove('expanded');
@@ -1843,7 +1861,8 @@ function initApp() {
     favPosts.forEach((p, i) => {
       const a = document.createElement('a');
       a.className = 'top-card';
-      if (p.link) { a.href = p.link; a.target = '_blank'; a.rel = 'noopener'; }
+      a.href = '#';
+      a.addEventListener('click', (e) => { e.preventDefault(); scrollToPost(postKey(p)); });
       const cat = (p.category || [])[0];
       const color = cat ? ((CAT_PALETTE[cat] || {}).text || '#1a8fa8') : '#1a8fa8';
       a.style.setProperty('--stripe-color', color);
@@ -1897,7 +1916,8 @@ function initApp() {
     top.forEach((p, i) => {
       const a = document.createElement('a');
       a.className = 'top-card';
-      if (p.link) { a.href = p.link; a.target = '_blank'; a.rel = 'noopener'; }
+      a.href = '#';
+      a.addEventListener('click', (e) => { e.preventDefault(); scrollToPost(postKey(p)); });
       const cat = (p.category || [])[0];
       const color = cat ? ((CAT_PALETTE[cat] || {}).text || '#1a8fa8') : '#1a8fa8';
       a.style.setProperty('--stripe-color', color);
