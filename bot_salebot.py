@@ -59,6 +59,21 @@ app = Flask(__name__)
 _state_lock = threading.Lock()
 _roadmap_lock = threading.Lock()
 
+# ── Dedup: skip duplicate/echoed webhook messages ──
+_seen_ids = set()
+_seen_lock = threading.Lock()
+
+
+def _is_duplicate(webhook_id):
+    with _seen_lock:
+        if webhook_id in _seen_ids:
+            return True
+        _seen_ids.add(webhook_id)
+        if len(_seen_ids) > 500:
+            _seen_ids.clear()
+            _seen_ids.add(webhook_id)
+        return False
+
 # ── States ──
 STATE_Q1 = "q1"
 STATE_Q2 = "q2"
@@ -704,8 +719,7 @@ def handle_q1_input(client_id, text, state):
     if text == "done":
         selected = set(state.get("sel1", []))
         if not selected:
-            salebot_send(client_id, "Выберите хотя бы один вариант!",
-                         buttons=make_multi_buttons(Q1_OPTIONS, selected, Q1_KEY_TO_CB))
+            salebot_send(client_id, "Выберите хотя бы один вариант!")
             return
         log_event(client_id, "q1_done", ";".join(selected))
         chosen = ", ".join(labels_for(Q1_OPTIONS, selected))
@@ -720,9 +734,7 @@ def handle_q1_input(client_id, text, state):
 
     key = Q1_CB_TO_KEY.get(text)
     if not key:
-        salebot_send(client_id, Q1_TEXT,
-                     buttons=make_multi_buttons(Q1_OPTIONS, set(state.get("sel1", [])), Q1_KEY_TO_CB))
-        return
+        return  # ignore unknown input silently (may be echo)
     selected = set(state.get("sel1", []))
     if key in selected:
         selected.discard(key)
@@ -730,8 +742,9 @@ def handle_q1_input(client_id, text, state):
         selected.add(key)
     log_event(client_id, "q1_toggle", key)
     update_user_state(client_id, {"sel1": list(selected)})
-    salebot_send(client_id, Q1_TEXT,
-                 buttons=make_multi_buttons(Q1_OPTIONS, selected, Q1_KEY_TO_CB))
+    # Brief confirmation only — don't resend full button set
+    chosen = ", ".join(labels_for(Q1_OPTIONS, selected))
+    salebot_send(client_id, f"Выбрано: {chosen}\n\nНажмите «Готово >>>» когда будете готовы")
 
 
 def handle_q2_input(client_id, text, state):
@@ -739,8 +752,7 @@ def handle_q2_input(client_id, text, state):
     if text == "done":
         selected = set(state.get("sel2", []))
         if not selected:
-            salebot_send(client_id, "Выберите хотя бы один вариант!",
-                         buttons=make_multi_buttons(Q2_OPTIONS, selected, Q2_KEY_TO_CB))
+            salebot_send(client_id, "Выберите хотя бы один вариант!")
             return
         log_event(client_id, "q2_done", ";".join(selected))
         chosen = ", ".join(labels_for(Q2_OPTIONS, selected))
@@ -759,9 +771,7 @@ def handle_q2_input(client_id, text, state):
 
     key = Q2_CB_TO_KEY.get(text)
     if not key:
-        salebot_send(client_id, Q2_TEXT,
-                     buttons=make_multi_buttons(Q2_OPTIONS, set(state.get("sel2", [])), Q2_KEY_TO_CB))
-        return
+        return  # ignore unknown input silently (may be echo)
     selected = set(state.get("sel2", []))
     if key in selected:
         selected.discard(key)
@@ -769,17 +779,16 @@ def handle_q2_input(client_id, text, state):
         selected.add(key)
     log_event(client_id, "q2_toggle", key)
     update_user_state(client_id, {"sel2": list(selected)})
-    salebot_send(client_id, Q2_TEXT,
-                 buttons=make_multi_buttons(Q2_OPTIONS, selected, Q2_KEY_TO_CB))
+    # Brief confirmation only — don't resend full button set
+    chosen = ", ".join(labels_for(Q2_OPTIONS, selected))
+    salebot_send(client_id, f"Выбрано: {chosen}\n\nНажмите «Готово >>>» когда будете готовы")
 
 
 def handle_q3_input(client_id, text, state):
     """Handle Q3 single-select."""
     key = Q3_CB_TO_KEY.get(text)
     if not key:
-        salebot_send(client_id, Q3_TEXT,
-                     buttons=make_single_buttons(Q3_OPTIONS, Q3_KEY_TO_CB))
-        return
+        return  # ignore unknown input silently (may be echo)
 
     log_event(client_id, "q3_period", key)
     label = label_for(Q3_OPTIONS, key)
@@ -810,9 +819,7 @@ def handle_q4_input(client_id, text, state):
     """Handle Q4 delivery choice, create roadmap."""
     key = Q4_CB_TO_KEY.get(text)
     if not key:
-        salebot_send(client_id, Q4_TEXT,
-                     buttons=make_single_buttons(Q4_OPTIONS, Q4_KEY_TO_CB))
-        return
+        return  # ignore unknown input silently (may be echo)
 
     label = label_for(Q4_OPTIONS, key)
     log_event(client_id, "q4_delivery", key)
@@ -1325,21 +1332,27 @@ def webhook(secret):
     if secret.strip() != WEBHOOK_SECRET:
         return jsonify({"error": "unauthorized"}), 403
     data = request.get_json(silent=True) or {}
-    log.info("Webhook received: %s", json.dumps(data, ensure_ascii=False)[:500])
 
     # Extract client_id and message text from Salebot webhook payload.
-    # Salebot may send flat: {"client_id": "...", "message": "..."}
-    # or nested: {"client": {"id": ..., "recipient": ...}, "message": "..."}
     client_id = data.get("client_id")
     client_data = data.get("client", {})
     if not client_id and client_data:
         client_id = client_data.get("id")
     message_text = data.get("message", "")
     telegram_user_id = client_data.get("recipient") or client_data.get("recepient")
+    webhook_id = data.get("id")
+    is_input = data.get("is_input")
+
+    log.info("Webhook id=%s is_input=%s client=%s msg=%r",
+             webhook_id, is_input, client_id, (message_text or "")[:120])
 
     # Skip bot's own outgoing messages
-    if data.get("is_input") == 0:
-        return jsonify({"status": "ok", "note": "outgoing message, skipped"}), 200
+    if is_input == 0 or is_input == "0":
+        return jsonify({"status": "ok", "note": "outgoing"}), 200
+
+    # Dedup: skip already-seen webhook IDs (Salebot may echo)
+    if webhook_id and _is_duplicate(webhook_id):
+        return jsonify({"status": "ok", "note": "dup"}), 200
 
     if not client_id or not message_text:
         return jsonify({"status": "ok", "note": "no client_id or message"}), 200
