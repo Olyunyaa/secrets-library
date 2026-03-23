@@ -132,30 +132,6 @@ AFTER_ROADMAP_MSG = ("Если захотите почитать о чём-то 
 Q1_KEY_TO_CB = {key: f"q1_{i+1}" for i, (key, _) in enumerate(Q1_OPTIONS)}
 Q1_CB_TO_KEY = {v: k for k, v in Q1_KEY_TO_CB.items()}
 
-Q2_MAPPING = {
-    "p1": "pain_1_portfolio_raw",
-    "p2": "pain_2_portfolio_start",
-    "p3": "pain_3_project_start",
-    "p4": "pain_4_personal_brand",
-    "p5": "pain_5_social_blog",
-    "p6": "pain_6_selling_fear",
-    "p7": "pain_7_audience",
-    "p8": "pain_8_big_project",
-    "p9": "pain_9_blockers",
-    "p10": "pain_10_community",
-    "p11": "pain_11_money",
-}
-Q2_KEY_TO_CB = {}
-Q2_CB_TO_KEY = {}
-Q2_KEY_TO_SHORT = {}
-for _short, _pain in Q2_MAPPING.items():
-    _q2key = PAIN_TO_Q2[_pain]
-    _cb = f"q2_{_short}"
-    Q2_KEY_TO_CB[_q2key] = _cb
-    Q2_CB_TO_KEY[_cb] = _q2key
-    Q2_KEY_TO_SHORT[_q2key] = _short
-Q2_SHORT_TO_KEY = {v: k for k, v in Q2_KEY_TO_SHORT.items()}
-
 Q3_KEY_TO_CB = {key: f"q3_{i+1}" for i, (key, _) in enumerate(Q3_OPTIONS)}
 Q3_CB_TO_KEY = {v: k for k, v in Q3_KEY_TO_CB.items()}
 
@@ -206,6 +182,30 @@ Q2_TO_PAIN = {
 }
 
 PAIN_TO_Q2 = {v: k for k, v in Q2_TO_PAIN.items()}
+
+Q2_MAPPING = {
+    "p1": "pain_1_portfolio_raw",
+    "p2": "pain_2_portfolio_start",
+    "p3": "pain_3_project_start",
+    "p4": "pain_4_personal_brand",
+    "p5": "pain_5_social_blog",
+    "p6": "pain_6_selling_fear",
+    "p7": "pain_7_audience",
+    "p8": "pain_8_big_project",
+    "p9": "pain_9_blockers",
+    "p10": "pain_10_community",
+    "p11": "pain_11_money",
+}
+Q2_KEY_TO_CB = {}
+Q2_CB_TO_KEY = {}
+Q2_KEY_TO_SHORT = {}
+for _short, _pain in Q2_MAPPING.items():
+    _q2key = PAIN_TO_Q2[_pain]
+    _cb = f"q2_{_short}"
+    Q2_KEY_TO_CB[_q2key] = _cb
+    Q2_CB_TO_KEY[_cb] = _q2key
+    Q2_KEY_TO_SHORT[_q2key] = _short
+Q2_SHORT_TO_KEY = {v: k for k, v in Q2_KEY_TO_SHORT.items()}
 
 ALL_CATEGORIES = [
     "Путь предпринимателя",
