@@ -13644,7 +13644,7 @@ const POSTS_DATA = [
     "photo": null,
     "category": [
       "Путь предпринимателя",
-      "Внутрянка большого бизнеса"
+      "Деньги"
     ],
     "matched_from_csv": false,
     "generated_title": "Система",
