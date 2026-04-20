@@ -297,6 +297,62 @@ def _extract_title(text):
     return m.group(1).strip() if m else ""
 
 
+# ── Step 3b: Normalize series categories ─────────────────────────
+def normalize_series_categories(new_posts, existing_posts):
+    """Ensure posts that are parts of a series share at least one common category."""
+    print(f"\n── Step 3b: Normalizing series categories ──")
+
+    series_re = re.compile(r'^(.+?)[,.]?\s*часть\s*\d', re.IGNORECASE)
+
+    # Build lookup: series_prefix → all posts (new + existing)
+    def get_series_prefix(post):
+        title = post.get("generated_title", "") or _extract_title(post.get("text", ""))
+        m = series_re.match(title.strip())
+        return m.group(1).strip().lower() if m else None
+
+    # Group new posts by series
+    series_new = {}
+    for p in new_posts:
+        prefix = get_series_prefix(p)
+        if prefix:
+            series_new.setdefault(prefix, []).append(p)
+
+    # Skip prefixes with only 1 new post and no existing counterparts
+    existing_by_prefix = {}
+    for p in existing_posts:
+        prefix = get_series_prefix(p)
+        if prefix:
+            existing_by_prefix.setdefault(prefix, []).append(p)
+
+    changed = 0
+    for prefix, group in series_new.items():
+        all_parts = group + existing_by_prefix.get(prefix, [])
+        if len(all_parts) < 2:
+            continue
+
+        # Count category occurrences across all parts
+        cat_count = {}
+        for p in all_parts:
+            for cat in p.get("category", []):
+                cat_count[cat] = cat_count.get(cat, 0) + 1
+
+        common_cat = max(cat_count, key=lambda c: cat_count[c])
+
+        # Apply to new posts in this series that are missing the common category
+        for p in group:
+            if common_cat not in p.get("category", []):
+                old = p["category"][:]
+                # Keep second category if it exists, replace first with common
+                second = [c for c in p["category"] if c != common_cat][:1]
+                p["category"] = [common_cat] + second
+                print(f"  series-fix: {p['uid']} {old} → {p['category']}  (series: «{prefix}»)")
+                changed += 1
+
+    if not changed:
+        print("  No series fixes needed.")
+    return new_posts
+
+
 # ── Step 4: Generate summaries with Claude Sonnet ────────────────
 def enrich_posts(posts):
     """Generate title, topic, key_theses, summary for each post."""
@@ -464,6 +520,9 @@ def main():
 
     # Step 3: Categorize
     new_posts = categorize_posts(new_posts)
+
+    # Step 3b: Normalize series categories
+    new_posts = normalize_series_categories(new_posts, existing)
 
     # Step 4: Enrich
     new_posts = enrich_posts(new_posts)
