@@ -686,7 +686,6 @@ def match_stripe_to_members(stripe_payments, members_by_uid, known_matches, extr
 
 def classify(in_list, in_ch, in_chat, in_prak, stripe_payment, season_start):
     has_access = in_ch or in_chat or in_prak
-    full_access = in_ch and in_chat and in_prak
 
     stripe_paid = False
     stripe_failed = False
@@ -695,44 +694,38 @@ def classify(in_list, in_ch, in_chat, in_prak, stripe_payment, season_start):
         stripe_paid = (s == "paid")
         stripe_failed = (s == "failed")
 
-    # Group 1: доступ без оплаты
-    if has_access and not in_list and not stripe_paid:
-        return 1, "Доступ без оплаты", "Кто добавил? Запросить оплату?"
+    # Group 1 🔴: in any TG group without valid payment → remove
+    if has_access and not stripe_paid:
+        if stripe_failed:
+            return 1, "🔴 Убрать", "Удалить — платёж не прошёл"
+        return 1, "🔴 Убрать", "Удалить — нет оплаты"
 
-    # Group 1 also: failed + access
-    if stripe_failed and has_access:
-        return 1, "FAILED платёж, доступ есть", "Проверить в Stripe — убрать доступ?"
-
-    # Group 1: failed + no access
+    # Group 1 🔴: failed + no access at all
     if stripe_failed and not has_access:
-        return 1, "FAILED платёж, нет доступа", "Связаться — помочь с оплатой?"
+        return 1, "🔴 Убрать", "Платёж не прошёл, доступа нет — помочь с оплатой?"
 
-    # Group 2: в списке, не все группы
-    if in_list and has_access and not full_access:
-        missing = []
-        if not in_chat:
-            missing.append("Чат")
-        if not in_prak:
-            missing.append("Практика")
-        return 2, "Не все группы", f"Добавить в: {', '.join(missing)}"
+    # Group 2 🟡: paid but not in channel OR not in Vova's list
+    if stripe_paid and (not in_ch or not in_list):
+        actions = []
+        if not in_ch:
+            actions.append("добавить в канал")
+        if not in_list:
+            actions.append("добавить в список Salebot")
+        return 2, "🟡 Вове", f"Вова: {', '.join(actions)}"
 
-    # Group 3: не в списке Вовы, но доступ есть (и есть оплата или просто зашли)
-    if not in_list and has_access:
-        return 3, "Не в списке Вовы, доступ есть", "Добавить в список Вовы?"
+    # Group 3 🟠: paid + channel + list + missing chat or practice
+    if stripe_paid and in_ch and in_list:
+        if not (in_chat and in_prak):
+            missing = []
+            if not in_chat:
+                missing.append("Чат")
+            if not in_prak:
+                missing.append("Практика")
+            return 3, "🟠 Неполный доступ", f"Нет в: {', '.join(missing)}"
+        return 4, "✅ Всё ОК", ""
 
-    # Group 4: в списке Вовы, нигде нет доступа
-    if in_list and not has_access:
-        return 4, "В списке, нет доступа", "Добавить во все группы"
-
-    # Group 5: всё ОК — в списке, все группы, оплата подтверждена
-    if in_list and full_access and stripe_paid:
-        return 5, "Всё ОК", ""
-
-    # Group 6: в списке, все группы, но оплата не найдена в Stripe
-    if in_list and full_access and not stripe_paid:
-        return 6, "Нет данных Stripe", "Найти оплату или добавить в known_matches.json"
-
-    return 1, "Нужно разобраться", "Проверить вручную"
+    # Fallback: in_list but no payment and no TG access — treat as no access, no payment
+    return 1, "🔴 Убрать", "Удалить — нет оплаты"
 
 
 def build_rows(tg_members, sb_list_by_tgid, sb_extra_by_tgid, vars_by_tgid,
