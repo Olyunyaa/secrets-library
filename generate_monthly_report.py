@@ -508,7 +508,7 @@ def _name_tokens(text):
     return [p.lower() for p in parts if len(p) >= 4]
 
 
-def match_stripe_to_members(stripe_payments, members_by_uid, known_matches):
+def match_stripe_to_members(stripe_payments, members_by_uid, known_matches, extra_email_to_uname=None):
     # Build indexes
     email_to_uid = {}        # salebot_email_lower -> uid
     username_to_uid = {}     # username_lower -> uid
@@ -575,6 +575,14 @@ def match_stripe_to_members(stripe_payments, members_by_uid, known_matches):
         # 2. known_matches
         if stripe_email in known_matches:
             uname = known_matches[stripe_email]
+            if uname in username_to_uid:
+                uid = username_to_uid[uname]
+                matched[uid] = payment
+                continue
+
+        # 2b. Extra lookup tabs (Антихрупкость, Резиденты, prev Свод)
+        if extra_email_to_uname and stripe_email in extra_email_to_uname:
+            uname = extra_email_to_uname[stripe_email]
             if uname in username_to_uid:
                 uid = username_to_uid[uname]
                 matched[uid] = payment
