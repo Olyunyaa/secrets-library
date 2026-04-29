@@ -1211,6 +1211,11 @@ def main():
     gc = get_gspread_client()
     print("   ✓ Подключено")
 
+    # Step 1b: Load extra lookup tabs for matching
+    print("\n1b. Загружаю lookup-таблицы (Антихрупкость, Резиденты, предыдущий Свод)...")
+    extra_email_to_uname, extra_uname_to_email = load_lookup_tabs(gc, SPREADSHEET_ID, prev_tab)
+    print(f"   ✓ {len(extra_email_to_uname)} пар email↔ник из дополнительных источников")
+
     # Step 2: Stripe payments
     print(f"\n2. Загружаю Stripe из Google Sheet (вкладка '{stripe_tab}')...")
     if not stripe_tab:
@@ -1298,7 +1303,8 @@ def main():
                 all_members_for_diff[uid]["username"] = tg_uname
 
     stripe_matched, stripe_uncertain, stripe_unmatched = match_stripe_to_members(
-        stripe_payments, all_members_for_diff, known_matches
+        stripe_payments, all_members_for_diff, known_matches,
+        extra_email_to_uname=extra_email_to_uname
     )
     print(f"  Привязано: {len(stripe_matched)}  |  Нечёткий: {len(stripe_uncertain)}  |  Не привязано: {len(stripe_unmatched)}")
     unmatched_paid = [p for p in stripe_unmatched if p["status"].lower() == "paid"]
