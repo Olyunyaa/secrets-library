@@ -875,58 +875,57 @@ def build_analytics(rows, stripe_payments, new_uids, left_uids, uncertain_count,
 
     # Action items
     actions = []
-    add_to_groups = [r for r in rows if r["group"] == 2]
-    if add_to_groups:
-        names = ", ".join(r["name"] for r in add_to_groups[:10])
-        actions.append(f"Добавить в Чат/Практику: {names}")
 
-    failed_with_access = [r for r in rows if r["group"] == 1 and "FAILED" in r["status"] and (r["in_channel"] or r["in_chat"] or r["in_prak"])]
-    if failed_with_access:
-        names = ", ".join(r["name"] for r in failed_with_access)
-        actions.append(f"Проверить failed платежи с доступом: {names}")
+    # 1. Удалить из клуба — группа 1 (для подтверждения Таней)
+    to_remove = [r for r in rows if r["group"] == 1]
+    no_payment = [r for r in to_remove if "нет оплаты" in r["action"].lower()]
+    failed_pay = [r for r in to_remove if "платёж не прошёл" in r["action"].lower()]
+    if no_payment:
+        names = ", ".join(r["name"] for r in no_payment)
+        actions.append(f"🔴 Удалить из клуба (нет оплаты): {names}")
+    if failed_pay:
+        names = ", ".join(r["name"] for r in failed_pay)
+        actions.append(f"🔴 Удалить из клуба (FAILED платёж): {names}")
 
-    if uncertain_count:
-        uncertain_rows = [r for r in rows if r["email_uncertain"]]
-        for r in uncertain_rows:
-            actions.append(f"Подтвердить почту: {r['username']} — возможно {r['email'].replace('⚠️ ', '')}")
+    # 2. Вове — добавить в канал
+    add_to_ch = [r for r in rows if r["group"] == 2 and not r["in_channel"]]
+    if add_to_ch:
+        names = ", ".join(r["name"] for r in add_to_ch)
+        actions.append(f"🟡 Вова: добавить в канал: {names}")
 
+    # 3. Вове — добавить в список Salebot
+    add_to_list = [r for r in rows if r["group"] == 2 and not r["in_list"]]
+    if add_to_list:
+        names = ", ".join(r["name"] for r in add_to_list)
+        actions.append(f"🟡 Вова: добавить в список Salebot: {names}")
+
+    # 4. Вове — идентифицировать непривязанные Stripe Paid
     if unmatched:
         for p in unmatched:
             if p["status"].lower() == "paid":
-                actions.append(f"Stripe Paid, не привязан: {p['email']} ({p['amount']:.0f} GBP, {p['date']})")
+                actions.append(f"❓ Вова: идентифицировать Stripe Paid: {p['email']} ({p['amount']:.0f} GBP, {p['date']})")
 
-    new_no_list = [r for r in rows if r["diff"] == "🆕 новый" and not r["in_list"]]
-    if new_no_list:
-        names = ", ".join(r["name"] for r in new_no_list)
-        actions.append(f"Новые участники — добавить в бота: {names}")
+    # 5. Обновить known_matches.json — нечёткие матчи ⚠️
+    if uncertain_count:
+        uncertain_rows = [r for r in rows if r["email_uncertain"]]
+        for r in uncertain_rows:
+            actions.append(f"⚠️ Подтвердить матч: {r['username']} ↔ {r['email'].replace('⚠️ ', '')}")
 
-    # People in Vova's list with no Stripe data and no access — suspicious, ask Vova why they're listed
-    in_list_no_stripe_no_access = [
-        r for r in rows
-        if r["in_list"] and r["group"] == 4 and r["stripe"] == "нет данных"
-    ]
-    if in_list_no_stripe_no_access:
-        names = ", ".join(
-            f"{r['name']} ({r['username']})" if r["username"] else r["name"]
-            for r in in_list_no_stripe_no_access
-        )
-        actions.append(f"❗ Вова: в списке оплативших, но нет доступа и нет Stripe данных — проверить: {names}")
-
-    # Agreement action items
+    # 6. Обновить tanya_agreements.json — истекающие/истёкшие договорённости
     expiring = [r for r in rows if r.get("agreement_state") == "expiring"]
     if expiring:
         names = ", ".join(f"{r['name']} ({r['username']})" for r in expiring)
-        actions.append(f"⏰ Договорённость истекает скоро — уточнить у Тани продлевать ли: {names}")
+        actions.append(f"⏰ Договорённость истекает — уточнить у Тани: {names}")
 
     expired = [r for r in rows if r.get("agreement_state") == "expired"]
     if expired:
         names = ", ".join(f"{r['name']} ({r['username']})" for r in expired)
-        actions.append(f"❌ Договорённость истекла — уточнить у Тани: {names} (если продолжается — обновить valid_until в tanya_agreements.json)")
+        actions.append(f"❌ Договорённость истекла — обновить tanya_agreements.json: {names}")
 
     stripe_also = [r for r in rows if r.get("agreement_state") == "stripe_also"]
     if stripe_also:
         names = ", ".join(f"{r['name']} ({r['username']}): {r['stripe']}" for r in stripe_also)
-        actions.append(f"💰 Договорённость + реальная оплата Stripe — проверить у Тани: {names}")
+        actions.append(f"💰 Договорённость + Stripe — проверить у Тани: {names}")
 
     return {
         "total": total,
