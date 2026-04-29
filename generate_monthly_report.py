@@ -48,6 +48,7 @@ TG_GROUPS = {
 
 SALEBOT_LIST_ID = 1992711
 STRIPE_SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]
+ANTIKH_TAB_NAME = "Антихрупкость 2026"
 
 # ─── CLI args ─────────────────────────────────────────────────────
 
@@ -390,9 +391,9 @@ def load_lookup_tabs(gc, spreadsheet_id, prev_tab_name=None):
 
     # Антихрупкость 2026 — no header row: detect email/username by pattern
     try:
-        ws = sh.worksheet("Антихрупкость 2026")
+        ws = sh.worksheet(ANTIKH_TAB_NAME)
         for row in ws.get_all_values():
-            email = next((c for c in row if "@" in c and "." in c.split("@")[-1] and " " not in c), "")
+            email = next((c for c in row if re.match(r"^[^@\s]+@[^@\s]+\.[^@\s]+$", c)), "")
             uname = next((c for c in row if c.startswith("@") and len(c) >= 4), "")
             if email and uname:
                 _add(email, uname)
@@ -426,6 +427,7 @@ def load_lookup_tabs(gc, spreadsheet_id, prev_tab_name=None):
             for row in ws.get_all_values():
                 if len(row) < 3:
                     continue
+                # Schema: Имя(0), Username(1), Email(2) — matches COL_HEADERS order
                 uname_cell = row[1].strip()
                 email_cell = row[2].strip()
                 if uname_cell.startswith("@") and "@" in email_cell and "⚠️" not in email_cell:
