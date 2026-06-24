@@ -10,13 +10,17 @@ import re
 import subprocess
 import time
 from datetime import datetime, timezone
+from pathlib import Path
 
 import requests
+from dotenv import load_dotenv
 from telethon import TelegramClient
 
+load_dotenv(Path(__file__).parent / ".env")
+
 # ── Telegram config ──────────────────────────────────────────────
-API_ID = 39940596
-API_HASH = "6653479906b6710fec6535892e519d58"
+API_ID = int(os.environ["TELEGRAM_API_ID"])
+API_HASH = os.environ["TELEGRAM_API_HASH"]
 SESSION_PATH = os.path.expanduser("~/session")
 
 CHANNELS = {
@@ -50,7 +54,7 @@ REMOVED_UIDS = {
 }
 
 # ── Categories ───────────────────────────────────────────────────
-CATEGORIES_PROMPT = """Вот 9 категорий базы знаний бизнес-клуба. Выбирай максимум 2 категории, строго следуя правилам ниже.
+CATEGORIES_PROMPT = """Вот 10 категорий базы знаний бизнес-клуба. Выбирай максимум 2 категории, строго следуя правилам ниже.
 
 1. Создание продукта — идея, MVP, тестирование гипотез, запуск продукта, итерации, фреймворки создания.
 
@@ -74,7 +78,10 @@ CATEGORIES_PROMPT = """Вот 9 категорий базы знаний биз�
    ВАЖНО: ставь эту категорию если первый абзац — о Тане-в-бизнесе (её решения, результаты, система работы в контексте дохода или роста компании). Еженедельные ретроспективы и отчёты по соцсетям — всегда эта категория.
 
 9. Кейсы — разборы реальных людей или компаний с анализом их решений и результатов.
-   ВАЖНО: конспекты книг, подкастов, выступлений — НЕ кейсы. Категоризируй их по содержанию (что в посте обсуждается)."""
+   ВАЖНО: конспекты книг, подкастов, выступлений — НЕ кейсы. Категоризируй их по содержанию (что в посте обсуждается).
+
+10. AI — практическое применение AI-инструментов: промпты, TOV-скиллы, вайбкодинг, автоворонки с AI, обзоры инструментов (Claude, ChatGPT и др.), принципы работы LLM, AI-системы для бизнеса.
+    ВАЖНО: ставь эту категорию если пост прежде всего про AI как инструмент. Можно комбинировать: AI + Маркетинг и продажи (если про AI-воронку), AI + Создание продукта (если про вайбкодинг/AI-продукт)."""
 
 
 def load_api_key():
@@ -297,12 +304,17 @@ def categorize_posts(posts):
             post["year"] = year
             print(f"  auto-fix: {post['uid']} → Путь Тани (цифры соцсетей)")
 
-        elif re.search(r"(запись|эфир).*(разбор)", title_lower) or re.search(r"разбор.*(запись|эфир)", title_lower):
+        elif re.search(r"(запись|эфир).*(бизнес.разбор|разбор)", title_lower) or re.search(r"(бизнес.разбор|разбор).*(запись|эфир)", title_lower):
             post["category"] = ["Кейсы"]
             post["subcategory"] = "Бизнес-разборы"
             post["year"] = year
             post["type"] = "stream"
             print(f"  auto-fix: {post['uid']} → Кейсы / Бизнес-разборы (stream)")
+
+        elif re.search(r"запись эфира", title_lower) and re.search(r"\bai\b|ии|нейрон|вайбкод|клод|claude", title_lower):
+            post["category"] = ["AI"]
+            post["type"] = "stream"
+            print(f"  auto-fix: {post['uid']} → AI (запись эфира про AI)")
 
     return posts
 
