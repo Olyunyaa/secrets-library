@@ -111,9 +111,9 @@ Q1_OPTIONS = [
     ("explore", "Пока изучаю и присматриваюсь"),
 ]
 
-Q2_TEXT = "На что хотите взять фокус в клубе?\n(можно выбрать несколько вариантов)"
+Q2_TEXT = "На что хотите взять фокус в клубе в этом месяце?\n(выберите 1-2 варианта, не больше)"
 Q2_OPTIONS = [
-    ("portfolio_raw", "Как строить портфель без прикрас"),
+    ("portfolio_raw", "Как строить портфель"),
     ("portfolio_start", "Начать портфельную карьеру"),
     ("project_start", "Создать проект для портфеля"),
     ("brand", "Построить личный бренд"),
@@ -291,8 +291,10 @@ def salebot_send(client_id, message, buttons=None):
         resp.raise_for_status()
         log.info("Salebot send to %s: %s chars, status=%s",
                  client_id, len(message), resp.status_code)
+        return True
     except Exception as e:
         log.error("Salebot send failed for %s: %s", client_id, e)
+        return False
 
 
 # ══════════════════════════════════════════════════════════
@@ -863,7 +865,7 @@ Return ONLY the JSON array."""
 
 def _send_after_roadmap(client_id):
     """Send AFTER_ROADMAP_MSG with 'Подобрать материалы' button."""
-    buttons = [{"type": "inline", "text": "Подобрать материалы",
+    buttons = [{"type": "inline", "text": "🔍 Найти материалы по запросу",
                 "callback": "pick_materials", "line": 0, "index_in_line": 0}]
     salebot_send(client_id, AFTER_ROADMAP_MSG, buttons=buttons)
 
@@ -882,9 +884,12 @@ def handle_start(client_id, telegram_user_id=None):
             {"type": "inline", "text": "📚 Моя дорожная карта",
              "web_app": url,
              "line": 1, "index_in_line": 0},
-            {"type": "inline", "text": "Подобрать материалы",
+            {"type": "inline", "text": "🔍 Найти материалы по запросу",
              "callback": "pick_materials",
              "line": 2, "index_in_line": 0},
+            {"type": "inline", "text": "➕ Добавить темы в дорожную карту",
+             "callback": "new_selection",
+             "line": 3, "index_in_line": 0},
         ]
         salebot_send(client_id,
                      "С возвращением! Вот ваша Библиотека и персональная "
@@ -1147,11 +1152,10 @@ def handle_q4_input(client_id, text, state, cb_ctx=None):
                              buttons=make_multi_buttons(Q2_OPTIONS, Q2_KEY_TO_CB))
             return
 
-        # Merge: old posts + new posts
-        merged_posts = old_posts + unique_ids
-        merged_url = build_url(merged_posts)
+        # Merge: new подборки go to the TOP of the roadmap display
+        merged_url = build_url(unique_ids + old_posts)
         merged_pain_keys = list(dict.fromkeys(
-            (old_entry.get("pain_keys", []) if isinstance(old_entry, dict) else []) + a2))
+            a2 + (old_entry.get("pain_keys", []) if isinstance(old_entry, dict) else [])))
 
         if key == "send_all":
             # Send new per-pain URL buttons
@@ -1163,10 +1167,16 @@ def handle_q4_input(client_id, text, state, cb_ctx=None):
                     salebot_send(client_id, msg,
                                  buttons=make_webapp_button("📚 Открыть дорожную карту", url))
 
+            # Old messages keep their frozen URLs — send the updated full map
+            salebot_send(client_id,
+                         "Ваша полная дорожная карта обновлена:",
+                         buttons=make_webapp_button(
+                             "📚 Моя дорожная карта", merged_url))
+
             update_user_roadmap(client_id, {
                 "url": merged_url,
-                "posts": merged_posts,
-                "sent_index": len(merged_posts),
+                "posts": unique_ids + old_posts,
+                "sent_index": len(unique_ids) + len(old_posts),
                 "pain_keys": merged_pain_keys,
                 "start_date": date.today().isoformat(),
                 "last_delivery": date.today().isoformat(),
@@ -1178,11 +1188,11 @@ def handle_q4_input(client_id, text, state, cb_ctx=None):
             threading.Timer(5, _send_after_roadmap, args=(client_id,)).start()
             return
 
-        # drip or drip_remind — new posts go after old ones
-        # sent_index stays at old position; new posts will be sent in next batches
+        # drip or drip_remind — new posts delivered next, before old unsent ones
+        # sent_index stays at old position (already-sent posts keep indices 0..sent_index)
         update_user_roadmap(client_id, {
             "url": merged_url,
-            "posts": merged_posts,
+            "posts": old_posts[:old_sent_index] + unique_ids + old_posts[old_sent_index:],
             "pain_keys": merged_pain_keys,
             "reminders": key == "drip_remind",
             "paused": False,
@@ -1443,7 +1453,6 @@ def handle_my_roadmap(client_id):
         url = entry.get("url", "")
     if not url:
         return
-        return
     salebot_send(client_id,
                  "Ваша персональная дорожная карта:",
                  buttons=make_webapp_button("📚 Открыть дорожную карту", url))
@@ -1697,10 +1706,10 @@ def _send_redo_prompt(client_id, combined_url):
          "web_app": combined_url,
          "line": 2, "index_in_line": 0},
     ]
-    salebot_send(client_id,
-                 "Все материалы из вашей дорожной карты отправлены! "
-                 "Хотите получить подборку по другой теме?",
-                 buttons=buttons)
+    return salebot_send(client_id,
+                        "Все материалы из вашей дорожной карты отправлены! "
+                        "Хотите получить подборку по другой теме?",
+                        buttons=buttons)
 
 
 def drip_delivery_job():
@@ -1730,10 +1739,15 @@ def drip_delivery_job():
             client_id = entry.get("client_id", client_id_str)
             combined_url = entry.get("url", build_url(posts))
             try:
-                _send_redo_prompt(client_id, combined_url)
+                sent_ok = _send_redo_prompt(client_id, combined_url)
             except Exception as e:
                 log.warning("Redo prompt failed for send_all client %s: %s",
                             client_id_str, e)
+                continue
+            if not sent_ok:
+                # Send failed — leave redo_offered False so we retry tomorrow
+                log.warning("Redo prompt not delivered to %s, will retry",
+                            client_id_str)
                 continue
             update_user_roadmap(client_id_str, {"redo_offered": True})
             continue
@@ -1840,7 +1854,10 @@ def drip_delivery_job():
         if new_sent_index >= len(posts):
             combined_url = entry.get("url", build_url(posts))
             try:
-                _send_redo_prompt(client_id, combined_url)
+                if _send_redo_prompt(client_id, combined_url):
+                    # Mark as offered so the period-expiry branch above
+                    # doesn't send the same prompt again later
+                    update_user_roadmap(client_id_str, {"redo_offered": True})
             except Exception as e:
                 log.warning("Completion message failed for %s: %s",
                             client_id_str, e)
