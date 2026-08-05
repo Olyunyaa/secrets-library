@@ -711,6 +711,7 @@ body {
 .card.card-task .card-top {
   cursor: pointer;
   display: flex;
+  flex-direction: row;
   align-items: baseline;
   gap: .6rem;
   padding-right: 1.8rem;
@@ -1531,7 +1532,7 @@ function initApp() {
 
   let _lastSubCat = undefined;
   function buildSubFilters() {
-    const conf = activeCat ? SUB_CONFIGS[activeCat] : null;
+    const conf = activeCat && activeCat !== 'Задания' ? SUB_CONFIGS[activeCat] : null;
     if (!conf) {
       subFlEl.classList.remove('visible');
       subFlEl.innerHTML = '';
