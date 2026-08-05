@@ -661,6 +661,16 @@ body {
   background: var(--gray-100);
   color: var(--gray-500);
 }
+.card-type-badge.type-task {
+  background: #b25e00;
+  color: #fff;
+}
+
+/* ── Задания: обособленный стиль карточки ── */
+.card.card-task {
+  background: linear-gradient(180deg, #fff9f0 0%, #fffdf9 100%);
+  box-shadow: 0 1px 4px rgba(120,70,0,.08), 0 0 0 1px rgba(178,94,0,.18);
+}
 
 /* ── Topic ── */
 .card-topic {
@@ -914,6 +924,7 @@ body {
 
   /* Category → muted palette { bg, text } */
   const CAT_PALETTE = {
+    'Задания':                    { bg: '#fdebd0', text: '#b25e00' },
     'AI':                         { bg: '#dde3f7', text: '#2b3fa8' },
     'Внутрянка большого бизнеса': { bg: '#dce7f0', text: '#2a5f8f' },
     'Деньги':                     { bg: '#edeadb', text: '#6b5d26' },
@@ -930,6 +941,7 @@ body {
   const TYPE_LABELS = {
     'text':      'Текст',
     'stream':    'Эфир',
+    'task':      '📝 Задание',
     'materials': 'Материалы',
   };
   const MATERIALS_RE = /docs\.google\.com\/(presentation|document)|notion\.(so|site)|drive\.google\.com/;
@@ -993,6 +1005,15 @@ body {
 
   /* ── Subcategory definitions ── */
   const SUB_CONFIGS = {
+    'Задания': {
+      label: 'Ветка:',
+      items: [
+        { key: 'Личный бренд в соцсетях', label: 'Личный бренд в соцсетях' },
+        { key: 'Качаем LinkedIn', label: 'Качаем LinkedIn' },
+        { key: 'Консультации/менторство', label: 'Консультации/менторство' },
+      ],
+      filter(p, key) { return p.subcategory === key; }
+    },
     'Путь предпринимателя': {
       label: 'Период:',
       items: [
@@ -1163,8 +1184,9 @@ body {
         typeBadge = '<button class="card-type-badge type-audio" data-typef="stream">Аудио</button>';
       } else {
         typeBadge = '<button class="card-type-badge type-' + pType + '" data-typef="' + pType + '">' +
-          (pType === 'stream' ? 'Эфир' : 'Текст') + '</button>';
+          (pType === 'stream' ? 'Эфир' : pType === 'task' ? '📝 Задание' : 'Текст') + '</button>';
       }
+      if (pType === 'task') card.classList.add('card-task');
       if (hasMaterials) {
         typeBadge += '<button class="card-type-badge type-materials" data-typef="materials">Материалы</button>';
       }

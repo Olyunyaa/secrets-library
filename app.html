@@ -640,6 +640,17 @@ body {
   background: var(--gray-100);
   color: var(--gray-500);
 }
+.card-type-badge.type-task {
+  background: #b25e00;
+  color: #fff;
+}
+
+/* ── Задания: обособленный стиль карточки ── */
+.card.card-task {
+  background: linear-gradient(180deg, #fff9f0 0%, #fffdf9 100%);
+  box-shadow: 0 1px 4px rgba(120,70,0,.08), 0 0 0 1px rgba(178,94,0,.18);
+}
+.card.card-task::before { height: 4px; }
 
 /* ── Topic ── */
 .card-topic {
@@ -1245,6 +1256,7 @@ function initApp() {
   const HEART_ON  = '\u2665';  // ♥
 
   const CAT_PALETTE = {
+    'Задания':                    { bg: '#fdebd0', text: '#b25e00' },
     'AI':                         { bg: '#dde3f7', text: '#2b3fa8' },
     'Внутрянка большого бизнеса': { bg: '#dce7f0', text: '#2a5f8f' },
     'Деньги':                     { bg: '#edeadb', text: '#6b5d26' },
@@ -1260,6 +1272,7 @@ function initApp() {
   const TYPE_LABELS = {
     'text':      'Текст',
     'stream':    'Эфир',
+    'task':      '📝 Задание',
   };
 
   function getCatColor(categories) {
@@ -1390,6 +1403,15 @@ function initApp() {
 
   /* ── Subcategory definitions ── */
   const SUB_CONFIGS = {
+    'Задания': {
+      label: 'Ветка:',
+      items: [
+        { key: 'Личный бренд в соцсетях', label: 'Личный бренд в соцсетях' },
+        { key: 'Качаем LinkedIn', label: 'Качаем LinkedIn' },
+        { key: 'Консультации/менторство', label: 'Консультации/менторство' },
+      ],
+      filter(p, key) { return p.subcategory === key; }
+    },
     'Путь предпринимателя': {
       label: 'Период:',
       items: [
@@ -1619,13 +1641,14 @@ function initApp() {
       const pType = getPostType(p);
       const isAudio = pType === 'audio';
       const isStreamOrAudio = pType === 'stream' || isAudio;
+      if (pType === 'task') card.classList.add('card-task');
 
       let typeBadge;
       if (isAudio) {
         typeBadge = '<button class="card-type-badge type-audio" data-typef="stream">Аудио</button>';
       } else {
         typeBadge = '<button class="card-type-badge type-' + pType + '" data-typef="' + pType + '">' +
-          (pType === 'stream' ? 'Эфир' : 'Текст') + '</button>';
+          (pType === 'stream' ? 'Эфир' : pType === 'task' ? '📝 Задание' : 'Текст') + '</button>';
       }
 
       /* Build expand button: text posts get toggle, stream/audio get link */
@@ -1637,8 +1660,13 @@ function initApp() {
           '</a>';
       } else if (p.text) {
         const photoHtml = p.photo ? '<img src="' + esc(p.photo) + '" alt="">' : '';
+        const taskLink = (pType === 'task' && p.link)
+          ? '<a class="card-expand-btn" href="' + esc(p.link) + '" target="_blank" rel="noopener" style="margin-left:.6rem">Обсудить в Практике' +
+            '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a>'
+          : '';
         expandHtml =
-          '<button class="card-expand-btn" data-action="toggle">Читать пост целиком</button>' +
+          '<button class="card-expand-btn" data-action="toggle">' +
+          (pType === 'task' ? 'Читать задание целиком' : 'Читать пост целиком') + '</button>' + taskLink +
           '<div class="card-full-text">' + photoHtml + renderPostText(p.text, p.generated_title) + '</div>';
       }
 
