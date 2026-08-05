@@ -1497,6 +1497,8 @@ body {
 
     const totalEfirs = totalStreams + POSTS_DATA.filter(p => getPostType(p) === 'audio').length;
     const totalMaterials = POSTS_DATA.filter(p => MATERIALS_RE.test(p.text || '')).length;
+    const totalTasks = POSTS_DATA.filter(p => getPostType(p) === 'task').length;
+    const taskWord = (n => { const m10 = n % 10, m100 = n % 100; if (m10 === 1 && m100 !== 11) return 'Задание'; if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return 'Задания'; return 'Заданий'; })(totalTasks);
 
     bar.innerHTML =
       '<div class="stats-row-1">' +
@@ -1504,6 +1506,7 @@ body {
         '<div class="stat-card" data-filter="text"><div class="stat-card-number">' + fmt(totalPosts - totalEfirs) + '</div><div class="stat-card-label">Текстов</div></div>' +
         '<div class="stat-card" data-filter="stream"><div class="stat-card-number">' + fmt(totalEfirs) + '</div><div class="stat-card-label">Эфиров</div></div>' +
         '<div class="stat-card" data-filter="materials"><div class="stat-card-number">' + fmt(totalMaterials) + '</div><div class="stat-card-label">Материалов</div></div>' +
+        '<div class="stat-card" data-filter="task"><div class="stat-card-number" style="color:#8a2450">' + fmt(totalTasks) + '</div><div class="stat-card-label">' + taskWord + '</div></div>' +
       '</div>' +
       '<div class="stats-row-2">' +
         '<div class="stat-mini"><span class="stat-mini-icon">👁</span><span class="stat-mini-number">' + fmt(totalViews) + '</span><span class="stat-mini-label">просмотров</span></div>' +
@@ -1514,6 +1517,7 @@ body {
       card.addEventListener('click', () => {
         const f = card.dataset.filter;
         activeType = f === '' ? null : f;
+        activeSubCat = null;
         syncStatCards();
         render(true);
       });
