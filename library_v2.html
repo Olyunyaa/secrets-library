@@ -662,14 +662,101 @@ body {
   color: var(--gray-500);
 }
 .card-type-badge.type-task {
-  background: #b25e00;
+  background: #8a2450;
   color: #fff;
 }
 
-/* ── Задания: обособленный стиль карточки ── */
+/* ── Задания: обособленный стиль карточки (белая, сворачиваемая) ── */
 .card.card-task {
-  background: linear-gradient(180deg, #fff9f0 0%, #fffdf9 100%);
-  box-shadow: 0 1px 4px rgba(120,70,0,.08), 0 0 0 1px rgba(178,94,0,.18);
+  background: var(--white);
+  box-shadow: 0 1px 4px rgba(120,30,70,.06), 0 0 0 1px rgba(138,36,80,.28);
+  padding-top: 1rem;
+}
+.card.card-task::before { display: none; }
+.card.card-task .card-top {
+  cursor: pointer;
+  display: flex;
+  align-items: baseline;
+  gap: .6rem;
+  padding-right: 1.8rem;
+}
+.card.card-task .card-title { flex: 1; }
+.card.card-task .card-date {
+  font-size: .72rem;
+  color: var(--gray-400);
+  white-space: nowrap;
+}
+.task-subtitle {
+  font-size: .85rem;
+  color: var(--gray-600);
+  line-height: 1.5;
+  cursor: pointer;
+}
+.card.card-task .card-top::after {
+  content: '\203A';
+  color: var(--gray-400);
+  font-size: 1.1rem;
+  transition: transform .2s ease;
+}
+.card.card-task.expanded .card-top::after { transform: rotate(90deg); }
+.card.card-task:not(.expanded) > *:not(.card-top):not(.card-fav):not(.task-subtitle) {
+  display: none !important;
+}
+.pill[data-cat="Задания"], .card-cat-badge[data-cat="Задания"] { border-radius: 8px; }
+.task-branch-card {
+  grid-column: 1 / -1;
+  background: var(--white);
+  border-radius: 14px;
+  box-shadow: 0 1px 4px rgba(120,30,70,.08), 0 0 0 1.5px rgba(138,36,80,.4);
+  padding: 1.1rem 1.3rem;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+.task-branch-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(120,30,70,.15), 0 0 0 1.5px rgba(138,36,80,.55);
+}
+.task-branch-name {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #8a2450;
+}
+.task-branch-count {
+  font-size: .82rem;
+  color: var(--gray-500);
+  margin-top: .15rem;
+}
+.task-branch-arrow {
+  font-size: 1.6rem;
+  color: #8a2450;
+  font-weight: 600;
+}
+.task-back {
+  grid-column: 1 / -1;
+  justify-self: start;
+  background: none;
+  border: none;
+  color: #8a2450;
+  font-family: inherit;
+  font-size: .9rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: .2rem 0;
+  text-align: left;
+}
+.task-back:hover { text-decoration: underline; }
+.task-section-title {
+  grid-column: 1 / -1;
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #8a2450;
+  padding: 1rem .2rem .3rem;
+  border-bottom: 2px solid rgba(138,36,80,.25);
 }
 
 /* ── Topic ── */
@@ -924,7 +1011,7 @@ body {
 
   /* Category → muted palette { bg, text } */
   const CAT_PALETTE = {
-    'Задания':                    { bg: '#fdebd0', text: '#b25e00' },
+    'Задания':                    { bg: '#f5e0e9', text: '#8a2450' },
     'AI':                         { bg: '#dde3f7', text: '#2b3fa8' },
     'Внутрянка большого бизнеса': { bg: '#dce7f0', text: '#2a5f8f' },
     'Деньги':                     { bg: '#edeadb', text: '#6b5d26' },
@@ -956,7 +1043,8 @@ body {
     return p.type || 'text';
   }
 
-  const cats = [...new Set(POSTS_DATA.flatMap(p => p.category || []))].sort();
+  const cats = [...new Set(POSTS_DATA.flatMap(p => p.category || []))].sort(
+    (x, y) => (x === 'Задания') - (y === 'Задания') || x.localeCompare(y, 'ru'));
 
   /* ── Type filter row ── */
   function buildTypeFilters() {
@@ -986,7 +1074,7 @@ body {
   function buildFilters() {
     const label = mk('span', 'filters-label', 'Категория:');
     filtersEl.appendChild(label);
-    const all = mk('button', 'pill active', 'Все (' + POSTS_DATA.length + ')');
+    const all = mk('button', 'pill active', 'Все (' + POSTS_DATA.filter(p => getPostType(p) !== 'task').length + ')');
     all.dataset.cat = '';
     all.addEventListener('click', () => { activeCat = null; activeSubCat = null; render(true); });
     filtersEl.appendChild(all);
@@ -1008,9 +1096,9 @@ body {
     'Задания': {
       label: 'Ветка:',
       items: [
-        { key: 'Личный бренд в соцсетях', label: 'Личный бренд в соцсетях' },
-        { key: 'Качаем LinkedIn', label: 'Качаем LinkedIn' },
-        { key: 'Консультации/менторство', label: 'Консультации/менторство' },
+        { key: 'Растим ЛБ через соц сети', label: 'Растим ЛБ через соц сети' },
+        { key: 'Качаем LinkedIn вместе', label: 'Качаем LinkedIn вместе' },
+        { key: 'Развиваем консультации/менторство', label: 'Развиваем консультации/менторство' },
       ],
       filter(p, key) { return p.subcategory === key; }
     },
@@ -1078,7 +1166,7 @@ body {
       );
     });
     /* Show/hide and sync subcategory row */
-    if (!SUB_CONFIGS[activeCat]) activeSubCat = null;
+    if (!SUB_CONFIGS[activeCat] && activeType !== 'task') activeSubCat = null;
     buildSubFilters();
   }
 
@@ -1113,6 +1201,13 @@ body {
 
     let posts = [...POSTS_DATA];
 
+    /* Задания видны только в разделе «Задания» или по типу «Задание» */
+    const taskView = activeCat === 'Задания' || activeType === 'task';
+    if (!taskView) posts = posts.filter(p => getPostType(p) !== 'task');
+
+    /* В режиме заданий прячем Топ-материалы */
+    if (topSection) topSection.style.display = taskView ? 'none' : '';
+
     /* Content type filter */
     if (activeType) {
       if (activeType === 'stream') {
@@ -1130,6 +1225,8 @@ body {
     /* Subcategory filter */
     if (activeSubCat && activeCat && SUB_CONFIGS[activeCat]) {
       posts = posts.filter(p => SUB_CONFIGS[activeCat].filter(p, activeSubCat));
+    } else if (taskView && activeSubCat) {
+      posts = posts.filter(p => p.subcategory === activeSubCat);
     }
 
     if (q) {
@@ -1149,6 +1246,14 @@ body {
       return 0;
     });
 
+    // Задания: группируем по веткам, внутри ветки — от старых к новым
+    if (activeCat === 'Задания' || activeType === 'task') {
+      const vOrder = ['Растим ЛБ через соц сети', 'Качаем LinkedIn вместе', 'Развиваем консультации/менторство'];
+      posts.sort((a, b) =>
+        (vOrder.indexOf(a.subcategory) - vOrder.indexOf(b.subcategory)) ||
+        (new Date(a.date) - new Date(b.date)) || (a.id - b.id));
+    }
+
     syncTypePills();
     syncStatCards();
     syncPills();
@@ -1161,9 +1266,39 @@ body {
       return;
     }
 
+    /* Задания без выбранной ветки: показываем только блоки-ветки */
+    if (taskView && !activeSubCat && !q) {
+      const vOrder = ['Растим ЛБ через соц сети', 'Качаем LinkedIn вместе', 'Развиваем консультации/менторство'];
+      const menuFrag = document.createDocumentFragment();
+      vOrder.forEach(v => {
+        const items = posts.filter(p => p.subcategory === v);
+        if (!items.length) return;
+        const blk = mk('div', 'task-branch-card');
+        blk.innerHTML = '<div><div class="task-branch-name">' + esc(v) + '</div>' +
+          '<div class="task-branch-count">' + items.length + ' заданий</div></div>' +
+          '<span class="task-branch-arrow">›</span>';
+        blk.addEventListener('click', () => { activeSubCat = v; render(true); });
+        menuFrag.appendChild(blk);
+      });
+      grid.innerHTML = '';
+      grid.appendChild(menuFrag);
+      return;
+    }
+
     const frag = document.createDocumentFragment();
 
+    if (taskView && activeSubCat) {
+      const back = mk('button', 'task-back', '← Все ветки');
+      back.addEventListener('click', () => { activeSubCat = null; render(true); });
+      frag.appendChild(back);
+    }
+
+    let taskSecLast = null;
     posts.forEach((p, i) => {
+      if (taskView && p.subcategory && p.subcategory !== taskSecLast) {
+        taskSecLast = p.subcategory;
+        frag.appendChild(mk('div', 'task-section-title', p.subcategory));
+      }
       const card = mk('article', 'card');
       card.style.animationDelay = Math.min(i, 20) * 35 + 'ms';
 
@@ -1214,10 +1349,16 @@ body {
       }
 
       card.innerHTML =
-        '<div class="card-top">' +
-          '<div class="card-title">' + esc(p.generated_title || 'Без заголовка') + '</div>' +
-          '<span class="card-date">' + fmtDate(p.date) + '</span>' +
-        '</div>' +
+        (pType === 'task'
+          ? '<div class="card-top">' +
+              '<div class="card-title">' + (p.task_num ? 'Задание ' + p.task_num : 'Примеры к заданию 1') + '</div>' +
+              '<span class="card-date">' + fmtDate(p.date) + '</span>' +
+            '</div>' +
+            '<div class="task-subtitle">' + esc((p.generated_title || '').replace(/^Задание \d+\.\s*/, '').replace(/^Примеры к заданию 1:\s*/, '')) + '</div>'
+          : '<div class="card-top">' +
+              '<div class="card-title">' + esc(p.generated_title || 'Без заголовка') + '</div>' +
+              '<span class="card-date">' + fmtDate(p.date) + '</span>' +
+            '</div>') +
         '<div class="card-badges">' +
           cats.map(function(c) {
             var cp = CAT_PALETTE[c] || { bg: '#e5f2f8', text: '#0a5a7a' };
@@ -1247,6 +1388,12 @@ body {
               '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>' +
             '</a>'
           : '');
+
+      /* Задания: клик по заголовку/подзаголовку разворачивает карточку */
+      if (pType === 'task') {
+        card.querySelectorAll('.card-top, .task-subtitle').forEach(el =>
+          el.addEventListener('click', () => card.classList.toggle('expanded')));
+      }
 
       card.querySelectorAll('.card-cat-badge').forEach(btn => {
         btn.addEventListener('click', () => {
@@ -1340,7 +1487,7 @@ body {
   /* ── Stats section (two rows) ── */
   function buildStatsBar() {
     const bar = document.getElementById('statsBar');
-    const totalPosts = POSTS_DATA.length;
+    const totalPosts = POSTS_DATA.filter(p => getPostType(p) !== 'task').length;
     const totalTexts = POSTS_DATA.filter(p => getPostType(p) === 'text').length;
     const totalStreams = POSTS_DATA.filter(p => getPostType(p) === 'stream').length;
     const totalViews = POSTS_DATA.reduce((s, p) => s + (p.views || 0), 0);
