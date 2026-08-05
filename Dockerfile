@@ -12,4 +12,4 @@ COPY roadmap_all_pains_v4.json .
 # Data directory for persistent storage (mounted as volume)
 RUN mkdir -p /data
 
-CMD ["python", "bot_salebot.py"]
+CMD ["gunicorn", "--bind", "0.0.0.0:8080", "--workers", "1", "--threads", "4", "--timeout", "30", "bot_salebot:app"]

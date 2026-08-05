@@ -34,7 +34,7 @@ USER_ROADMAPS_PATH = DATA_DIR / "user_roadmaps.json"
 
 BATCH_SIZE = 2
 DRIP_INTERVALS = {7: 1, 14: 2, 28: 3, 60: 4}
-BASE_URL = "https://olyunyaa.github.io/secrets-library/app.html"
+BASE_URL = "https://olyunyaa.github.io/secrets-library/app.html?v=5"
 BONUS_LIMIT = 15  # max bonus posts per topic via "Больше про..." button
 
 logging.basicConfig(level=logging.INFO)

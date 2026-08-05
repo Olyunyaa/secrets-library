@@ -36,8 +36,8 @@ API_KEY = os.environ["SALEBOT_API_KEY"]
 SPREADSHEET_ID = os.environ.get("SPREADSHEET_ID", "174PEZUj-vxTV-vfoLIRL4FLOXSUlJ0qCfIItqyaNuH0")
 GOOGLE_SA_KEY_PATH = os.environ.get("GOOGLE_SA_KEY_PATH", str(Path.home() / "Desktop/secrets-club.json"))
 
-TELEGRAM_API_ID = 39940596
-TELEGRAM_API_HASH = "6653479906b6710fec6535892e519d58"
+TELEGRAM_API_ID = int(os.environ["TELEGRAM_API_ID"])
+TELEGRAM_API_HASH = os.environ["TELEGRAM_API_HASH"]
 SESSION_PATH = os.path.expanduser("~/session")
 
 TG_GROUPS = {
@@ -349,20 +349,23 @@ def load_prev_tab_members(gc, spreadsheet_id, prev_tab_name):
 
 def compute_diff(current_uid_set, prev_usernames, prev_tg_ids, members_by_uid):
     new_uids = set()
-    left_ids = set()
+    current_unames = set()
 
     for uid in current_uid_set:
         info = members_by_uid.get(uid, {})
-        uname = info.get("username", "")
+        uname = (info.get("username", "") or "").lstrip("@").lower()
+        if uname:
+            current_unames.add(uname)
         in_prev = uid in prev_tg_ids or (uname and uname in prev_usernames)
         if not in_prev:
             new_uids.add(uid)
 
-    for uid in prev_tg_ids:
-        if uid not in current_uid_set:
-            left_ids.add(uid)
-
-    return new_uids, left_ids
+    # Left = prev-свод members no longer in the current TG groups. The свод stores
+    # usernames (almost never numeric tg_ids), so compute by username — mirroring
+    # the "new" side. Iterating prev_tg_ids alone gave a structural 0 (the свод has
+    # no tg_id column, so prev_tg_ids is empty).
+    left_usernames = {u for u in prev_usernames if u not in current_unames}
+    return new_uids, left_usernames
 
 
 # ─── Step 5: Stripe email matching ───────────────────────────────
@@ -419,19 +422,26 @@ def load_lookup_tabs(gc, spreadsheet_id, prev_tab_name=None):
     except Exception as e:
         print(f"  ⚠️  Резиденты: {e}")
 
-    # Предыдущий Свод — scan data rows for @username (col 1) + email (col 2)
+    # Предыдущий Свод — scan all cells for @username + email patterns (column-independent)
+    # Email extracted from cell even if cell contains extra text (notes, etc.)
+    _email_re = re.compile(r"[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}")
     if prev_tab_name:
         try:
             ws = sh.worksheet(prev_tab_name)
             before = len(email_to_uname)
             for row in ws.get_all_values():
-                if len(row) < 3:
-                    continue
-                # Schema: Имя(0), Username(1), Email(2) — matches COL_HEADERS order
-                uname_cell = row[1].strip()
-                email_cell = row[2].strip()
-                if uname_cell.startswith("@") and "@" in email_cell and "⚠️" not in email_cell:
-                    _add(email_cell, uname_cell)
+                email = ""
+                for c in row:
+                    if "⚠️" in c:
+                        continue
+                    m = _email_re.search(c.strip())
+                    if m:
+                        email = m.group(0).lower()
+                        break
+                uname = next((c.strip() for c in row
+                              if c.strip().startswith("@") and len(c.strip()) >= 4), "")
+                if email and uname:
+                    _add(email, uname)
             print(f"  Предыдущий свод: +{len(email_to_uname) - before} новых пар (итого {len(email_to_uname)})")
         except Exception as e:
             print(f"  ⚠️  Предыдущий свод lookup: {e}")
@@ -577,7 +587,8 @@ def match_stripe_to_members(stripe_payments, members_by_uid, known_matches, extr
             uname = known_matches[stripe_email]
             if uname in username_to_uid:
                 uid = username_to_uid[uname]
-                matched[uid] = payment
+                if uid not in matched or payment["status"].lower() == "paid":
+                    matched[uid] = payment
                 continue
 
         # 2b. Extra lookup tabs (Антихрупкость, Резиденты, prev Свод)
@@ -585,7 +596,8 @@ def match_stripe_to_members(stripe_payments, members_by_uid, known_matches, extr
             uname = extra_email_to_uname[stripe_email]
             if uname in username_to_uid:
                 uid = username_to_uid[uname]
-                matched[uid] = payment
+                if uid not in matched or payment["status"].lower() == "paid":
+                    matched[uid] = payment
                 continue
 
         # 3. Username exactly in local part of email (len >= 6)
@@ -594,7 +606,8 @@ def match_stripe_to_members(stripe_payments, members_by_uid, known_matches, extr
             clean_local = local.replace(".", "").replace("_", "")
             clean_uname = uname.replace("_", "").replace(".", "")
             if len(clean_uname) >= 6 and clean_uname == clean_local:
-                matched[uid] = payment
+                if uid not in matched or payment["status"].lower() == "paid":
+                    matched[uid] = payment
                 found_exact = True
                 break
         if found_exact:
@@ -609,7 +622,13 @@ def match_stripe_to_members(stripe_payments, members_by_uid, known_matches, extr
                 break
         if fuzzy_hit:
             uid, uname = fuzzy_hit
-            uncertain[uid] = (payment, f"нечёткий матч: @{uname} ↔ {stripe_email}")
+            clean_un = uname.replace("_", "").lower()
+            # Username (≥8 chars) fully contained in email local → high confidence → direct
+            if len(clean_un) >= 8 and clean_un in local:
+                if uid not in matched or payment["status"].lower() == "paid":
+                    matched[uid] = payment
+            else:
+                uncertain[uid] = (payment, f"нечёткий матч: @{uname} ↔ {stripe_email}")
             continue
 
         # 5. Token matching: extract words from email local part,
@@ -634,10 +653,14 @@ def match_stripe_to_members(stripe_payments, members_by_uid, known_matches, extr
                 best_len = len(tok)
 
         if best_uid is not None:
-            uncertain[best_uid] = (
-                payment,
-                f"матч по токену '{best_tok}' из {stripe_email} ⚠️ требует проверки"
-            )
+            if best_len >= 8:
+                if best_uid not in matched or payment["status"].lower() == "paid":
+                    matched[best_uid] = payment  # Long unique token → high confidence → direct
+            else:
+                uncertain[best_uid] = (
+                    payment,
+                    f"матч по токену '{best_tok}' из {stripe_email} ⚠️ требует проверки"
+                )
             continue
 
         # 5b. Email token is suffix of clean username
@@ -659,7 +682,11 @@ def match_stripe_to_members(stripe_payments, members_by_uid, known_matches, extr
 
         if suffix_match is not None:
             uid, tok, uname = suffix_match
-            uncertain[uid] = (payment, f"суффикс '@{uname}' ← '{tok}' из {stripe_email} ⚠️ требует проверки")
+            if len(tok) >= 7:
+                if uid not in matched or payment["status"].lower() == "paid":
+                    matched[uid] = payment  # Long suffix → high confidence → direct
+            else:
+                uncertain[uid] = (payment, f"суффикс '@{uname}' ← '{tok}' из {stripe_email} ⚠️ требует проверки")
             continue
 
         # 5c. Full cleaned email local matches concatenated name
@@ -671,10 +698,14 @@ def match_stripe_to_members(stripe_payments, members_by_uid, known_matches, extr
             uid_list = list(set(name_token_to_uids.get(clean_full, [])))
             uid_list = [u for u in uid_list if u not in matched and u not in uncertain]
             if len(uid_list) == 1:
-                uncertain[uid_list[0]] = (
-                    payment,
-                    f"матч по имени '{clean_full}' из {stripe_email} ⚠️ требует проверки"
-                )
+                if len(clean_full) >= 10:
+                    if uid_list[0] not in matched or payment["status"].lower() == "paid":
+                        matched[uid_list[0]] = payment  # Full concatenated name → high confidence → direct
+                else:
+                    uncertain[uid_list[0]] = (
+                        payment,
+                        f"матч по имени '{clean_full}' из {stripe_email} ⚠️ требует проверки"
+                    )
                 continue
 
         unmatched.append(payment)
@@ -684,7 +715,7 @@ def match_stripe_to_members(stripe_payments, members_by_uid, known_matches, extr
 
 # ─── Step 6: Build rows ───────────────────────────────────────────
 
-def classify(in_list, in_ch, in_chat, in_prak, stripe_payment, season_start):
+def classify(in_list, in_ch, in_chat, in_prak, stripe_payment, season_start, has_email=True):
     has_access = in_ch or in_chat or in_prak
 
     stripe_paid = False
@@ -694,26 +725,28 @@ def classify(in_list, in_ch, in_chat, in_prak, stripe_payment, season_start):
         stripe_paid = (s == "paid")
         stripe_failed = (s == "failed")
 
-    # Group 1 🔴: in any TG group without valid payment → remove
+    # Group 3 🔴: failed payment (any access status)
+    if stripe_failed:
+        return 3, "🔴 Failed", "failed платеж"
+
+    # Group 1 ⚠️: in TG, no payment, NO EMAIL → Вове проверить почту
+    if has_access and not stripe_paid and not has_email:
+        return 1, "⚠️ Нет почты", "Вове: найти почту"
+
+    # Group 2 🔴: in TG, no payment, has email → нет оплаты
     if has_access and not stripe_paid:
-        if stripe_failed:
-            return 1, "🔴 Убрать", "Удалить — платёж не прошёл"
-        return 1, "🔴 Убрать", "Удалить — нет оплаты"
+        return 2, "🔴 Нет оплаты", "нет оплаты"
 
-    # Group 1 🔴: failed + no access at all
-    if stripe_failed and not has_access:
-        return 1, "🔴 Убрать", "Платёж не прошёл, доступа нет — помочь с оплатой?"
-
-    # Group 2 🟡: paid but not in channel OR not in Vova's list
+    # Group 4 🟡: paid but not in channel OR not in Vova's list
     if stripe_paid and (not in_ch or not in_list):
         actions = []
         if not in_ch:
             actions.append("добавить в канал")
         if not in_list:
             actions.append("добавить в список Salebot")
-        return 2, "🟡 Вове", f"Вова: {', '.join(actions)}"
+        return 4, "🟡 Вове", f"Вова: {', '.join(actions)}"
 
-    # Group 3 🟠: paid + channel + list + missing chat or practice
+    # Group 5 🟠: paid + channel + list + missing chat or practice
     if stripe_paid and in_ch and in_list:
         if not (in_chat and in_prak):
             missing = []
@@ -721,16 +754,18 @@ def classify(in_list, in_ch, in_chat, in_prak, stripe_payment, season_start):
                 missing.append("Чат")
             if not in_prak:
                 missing.append("Практика")
-            return 3, "🟠 Неполный доступ", f"Нет в: {', '.join(missing)}"
-        return 4, "✅ Всё ОК", ""
+            return 5, "🟠 Неполный доступ", f"Нет в: {', '.join(missing)}"
+        return 6, "✅ Всё ОК", ""
 
-    # Fallback: in_list but no payment and no TG access — treat as no access, no payment
-    return 1, "🔴 Убрать", "Удалить — нет оплаты"
+    # Fallback: in_list but no payment and no TG access
+    if not has_email:
+        return 1, "⚠️ Нет почты", "Вове: найти почту"
+    return 2, "🔴 Нет оплаты", "нет оплаты"
 
 
 def build_rows(tg_members, sb_list_by_tgid, sb_extra_by_tgid, vars_by_tgid,
                stripe_matched, stripe_uncertain, new_uids, left_uids, season_start,
-               agreements=None):
+               agreements=None, extra_uname_to_email=None):
     # Collect all unique UIDs
     all_uids = (set(tg_members["channel"].keys()) |
                 set(tg_members["chat"].keys()) |
@@ -784,37 +819,51 @@ def build_rows(tg_members, sb_list_by_tgid, sb_extra_by_tgid, vars_by_tgid,
 
         # Tanya agreements
         uname = info.get("username", "")
+
+        # Populate email from lookup tables (prev swod / Резиденты / Антихрупкость) if still empty
+        if not email_best and extra_uname_to_email and uname:
+            email_best = extra_uname_to_email.get(uname.lower(), "")
+
         agreement = (agreements or {}).get(uname.lower()) if uname else None
-        agreement_state = None  # 'active' | 'expiring' | 'expired' | 'stripe_also'
+        agreement_state = None  # 'team' | 'active' | 'expiring' | 'expired' | 'stripe_also'
         if agreement:
+            ag_type = agreement.get("type", "free")
             ag_state = agreement.get("state", "expired")
             if not email_best and agreement.get("email"):
                 email_best = agreement["email"]
-            real_stripe = stripe_pay or uncertain_pay
 
-            if real_stripe and ag_state in ("active", "expiring"):
-                # Stripe charged despite active agreement — show both, flag for review
-                agreement_state = "stripe_also"
-                real_pay = stripe_pay or uncertain_pay
-                amt = real_pay["amount"]
-                stripe_display = f"{amt:.0f} GBP, {real_pay['status']} (💛 договорённость)"
-                # Keep real stripe_pay so classification is based on actual payment
-
-            elif not real_stripe and ag_state == "active":
-                stripe_display = f"💛 {agreement['label']}"
-                agreement_state = "active"
+            # Team members: always ВСЁ ОК, 💙 Команда
+            if ag_type == "team":
+                stripe_display = "💙 Команда"
+                agreement_state = "team"
                 stripe_pay = {"status": "paid", "amount": 0, "email": email_best, "date": ""}
 
-            elif not real_stripe and ag_state == "expiring":
-                stripe_display = f"💛 {agreement['label']} (истекает {agreement.get('valid_until', '?')})"
-                agreement_state = "expiring"
-                stripe_pay = {"status": "paid", "amount": 0, "email": email_best, "date": ""}
+            else:
+                real_stripe = stripe_pay or uncertain_pay
 
-            elif not real_stripe and ag_state == "expired":
-                # Expired agreement + no Stripe → person classified normally (likely red)
-                stripe_display = f"⚠️ Договорённость истекла ({agreement.get('valid_until', 'нет даты')})"
-                agreement_state = "expired"
-                # No synthetic payment — let classify() flag them as unpaid
+                if real_stripe and ag_state in ("active", "expiring"):
+                    # Stripe charged despite active agreement — show both, flag for review
+                    agreement_state = "stripe_also"
+                    real_pay = stripe_pay or uncertain_pay
+                    amt = real_pay["amount"]
+                    stripe_display = f"{amt:.0f} GBP, {real_pay['status']} (💛 договорённость)"
+                    # Keep real stripe_pay so classification is based on actual payment
+
+                elif not real_stripe and ag_state == "active":
+                    stripe_display = f"💛 {agreement['label']}"
+                    agreement_state = "active"
+                    stripe_pay = {"status": "paid", "amount": 0, "email": email_best, "date": ""}
+
+                elif not real_stripe and ag_state == "expiring":
+                    stripe_display = f"💛 {agreement['label']} (истекает {agreement.get('valid_until', '?')})"
+                    agreement_state = "expiring"
+                    stripe_pay = {"status": "paid", "amount": 0, "email": email_best, "date": ""}
+
+                elif not real_stripe and ag_state == "expired":
+                    # Expired agreement + no Stripe → person classified normally (likely red)
+                    stripe_display = f"⚠️ Договорённость истекла ({agreement.get('valid_until', 'нет даты')})"
+                    agreement_state = "expired"
+                    # No synthetic payment — let classify() flag them as unpaid
 
         # Diff label
         if uid in new_uids:
@@ -824,9 +873,53 @@ def build_rows(tg_members, sb_list_by_tgid, sb_extra_by_tgid, vars_by_tgid,
         else:
             diff_label = ""
 
+        has_email_bool = bool(email_best) and "⚠️" not in str(email_best)
         group_num, status_label, action = classify(
-            in_list, in_ch, in_chat, in_prak, stripe_pay or uncertain_pay, season_start
+            in_list, in_ch, in_chat, in_prak, stripe_pay or uncertain_pay, season_start,
+            has_email=has_email_bool
         )
+        # Team members always land in ВСЁ ОК regardless of TG/Salebot access flags
+        if agreement_state == "team":
+            group_num, status_label, action = 6, "✅ Всё ОК", ""
+
+        # Sub-group for intra-section sorting and granular actions
+        stripe_paid_flag = bool(stripe_pay and stripe_pay["status"].lower() == "paid")
+        if group_num == 2:
+            if not in_list and (in_chat or in_prak):
+                sub_group = 1
+                action = "удалить из чата/практики"
+            elif in_list and in_ch and in_chat and in_prak:
+                sub_group = 2
+                action = "Тянутся из прошлого? Проверить!"
+            elif in_list and not in_ch and not in_chat and not in_prak:
+                sub_group = 3
+                action = "Вова, удалить из бота?"
+            elif not in_list and in_ch and not in_chat and not in_prak:
+                sub_group = 4
+                action = "Вове проверить"
+            else:
+                sub_group = 5
+                action = "проверить"
+        elif group_num == 4:
+            if not in_list and stripe_paid_flag:
+                sub_group = 1
+                action = "удалил бота?"
+            elif in_list and stripe_paid_flag and not in_ch:
+                sub_group = 2
+                action = "Вова: добавить в канал?"
+            else:
+                sub_group = 3
+                action = "проверить"
+        elif group_num == 6:
+            if agreement_state == "team":
+                sub_group = 2
+            elif agreement_state in ("active", "expiring", "stripe_also"):
+                sub_group = 1
+            else:
+                sub_group = 0
+        else:
+            sub_group = 0
+
         rows.append({
             "uid": uid,
             "name": info.get("name", "?"),
@@ -844,9 +937,10 @@ def build_rows(tg_members, sb_list_by_tgid, sb_extra_by_tgid, vars_by_tgid,
             "action": action,
             "uncertain_reason": uncertain_reason,
             "agreement_state": agreement_state,
+            "sub_group": sub_group,
         })
 
-    rows.sort(key=lambda r: (r["group"], r["name"].lower()))
+    rows.sort(key=lambda r: (r["group"], r.get("sub_group", 0), r["name"].lower()))
     return rows, members_info
 
 
@@ -859,8 +953,21 @@ def build_analytics(rows, stripe_payments, new_uids, left_uids, uncertain_count,
     in_prak = sum(1 for r in rows if r["in_prak"])
 
     paid_payments = [p for p in stripe_payments if p["status"].lower() == "paid"]
-    failed_payments = [p for p in stripe_payments if p["status"].lower() == "failed"]
     revenue = sum(p["amount"] for p in paid_payments)
+    # Failed / Refunded counted by unique person (email), not raw rows — Stripe
+    # retries one card several times, so raw row counts overstate failures.
+    # A person with any Paid is excluded; Refunded (paid-then-reversed) is kept
+    # separate from Failed (card never went through).
+    paid_emails = {p["email"] for p in paid_payments}
+    _non_paid = {}
+    for p in stripe_payments:
+        em, st = p["email"], p["status"].lower()
+        if st == "paid" or em in paid_emails:
+            continue
+        if em not in _non_paid or (st == "refunded" and _non_paid[em] != "refunded"):
+            _non_paid[em] = st
+    failed_people = [em for em, st in _non_paid.items() if st != "refunded"]
+    refunded_people = [em for em, st in _non_paid.items() if st == "refunded"]
 
     g35 = sum(1 for p in paid_payments if abs(p["amount"] - 35) < 1)
     g50 = sum(1 for p in paid_payments if abs(p["amount"] - 50) < 1)
@@ -876,25 +983,32 @@ def build_analytics(rows, stripe_payments, new_uids, left_uids, uncertain_count,
     # Action items
     actions = []
 
-    # 1. Удалить из клуба — группа 1 (для подтверждения Таней)
-    to_remove = [r for r in rows if r["group"] == 1]
-    no_payment = [r for r in to_remove if "нет оплаты" in r["action"].lower()]
-    failed_pay = [r for r in to_remove if "платёж не прошёл" in r["action"].lower()]
+    # 1. Вове — найти почту (нет почты, нет оплаты)
+    no_email_rows = [r for r in rows if r["group"] == 1]
+    if no_email_rows:
+        names = ", ".join(r["name"] for r in no_email_rows)
+        actions.append(f"⚠️ Вова: найти почту (нет оплаты, нет почты): {names}")
+
+    # 2. Нет оплаты
+    no_payment = [r for r in rows if r["group"] == 2]
     if no_payment:
         names = ", ".join(r["name"] for r in no_payment)
-        actions.append(f"🔴 Удалить из клуба (нет оплаты): {names}")
+        actions.append(f"🔴 Нет оплаты: {names}")
+
+    # 3. Failed платёж
+    failed_pay = [r for r in rows if r["group"] == 3]
     if failed_pay:
         names = ", ".join(r["name"] for r in failed_pay)
-        actions.append(f"🔴 Удалить из клуба (FAILED платёж): {names}")
+        actions.append(f"🔴 Failed платёж: {names}")
 
-    # 2. Вове — добавить в канал
-    add_to_ch = [r for r in rows if r["group"] == 2 and not r["in_channel"]]
+    # 4. Вове — добавить в канал
+    add_to_ch = [r for r in rows if r["group"] == 4 and not r["in_channel"]]
     if add_to_ch:
         names = ", ".join(r["name"] for r in add_to_ch)
         actions.append(f"🟡 Вова: добавить в канал: {names}")
 
-    # 3. Вове — добавить в список Salebot
-    add_to_list = [r for r in rows if r["group"] == 2 and not r["in_list"]]
+    # 4. Вове — добавить в список Salebot
+    add_to_list = [r for r in rows if r["group"] == 4 and not r["in_list"]]
     if add_to_list:
         names = ", ".join(r["name"] for r in add_to_list)
         actions.append(f"🟡 Вова: добавить в список Salebot: {names}")
@@ -935,7 +1049,8 @@ def build_analytics(rows, stripe_payments, new_uids, left_uids, uncertain_count,
         "new_count": len(new_uids),
         "left_count": len(left_uids),
         "paid_count": len(paid_payments),
-        "failed_count": len(failed_payments),
+        "failed_count": len(failed_people),
+        "refunded_count": len(refunded_people),
         "revenue": revenue,
         "g35": g35,
         "g50": g50,
@@ -948,24 +1063,28 @@ def build_analytics(rows, stripe_payments, new_uids, left_uids, uncertain_count,
         "actions": actions,
         "new_names": [rows[r]["name"] for r in range(len(rows)) if rows[r]["uid"] in new_uids]
                      if new_uids else [],
-        "left_names": [],  # left UIDs may not be in current rows
+        "left_names": sorted("@" + u for u in left_uids),
     }
 
 
 # ─── Step 8: Write to Google Sheet ───────────────────────────────
 
 SECTION_HEADERS = {
-    1: "🔴 УБРАТЬ ИЗ КЛУБА — НЕТ ОПЛАТЫ / ПЛАТЁЖ НЕ ПРОШЁЛ",
-    2: "🟡 ВОВЕ — НУЖНО РАЗОБРАТЬСЯ (оплата есть, нет канала или списка)",
-    3: "🟠 НЕПОЛНЫЙ ДОСТУП — нет в Чате/Практике (может быть выбором)",
-    4: "✅ ВСЁ ОК",
+    1: "⚠️ НЕТ ПОЧТЫ — Вове: найти почту",
+    2: "🔴 НЕТ ОПЛАТЫ",
+    3: "🔴 FAILED ПЛАТЁЖ",
+    4: "🟡 ВОВЕ — НУЖНО РАЗОБРАТЬСЯ (оплата есть, нет канала или списка)",
+    5: "🟠 НЕПОЛНЫЙ ДОСТУП — нет в Чате/Практике (может быть выбором)",
+    6: "✅ ВСЁ ОК",
 }
 
 SECTION_COLORS = {
-    1: {"red": 0.96, "green": 0.78, "blue": 0.78},   # red
-    2: {"red": 1.00, "green": 0.97, "blue": 0.68},   # yellow
-    3: {"red": 1.00, "green": 0.89, "blue": 0.68},   # orange
-    4: {"red": 0.76, "green": 0.93, "blue": 0.76},   # green
+    1: {"red": 1.00, "green": 0.94, "blue": 0.60},   # amber — нет почты
+    2: {"red": 0.96, "green": 0.78, "blue": 0.78},   # red — нет оплаты
+    3: {"red": 0.90, "green": 0.62, "blue": 0.62},   # dark red — failed
+    4: {"red": 1.00, "green": 0.97, "blue": 0.68},   # yellow — вове
+    5: {"red": 1.00, "green": 0.89, "blue": 0.68},   # orange — неполный
+    6: {"red": 0.76, "green": 0.93, "blue": 0.76},   # green — ок
 }
 
 COL_HEADERS = ["Имя", "Username", "Email", "Список Вовы", "Канал", "Чат",
@@ -983,14 +1102,17 @@ def write_to_sheet(gc, spreadsheet_id, tab_name, rows, analytics, unmatched, sea
 
     sh = gc.open_by_key(spreadsheet_id)
 
-    # Create or clear tab
-    try:
-        ws = sh.worksheet(tab_name)
-        ws.clear()
-        print(f"  Вкладка '{tab_name}' существует — очищаю")
-    except gspread.WorksheetNotFound:
-        ws = sh.add_worksheet(title=tab_name, rows=400, cols=12)
-        print(f"  Создана новая вкладка '{tab_name}'")
+    # Create new tab — never overwrite existing (to preserve manual edits)
+    existing_titles = {w.title for w in sh.worksheets()}
+    final_tab_name = tab_name
+    if tab_name in existing_titles:
+        counter = 2
+        while f"{tab_name} ({counter})" in existing_titles:
+            counter += 1
+        final_tab_name = f"{tab_name} ({counter})"
+        print(f"  Вкладка '{tab_name}' уже существует — создаю '{final_tab_name}'")
+    ws = sh.add_worksheet(title=final_tab_name, rows=400, cols=12)
+    print(f"  Создана новая вкладка '{final_tab_name}'")
 
     all_values = []
     row_meta = []  # (row_index_1based, type, group)
@@ -1054,12 +1176,14 @@ def write_to_sheet(gc, spreadsheet_id, tab_name, rows, analytics, unmatched, sea
         [],
         [f"🆕 Новых в этом месяце:", an["new_count"]],
         [f"👋 Вышли с прошлого месяца:", an["left_count"]],
+        [f"   кто вышел:", ", ".join(an["left_names"])],
         [],
         [f"💳 Stripe Paid:", f"{an['paid_count']} транзакций"],
         [f"  £35 renewals:", an["g35"]],
         [f"  £50 new members:", an["g50"]],
         [f"  Итого сборы:", f"£{an['revenue']:.0f} GBP"],
-        [f"❌ Failed платежи:", an["failed_count"]],
+        [f"❌ Failed (по людям, не строк):", an["failed_count"]],
+        [f"↩️ Refunded (оплатили и вернули):", an["refunded_count"]],
         [],
         [f"📧 Email coverage:", f"{an['with_email']}/{an['total_for_email']} ({an['email_pct']}%)"],
         [f"⚠️  Нечёткий матч (требует проверки):", an["uncertain_count"]],
@@ -1148,7 +1272,7 @@ def write_to_sheet(gc, spreadsheet_id, tab_name, rows, analytics, unmatched, sea
     if dim_requests:
         sh.batch_update({"requests": dim_requests})
 
-    print(f"  ✅ Вкладка '{tab_name}' записана: {len(rows)} строк")
+    print(f"  ✅ Вкладка '{final_tab_name}' записана: {len(rows)} строк")
 
 
 def _print_dry_run(rows, analytics, unmatched, tab_name):
@@ -1169,7 +1293,10 @@ def _print_dry_run(rows, analytics, unmatched, tab_name):
     print(f"\n  📊 АНАЛИТИКА:")
     print(f"  Участников: {an['total']}  |  Канал:{an['in_channel']} Чат:{an['in_chat']} Практика:{an['in_prak']}")
     print(f"  🆕 Новых: {an['new_count']}  |  👋 Вышли: {an['left_count']}")
-    print(f"  💳 Stripe Paid: {an['paid_count']} | £{an['revenue']:.0f} GBP | Failed: {an['failed_count']}")
+    if an["left_names"]:
+        print(f"     вышли: {', '.join(an['left_names'])}")
+    print(f"  💳 Stripe Paid: {an['paid_count']} транз. | £{an['revenue']:.0f} GBP | "
+          f"Failed: {an['failed_count']} чел. | Refunded: {an['refunded_count']} чел.")
     print(f"  📧 Email: {an['with_email']}/{an['total_for_email']} ({an['email_pct']}%)")
     print(f"  ⚠️  Нечёткий матч: {an['uncertain_count']}  |  ❓ Непривязанный Paid: {an['unmatched_paid']}")
     if an["actions"]:
@@ -1302,6 +1429,14 @@ def main():
             if tg_uname:
                 all_members_for_diff[uid]["username"] = tg_uname
 
+    # Include agreement emails in the lookup (e.g. khamzinaelvira@gmail.com → elvirakhamsina)
+    _agreements_for_lookup = load_tanya_agreements(report_date=date.today())
+    for uname_key, ag in _agreements_for_lookup.items():
+        em = ag.get("email", "").strip().lower()
+        if em and "@" in em and "." in em.split("@")[-1]:
+            extra_email_to_uname.setdefault(em, uname_key.lower())
+            extra_uname_to_email.setdefault(uname_key.lower(), em)
+
     stripe_matched, stripe_uncertain, stripe_unmatched = match_stripe_to_members(
         stripe_payments, all_members_for_diff, known_matches,
         extra_email_to_uname=extra_email_to_uname
@@ -1315,11 +1450,12 @@ def main():
 
     # Step 7: Build rows
     print("\n8. Сборка строк отчёта...")
-    agreements = load_tanya_agreements(report_date=date.today())
+    agreements = _agreements_for_lookup
     rows, members_info = build_rows(
         tg_members, sb_list_by_tgid, sb_extra, vars_by_tgid,
         stripe_matched, stripe_uncertain, new_uids, left_uids, season_start,
-        agreements=agreements
+        agreements=agreements,
+        extra_uname_to_email=extra_uname_to_email,
     )
     print(f"  Всего строк: {len(rows)}")
     for g in sorted(SECTION_HEADERS):

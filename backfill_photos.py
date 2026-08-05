@@ -6,12 +6,16 @@ Run: python3 backfill_photos.py
 import asyncio
 import json
 import os
+from pathlib import Path
 
+from dotenv import load_dotenv
 from telethon import TelegramClient
 
+load_dotenv(Path(__file__).parent / ".env")
+
 # ── Telegram config (same as fetch_new_posts.py) ──
-API_ID = 39940596
-API_HASH = "6653479906b6710fec6535892e519d58"
+API_ID = int(os.environ["TELEGRAM_API_ID"])
+API_HASH = os.environ["TELEGRAM_API_HASH"]
 SESSION_PATH = os.path.expanduser("~/session")
 
 CHANNEL_YEAR = {
