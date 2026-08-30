@@ -134,6 +134,7 @@ python3 generate_monthly_report.py --season-start 2026-04-23 --month "Май 202
 ### Хостинг
 - **Fly.io** (бесплатный tier) — выбран после того, как Railway оказался платным. Машина во Франкфурте (fra), 1GB encrypted volume для данных.
 - **GitHub Pages** — для статики (app.html, knowledge_base.js) на olyunyaa.github.io/secrets-library/
+- ⚠️ **РЕПОЗИТОРИЙ ДОЛЖЕН ОСТАВАТЬСЯ ПУБЛИЧНЫМ**: 30.08.2026 кто-то сделал его приватным → GitHub Pages (бесплатный план) снял сайт → вся статика 404 → «сломались» библиотека в мини-аппе и онбординг (бот при этом жив). Фикс: `gh api -X PATCH repos/Olyunyaa/secrets-library -f private=false` + заново включить Pages: `gh api -X POST repos/Olyunyaa/secrets-library/pages -f 'source[branch]=main' -f 'source[path]=/'`. Если нужен приватный репо — сначала купить GitHub Pro.
 
 ### Данные
 - **knowledge_base.js** — формат для прямой загрузки в браузер (`const POSTS_DATA = [...]`)
